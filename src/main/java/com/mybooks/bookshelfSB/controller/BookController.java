@@ -27,9 +27,9 @@ public class BookController {
         return bookRepository.findAll();
     }
 
-    //GET book with specified id. If it doesn't exist, throw an exception.
+    //GET book with specified id. If id doesn't exist, throw an exception.
     @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {  //@PathVariable - get id form url
+    public ResponseEntity<Book> getBookById(@PathVariable Long id) {  //@PathVariable - get id from url
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return ResponseEntity.ok(book);
     }
@@ -49,7 +49,7 @@ public class BookController {
     }
 
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<Map<String, Boolean>> deleteBookById(@PathVariable Long id){
+    public ResponseEntity<Map<String, Boolean>> deleteBookById(@PathVariable Long id) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         bookRepository.delete(book);
         Map<String, Boolean> response = new HashMap<>();
