@@ -11,6 +11,6 @@ public class ResourceNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public ResourceNotFoundException(Long id) {
-        super("Book with this id doesn't exist: " + id);
+        super("A book with this ID doesn't exist: " + id);
     }
 }
