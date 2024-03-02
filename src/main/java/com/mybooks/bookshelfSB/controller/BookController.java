@@ -1,5 +1,8 @@
 package com.mybooks.bookshelfSB.controller;
 
+import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
+import com.mybooks.bookshelfSB.model.Book;
+import com.mybooks.bookshelfSB.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -7,10 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.mybooks.bookshelfSB.model.Book;
-import com.mybooks.bookshelfSB.repository.BookRepository;
-import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
 
 //Makes this class a REST controller: will handle HTTP requests.
 @RestController
