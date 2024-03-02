@@ -30,12 +30,17 @@ public class Book {
     @Column(name = "modified_date", nullable = false)
     protected LocalDateTime lastModifiedDate;
 
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private BookStatus status;
+
     public Book() {
     }
 
-    public Book(String title, String author) {
+    public Book(String title, String author, BookStatus status) {
         this.title = title;
         this.author = author;
+        this.status = status;
     }
 
     public int getId() {
@@ -72,5 +77,13 @@ public class Book {
 
     public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public BookStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookStatus status) {
+        this.status = status;
     }
 }
