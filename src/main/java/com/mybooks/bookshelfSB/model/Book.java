@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.model;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,10 @@ public class Book {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "modified_date", nullable = false)
+    protected LocalDateTime lastModifiedDate;
 
     public Book() {
     }
@@ -59,5 +64,13 @@ public class Book {
 
     public LocalDateTime getCreatedDate() {
         return createdDate;
+    }
+
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 }
