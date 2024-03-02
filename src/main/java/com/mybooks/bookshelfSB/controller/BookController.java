@@ -17,9 +17,13 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:4200")  //Later remove or change adnotation.
 public class BookController {
 
+    private final BookRepository bookRepository;
+
     //Automatically injects an object.
     @Autowired
-    private BookRepository bookRepository;
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
 
     @GetMapping("/books")
     public List<Book> getAllBooks() {
