@@ -1,9 +1,14 @@
 package com.mybooks.bookshelfSB.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "books")
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
 
     @Id
@@ -15,6 +20,10 @@ public class Book {
 
     @Column(name = "author")
     private String author;
+
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
     public Book() {
     }
@@ -46,5 +55,13 @@ public class Book {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 }
