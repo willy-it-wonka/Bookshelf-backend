@@ -47,6 +47,7 @@ public class BookController {
         Book bookToUpdate = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         bookToUpdate.setTitle(book.getTitle());
         bookToUpdate.setAuthor(book.getAuthor());
+        bookToUpdate.setStatus(book.getStatus());
         Book updatedBook = bookRepository.save(bookToUpdate);
         return ResponseEntity.ok(updatedBook);
     }
