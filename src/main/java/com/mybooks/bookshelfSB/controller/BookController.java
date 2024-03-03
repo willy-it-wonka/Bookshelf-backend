@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.controller;
 
 import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
 import com.mybooks.bookshelfSB.model.Book;
+import com.mybooks.bookshelfSB.model.BookStatus;
 import com.mybooks.bookshelfSB.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,13 @@ public class BookController {
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {  //@PathVariable - get id from url
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         return ResponseEntity.ok(book);
+    }
+
+    //GET a list of books by status.
+    @GetMapping("/books/status/{status}") //In case: "/books/{status}" - would lead to a conflict with "/books/{id}".
+    public List<Book> getBookByStatus(@PathVariable String status) {
+        BookStatus bookStatus = BookStatus.valueOf(status.toUpperCase()); //Without this only address .../status/READ will be ok, .../status/read will not.
+        return bookRepository.findByStatus(bookStatus);
     }
 
     @PostMapping("/books")
