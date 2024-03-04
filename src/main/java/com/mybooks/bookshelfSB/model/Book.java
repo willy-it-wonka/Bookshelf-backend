@@ -34,6 +34,9 @@ public class Book {
     @Enumerated(EnumType.STRING)
     private BookStatus status;
 
+    @Column(name = "link_to_cover")
+    private String linkToCover;
+
     public Book() {
     }
 
@@ -85,5 +88,13 @@ public class Book {
 
     public void setStatus(BookStatus status) {
         this.status = status;
+    }
+
+    public String getLinkToCover() {
+        return linkToCover;
+    }
+
+    public void setLinkToCover(String linkToCover) {
+        this.linkToCover = linkToCover;
     }
 }
