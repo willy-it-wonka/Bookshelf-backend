@@ -19,26 +19,20 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name = "title")
     private String title;
-
-    @Column(name = "author")
     private String author;
 
-    @CreatedDate
-    @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @LastModifiedDate
-    @Column(name = "modified_date", nullable = false)
-    protected LocalDateTime lastModifiedDate;
-
-    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private BookStatus status;
 
-    @Column(name = "link_to_cover")
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    protected LocalDateTime lastModifiedDate;
+
     private String linkToCover;
 
     public Book() {}
