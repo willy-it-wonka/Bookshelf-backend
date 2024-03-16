@@ -1,9 +1,6 @@
-package com.mybooks.bookshelfSB.controller;
+package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
-import com.mybooks.bookshelfSB.model.Book;
-import com.mybooks.bookshelfSB.model.BookStatus;
-import com.mybooks.bookshelfSB.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +12,7 @@ import java.util.Map;
 //Makes this class a REST controller: will handle HTTP requests.
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")  //Later remove or change adnotation.
+@CrossOrigin //Later remove or change.
 public class BookController {
 
     private final BookRepository bookRepository;

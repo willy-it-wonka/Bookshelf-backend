@@ -1,4 +1,4 @@
-package com.mybooks.bookshelfSB.model;
+package com.mybooks.bookshelfSB.book;
 
 public enum BookStatus {
     WAITING,

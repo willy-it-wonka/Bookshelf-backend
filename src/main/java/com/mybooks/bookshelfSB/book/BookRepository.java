@@ -1,7 +1,5 @@
-package com.mybooks.bookshelfSB.repository;
+package com.mybooks.bookshelfSB.book;
 
-import com.mybooks.bookshelfSB.model.Book;
-import com.mybooks.bookshelfSB.model.BookStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

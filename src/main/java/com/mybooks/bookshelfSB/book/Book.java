@@ -1,4 +1,4 @@
-package com.mybooks.bookshelfSB.model;
+package com.mybooks.bookshelfSB.book;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
