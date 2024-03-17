@@ -16,8 +16,11 @@ public class User {
     private String nick;
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
 
-    public User() {}
+    public User() {
+    }
 
     public User(Long id, String nick, String email, String password) {
         this.id = id;
