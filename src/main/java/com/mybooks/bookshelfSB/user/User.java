@@ -3,12 +3,18 @@ package com.mybooks.bookshelfSB.user;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,14 +24,48 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+    private Boolean locked = false;
+    private Boolean enabled = false;
 
     public User() {
     }
 
-    public User(Long id, String nick, String email, String password) {
-        this.id = id;
+    public User(String nick, String email, String password, UserRole userRole) {
         this.nick = nick;
         this.email = email;
         this.password = password;
+        this.userRole = userRole;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(userRole.name());
+        return Collections.singletonList(simpleGrantedAuthority);
+    }
+
+    // Below are the getters we need to override (impl UserDetails), for the rest: @Getter Lombok.
+    @Override
+    public String getUsername() {
+        return nick;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !locked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 }
