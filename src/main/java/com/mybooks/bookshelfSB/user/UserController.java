@@ -1,9 +1,7 @@
 package com.mybooks.bookshelfSB.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -17,5 +15,9 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/register")
+    public String createUser(@RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
+    }
 
 }
