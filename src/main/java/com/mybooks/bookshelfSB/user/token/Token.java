@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.user.token;
 
+import com.mybooks.bookshelfSB.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,13 +23,17 @@ public class Token {
     private LocalDateTime confirmationDate;
     private LocalDateTime expirationDate;
 
+    @ManyToOne
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
+
     public Token() {
     }
 
-    public Token(String token, LocalDateTime creationDate, LocalDateTime confirmationDate, LocalDateTime expirationDate) {
+    public Token(String token, LocalDateTime creationDate, LocalDateTime expirationDate, User user) {
         this.token = token;
         this.creationDate = creationDate;
-        this.confirmationDate = confirmationDate;
         this.expirationDate = expirationDate;
+        this.user = user;
     }
 }

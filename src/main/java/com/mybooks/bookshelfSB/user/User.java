@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.user;
 
+import com.mybooks.bookshelfSB.user.token.Token;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +28,9 @@ public class User implements UserDetails {
     private UserRole userRole;
     private Boolean locked = false;
     private Boolean enabled = false;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Token> tokens;
 
     public User() {
     }
