@@ -1,20 +1,27 @@
 package com.mybooks.bookshelfSB.user;
 
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
+import com.mybooks.bookshelfSB.user.token.Token;
+import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     public String createUser(UserDto userDto) {
@@ -32,9 +39,14 @@ public class UserService {
         if(userExists(user))
             throw new EmailIssueException("is already associated with some account");
 
+        // Save user entity in the DB.
         userRepository.save(user);
 
-        return user.getNick();
+        // Create token and save it in the DB.
+        Token token = new Token(createConfirmationToken(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        tokenService.saveToken(token);
+
+        return String.format("nick: %s\ntoken: %s", user.getNick(), token.getToken());
     }
 
     // Returns true if the email address is already taken.
@@ -43,9 +55,13 @@ public class UserService {
     }
 
     // It checks that the email is correct before registration.
-    public static boolean isEmailValid(String email) {
+    public boolean isEmailValid(String email) {
         String regex = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
         return email.matches(regex);
+    }
+
+    public String createConfirmationToken() {
+        return UUID.randomUUID().toString();
     }
 
 }

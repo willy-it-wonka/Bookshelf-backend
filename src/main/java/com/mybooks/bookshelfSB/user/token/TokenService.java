@@ -13,4 +13,8 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
+    public void saveToken(Token token) {
+        tokenRepository.save(token);
+    }
+
 }
