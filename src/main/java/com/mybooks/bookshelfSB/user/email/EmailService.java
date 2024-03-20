@@ -16,11 +16,13 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final JavaMailSenderImpl fromProperties;
+    private final EmailMessageLoader emailMessageLoader;
 
     @Autowired
-    public EmailService(JavaMailSender javaMailSender, JavaMailSenderImpl fromProperties) {
+    public EmailService(JavaMailSender javaMailSender, JavaMailSenderImpl fromProperties, EmailMessageLoader emailMessageLoader) {
         this.javaMailSender = javaMailSender;
         this.fromProperties = fromProperties;
+        this.emailMessageLoader = emailMessageLoader;
     }
 
     // Send confirmation mail.
@@ -39,4 +41,8 @@ public class EmailService {
         }
     }
 
+    public String buildEmail(String name, String link) {
+        String htmlContent = emailMessageLoader.loadMessage("templates/message.html");
+        return htmlContent.replace("{name}", name).replace("{link}", link);
+    }
 }
