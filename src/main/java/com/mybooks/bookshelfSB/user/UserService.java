@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.user;
 
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
+import com.mybooks.bookshelfSB.user.email.EmailService;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +18,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.emailService = emailService;
     }
 
     public String createUser(UserDto userDto) {
@@ -46,6 +49,10 @@ public class UserService {
         // Create token and save it in the DB.
         Token token = new Token(createConfirmationToken(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
         tokenService.saveToken(token);
+
+        // Send an email with an account activation token.
+        String link = "http://localhost:8080/api/register/confirm?token=" + token.getToken();
+        emailService.send(userDto.getEmail(), emailService.buildEmail(userDto.getNick(), link));
 
         return String.format("nick: %s\ntoken: %s", user.getNick(), token.getToken());
     }
