@@ -20,4 +20,9 @@ public class UserController {
         return userService.createUser(userDto);
     }
 
+    @GetMapping("/register/confirm")
+    public String confirmToken(@RequestParam("token") String token) {
+        return userService.confirmToken(token);
+    }
+
 }

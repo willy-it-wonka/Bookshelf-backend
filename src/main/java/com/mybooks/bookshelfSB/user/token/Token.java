@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Table(name = "tokens")
 @Getter
 @Setter
-
 public class Token {
 
     @Id

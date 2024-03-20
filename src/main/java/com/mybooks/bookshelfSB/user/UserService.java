@@ -6,6 +6,7 @@ import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -64,4 +65,31 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
+    @Transactional
+    public String confirmToken(String token) {
+        // Get token from DB.
+        Token confirmationToken = tokenService.getToken(token)
+                .orElseThrow(() -> new IllegalStateException("Token not found."));
+
+        if(confirmationToken.getConfirmationDate() != null)
+            throw new IllegalStateException("Email already confirmed.");
+
+        // Check if the token is valid.
+        LocalDateTime expirationDate = confirmationToken.getExpirationDate();
+        if(expirationDate.isBefore(LocalDateTime.now()))
+            throw new IllegalStateException("Token expired.");
+
+        // Update "confirmation_date" in DB in table "tokens".
+        tokenService.setConfirmationDate(token);
+
+        // Update "enabled" in DB in table "users".
+        enableUser(confirmationToken.getUser().getEmail());
+
+        return "Token confirmed.";
+    }
+
+    // int → returns 0 if no modifications; >0 if updates DB
+    public int enableUser(String email) {
+        return userRepository.updateEnabled(email);
+    }
 }
