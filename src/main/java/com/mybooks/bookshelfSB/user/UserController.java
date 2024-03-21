@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.user;
 
+import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,10 +10,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final TokenService tokenService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("/register")
@@ -22,7 +25,7 @@ public class UserController {
 
     @GetMapping("/register/confirm")
     public String confirmToken(@RequestParam("token") String token) {
-        return userService.confirmToken(token);
+        return tokenService.confirmToken(token);
     }
 
 }
