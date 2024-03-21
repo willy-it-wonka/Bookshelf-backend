@@ -46,16 +46,16 @@ public class TokenService {
         return "Token confirmed.";
     }
 
-    public Optional<Token> getToken(String token) {
+    private Optional<Token> getToken(String token) {
         return tokenRepository.findByToken(token);
     }
 
     // int → returns 0 if no modifications; >0 if updates DB
-    public int setConfirmationDate(String token) {
+    private int setConfirmationDate(String token) {
         return tokenRepository.updateConfirmationDate(token, LocalDateTime.now());
     }
 
-    public int enableUser(String email) {
+    private int enableUser(String email) {
         return userRepository.updateEnabled(email);
     }
 }

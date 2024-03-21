@@ -57,17 +57,17 @@ public class UserService {
     }
 
     // Returns true if the email address is already taken.
-    public boolean userExists(User user) {
+    private boolean userExists(User user) {
         return userRepository.findByEmail(user.getEmail()).isPresent();
     }
 
     // It checks that the email is correct before registration.
-    public boolean isEmailValid(String email) {
+    private boolean isEmailValid(String email) {
         String regex = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
         return email.matches(regex);
     }
 
-    public String createConfirmationToken() {
+    private String createConfirmationToken() {
         return UUID.randomUUID().toString();
     }
 
