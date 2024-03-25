@@ -5,6 +5,9 @@ import com.mybooks.bookshelfSB.user.email.EmailService;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -27,9 +30,14 @@ public class UserService {
         this.emailService = emailService;
     }
 
+
+    /*
+     *    REGISTRATION
+     */
+
     public String createUser(UserDto userDto) {
         // Check if the email address is correct.
-        if(!isEmailValid(userDto.getEmail()))
+        if (!isEmailValid(userDto.getEmail()))
             throw new EmailIssueException("is invalid");
 
         User user = new User(
@@ -39,7 +47,7 @@ public class UserService {
                 UserRole.USER);
 
         // Check if the email address is taken.
-        if(userExists(user))
+        if (userExists(user))
             throw new EmailIssueException("is already associated with some account");
 
         // Save user entity in the DB.
@@ -69,6 +77,16 @@ public class UserService {
 
     private String createConfirmationToken() {
         return UUID.randomUUID().toString();
+    }
+
+
+    /*
+     *    LOGGING IN
+     */
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
     }
 
 }
