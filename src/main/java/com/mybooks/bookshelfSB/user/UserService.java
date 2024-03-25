@@ -89,4 +89,25 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
     }
 
+    public LoginResponse login(UserDto userDto) {
+        LoginResponse loginResponse = new LoginResponse();
+        try {
+            UserDetails user = loadUserByUsername(userDto.getEmail());
+
+            String encodedPassword = user.getPassword();
+
+            if (passwordEncoder.matches(userDto.getPassword(), encodedPassword)) {
+                loginResponse.setMessage("Successfully logged in.");
+                loginResponse.setStatus(true);
+            } else {
+                loginResponse.setMessage("Incorrect password.");
+                loginResponse.setStatus(false);
+            }
+        } catch (UsernameNotFoundException e) {
+            loginResponse.setMessage("User not found.");
+            loginResponse.setStatus(false);
+        }
+        return loginResponse;
+    }
+
 }
