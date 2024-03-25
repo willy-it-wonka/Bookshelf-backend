@@ -10,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -25,10 +26,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(POST, "/api/register").permitAll()
                         .requestMatchers(GET, "/api/register/confirm**").permitAll()
+                        .requestMatchers(POST, "/api/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationConfig.authenticationProvider());
