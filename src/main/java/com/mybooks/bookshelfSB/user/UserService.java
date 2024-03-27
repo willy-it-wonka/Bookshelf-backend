@@ -97,7 +97,7 @@ public class UserService implements UserDetailsService {
             String encodedPassword = user.getPassword();
 
             if (passwordEncoder.matches(userDto.getPassword(), encodedPassword)) {
-                loginResponse.setMessage("Successfully logged in.");
+                loginResponse.setMessage(getNick(userDto.getEmail()));
                 loginResponse.setStatus(true);
             } else {
                 loginResponse.setMessage("Incorrect password.");
@@ -108,6 +108,11 @@ public class UserService implements UserDetailsService {
             loginResponse.setStatus(false);
         }
         return loginResponse;
+    }
+
+    public String getNick(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
+        return user.getNick();
     }
 
 }
