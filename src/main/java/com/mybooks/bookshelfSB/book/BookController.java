@@ -9,7 +9,6 @@ import java.util.List;
 // Makes this class a REST controller: will handle HTTP requests.
 @RestController
 @RequestMapping("/api")
-@CrossOrigin // Later remove or change.
 public class BookController {
 
     private final BookService bookService;

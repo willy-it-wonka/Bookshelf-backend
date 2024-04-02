@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin // Later remove or change.
 public class UserController {
 
     private final UserService userService;
@@ -34,4 +33,5 @@ public class UserController {
         LoginResponse loginResponse = userService.login(userDto);
         return ResponseEntity.ok(loginResponse);
     }
+
 }
