@@ -115,4 +115,9 @@ public class UserService implements UserDetailsService {
         return user.getNick();
     }
 
+    public boolean isEnabled(String email) {
+        UserDetails user = loadUserByUsername(email);
+        return user.isEnabled();
+    }
+
 }

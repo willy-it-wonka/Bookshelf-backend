@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/register").permitAll()
                         .requestMatchers(GET, "/api/register/confirm**").permitAll()
                         .requestMatchers(POST, "/api/login").permitAll()
+                        // TODO: shouldn't be permitAll()
+                        .requestMatchers(GET, "/api/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationConfig.authenticationProvider())

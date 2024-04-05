@@ -34,4 +34,9 @@ public class UserController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    @GetMapping("/user/{email}")
+    public boolean isEnabled(@PathVariable String email) {
+        return userService.isEnabled(email);
+    }
+
 }
