@@ -54,12 +54,11 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         // Create token and save it in the DB.
-        Token token = new Token(createConfirmationToken(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        Token token = createConfirmationToken(user);
         tokenService.saveToken(token);
 
         // Send an email with an account activation token.
-        String link = "http://localhost:8080/api/register/confirm?token=" + token.getToken();
-        emailService.send(userDto.getEmail(), emailService.buildEmail(userDto.getNick(), link));
+        sendConfirmationEmail(token, userDto.getEmail(), userDto.getNick());
 
         return String.format("nick: %s\ntoken: %s", user.getNick(), token.getToken());
     }
@@ -75,8 +74,17 @@ public class UserService implements UserDetailsService {
         return email.matches(regex);
     }
 
-    private String createConfirmationToken() {
+    private String createUniversallyUniqueId() {
         return UUID.randomUUID().toString();
+    }
+
+    private Token createConfirmationToken(User user) {
+        return new Token(createUniversallyUniqueId(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+    }
+
+    private void sendConfirmationEmail(Token token, String addressee, String nick) {
+        String link = "http://localhost:8080/api/register/confirm?token=" + token.getToken();
+        emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 
 
