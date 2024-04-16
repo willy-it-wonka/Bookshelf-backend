@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
+import com.mybooks.bookshelfSB.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,11 +36,16 @@ public class Book {
 
     private String linkToCover;
 
+    @ManyToOne
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
+
     public Book() {}
 
-    public Book(String title, String author, BookStatus status) {
+    public Book(String title, String author, BookStatus status, User user) {
         this.title = title;
         this.author = author;
         this.status = status;
+        this.user = user;
     }
 }

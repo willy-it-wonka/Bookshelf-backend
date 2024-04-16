@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.user;
 
+import com.mybooks.bookshelfSB.book.Book;
 import com.mybooks.bookshelfSB.user.token.Token;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,6 +32,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private Set<Token> tokens;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Book> books;
 
     public User() {
     }
