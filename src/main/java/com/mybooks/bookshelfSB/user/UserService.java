@@ -55,7 +55,6 @@ public class UserService implements UserDetailsService {
 
         // Create token and save it in the DB.
         Token token = createConfirmationToken(user);
-        tokenService.saveToken(token);
 
         // Send an email with an account activation token.
         sendConfirmationEmail(token, userDto.getEmail(), userDto.getNick());
@@ -68,7 +67,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(user.getEmail()).isPresent();
     }
 
-    // It checks that the email is correct before registration.
     private boolean isEmailValid(String email) {
         String regex = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
         return email.matches(regex);
@@ -79,12 +77,20 @@ public class UserService implements UserDetailsService {
     }
 
     private Token createConfirmationToken(User user) {
-        return new Token(createUniversallyUniqueId(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        Token token = new Token(createUniversallyUniqueId(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        tokenService.saveToken(token);
+        return token;
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
         String link = "http://localhost:8080/api/register/confirm?token=" + token.getToken();
         emailService.send(addressee, emailService.buildEmail(nick, link));
+    }
+
+    public void sendNewConfirmationEmail(String email) {
+        User user = (User) loadUserByUsername(email);
+        Token token = createConfirmationToken(user);
+        sendConfirmationEmail(token, email, user.getNick());
     }
 
 
