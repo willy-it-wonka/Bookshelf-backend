@@ -1,4 +1,4 @@
-package com.mybooks.bookshelfSB.user;
+package com.mybooks.bookshelfSB.user.payload;
 
 import lombok.Getter;
 

@@ -2,6 +2,8 @@ package com.mybooks.bookshelfSB.user;
 
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
 import com.mybooks.bookshelfSB.user.email.EmailService;
+import com.mybooks.bookshelfSB.user.payload.LoginResponse;
+import com.mybooks.bookshelfSB.user.payload.UserDto;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +126,7 @@ public class UserService implements UserDetailsService {
         return loginResponse;
     }
 
-    public String getNick(String email) {
+    private String getNick(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
         return user.getNick();
     }
