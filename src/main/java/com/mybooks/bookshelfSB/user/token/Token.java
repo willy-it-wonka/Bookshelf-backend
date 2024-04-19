@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "tokens")
 @Getter
 @Setter
-public class Token {
+public class Token {   // Tokens used to confirm an email account.
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

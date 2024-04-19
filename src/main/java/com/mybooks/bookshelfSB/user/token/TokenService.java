@@ -29,12 +29,12 @@ public class TokenService {
         // Get token from DB.
         Token confirmationToken = getToken(token).orElseThrow(() -> new IllegalStateException("Token not found."));
 
-        if(confirmationToken.getConfirmationDate() != null)
+        if (confirmationToken.getConfirmationDate() != null)
             throw new IllegalStateException("Email already confirmed.");
 
         // Check if the token is valid.
         LocalDateTime expirationDate = confirmationToken.getExpirationDate();
-        if(expirationDate.isBefore(LocalDateTime.now()))
+        if (expirationDate.isBefore(LocalDateTime.now()))
             throw new IllegalStateException("Token expired.");
 
         // Update "confirmation_date" in DB in table "tokens".
