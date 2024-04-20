@@ -28,13 +28,16 @@ public class AuthenticationConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Get the user from the DB by email.
+    // Get the user from the DB by ID.
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+        return userIdString -> {
+            Long userId = Long.parseLong(userIdString);
+            return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+        };
     }
 
-    // Authenticate the user when login.
+    // User authentication during login.
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
