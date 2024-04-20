@@ -41,6 +41,7 @@ public class JsonWebToken {
     private String createJWT(Map<String, Object> claims, User user, long expiration) {
         JwtBuilder jwtBuilder = Jwts.builder()
                 .claims(claims)
+                .claim("nick", user.getNick())
                 .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))

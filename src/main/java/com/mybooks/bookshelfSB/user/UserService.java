@@ -133,11 +133,6 @@ public class UserService implements UserDetailsService {
         return loginResponse;
     }
 
-    private String getNick(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
-        return user.getNick();
-    }
-
     public boolean isEnabled(String email) {
         UserDetails user = loadUserByUsername(email);
         return user.isEnabled();
