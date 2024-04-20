@@ -108,6 +108,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
+    public User loadUserById(Long id) throws UsernameNotFoundException {
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+    }
+
     public LoginResponse login(UserDto userDto) {
         LoginResponse loginResponse = new LoginResponse();
         try {
