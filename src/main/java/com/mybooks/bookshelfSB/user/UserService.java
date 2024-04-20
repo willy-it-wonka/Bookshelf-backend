@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.user;
 
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
+import com.mybooks.bookshelfSB.security.JsonWebToken;
 import com.mybooks.bookshelfSB.user.email.EmailService;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
 import com.mybooks.bookshelfSB.user.payload.UserDto;
@@ -23,13 +24,15 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final JsonWebToken jsonWebToken;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService, JsonWebToken jsonWebToken) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.emailService = emailService;
+        this.jsonWebToken = jsonWebToken;
     }
 
 
@@ -102,18 +105,18 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("403 Forbidden"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
     public LoginResponse login(UserDto userDto) {
         LoginResponse loginResponse = new LoginResponse();
         try {
-            UserDetails user = loadUserByUsername(userDto.getEmail());
+            UserDetails userDetails = loadUserByUsername(userDto.getEmail());
 
-            String encodedPassword = user.getPassword();
+            String encodedPassword = userDetails.getPassword();
 
             if (passwordEncoder.matches(userDto.getPassword(), encodedPassword)) {
-                loginResponse.setMessage(getNick(userDto.getEmail()));
+                loginResponse.setMessage(jsonWebToken.generateToken((User) userDetails));
                 loginResponse.setStatus(true);
             } else {
                 loginResponse.setMessage("Incorrect password.");
