@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -17,16 +18,19 @@ import java.util.Arrays;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final AuthenticationConfig authenticationConfig;
+    private final JsonWebTokenFilter jsonWebTokenFilter;
 
     @Autowired
-    public SecurityConfig(AuthenticationConfig authenticationConfig) {
+    public SecurityConfig(AuthenticationConfig authenticationConfig, JsonWebTokenFilter jsonWebTokenFilter) {
         this.authenticationConfig = authenticationConfig;
+        this.jsonWebTokenFilter = jsonWebTokenFilter;
     }
 
     @Bean
@@ -38,12 +42,10 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/register").permitAll()
                         .requestMatchers(GET, "/api/register/confirm**").permitAll()
                         .requestMatchers(POST, "/api/login").permitAll()
-                        // TODO: shouldn't be permitAll()
-                        .requestMatchers(GET, "/api/enabled/**").permitAll()
-                        .requestMatchers(POST, "/api/newtoken/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationConfig.authenticationProvider())
+                .addFilterBefore(jsonWebTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutUrl("/api/logout")
                         .logoutSuccessHandler((request, response, authentication) ->
@@ -60,9 +62,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.addAllowedOrigin("http://localhost:4200");
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
