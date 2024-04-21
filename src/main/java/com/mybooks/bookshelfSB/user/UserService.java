@@ -40,7 +40,7 @@ public class UserService implements UserDetailsService {
      *    REGISTRATION
      */
 
-    public String createUser(UserDto userDto) {
+    String createUser(UserDto userDto) {
         // Check if the email address is correct.
         if (!isEmailValid(userDto.getEmail()))
             throw new EmailIssueException("is invalid");
@@ -92,10 +92,10 @@ public class UserService implements UserDetailsService {
         emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 
-    public void sendNewConfirmationEmail(String email) {
-        User user = (User) loadUserByUsername(email);
+    void sendNewConfirmationEmail(String userId) {
+        User user = loadUserById(Long.parseLong(userId));
         Token token = createConfirmationToken(user);
-        sendConfirmationEmail(token, email, user.getNick());
+        sendConfirmationEmail(token, user.getEmail(), user.getNick());
     }
 
 
@@ -112,7 +112,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
-    public LoginResponse login(UserDto userDto) {
+    LoginResponse login(UserDto userDto) {
         LoginResponse loginResponse = new LoginResponse();
         try {
             UserDetails userDetails = loadUserByUsername(userDto.getEmail());
@@ -133,8 +133,8 @@ public class UserService implements UserDetailsService {
         return loginResponse;
     }
 
-    public boolean isEnabled(String email) {
-        UserDetails user = loadUserByUsername(email);
+    boolean isEnabled(String userId) {
+        User user = loadUserById(Long.parseLong(userId));
         return user.isEnabled();
     }
 

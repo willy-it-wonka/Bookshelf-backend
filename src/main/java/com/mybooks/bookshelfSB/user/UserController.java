@@ -36,14 +36,14 @@ public class UserController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @GetMapping("/enabled/{email}")
-    public boolean isEnabled(@PathVariable String email) {
-        return userService.isEnabled(email);
+    @GetMapping("/enabled/{id}")
+    public boolean isEnabled(@PathVariable String id) {
+        return userService.isEnabled(id);
     }
 
-    @PostMapping("/newtoken/{email}")
-    public ResponseEntity<String> sendNewConfirmationEmail(@PathVariable String email) {
-        userService.sendNewConfirmationEmail(email);
+    @PostMapping("/new-conf-email/{id}")
+    public ResponseEntity<String> sendNewConfirmationEmail(@PathVariable String id) {
+        userService.sendNewConfirmationEmail(id);
         return ResponseEntity.ok("New email sent.");
     }
 
