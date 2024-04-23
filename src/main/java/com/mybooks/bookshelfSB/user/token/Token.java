@@ -24,15 +24,16 @@ public class Token {   // Tokens used to confirm an email account.
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private User tokenOwner;
 
     public Token() {
     }
 
-    public Token(String token, LocalDateTime creationDate, LocalDateTime expirationDate, User user) {
+    public Token(String token, LocalDateTime creationDate, LocalDateTime expirationDate, User tokenOwner) {
         this.token = token;
         this.creationDate = creationDate;
         this.expirationDate = expirationDate;
-        this.user = user;
+        this.tokenOwner = tokenOwner;
     }
+
 }

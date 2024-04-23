@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mybooks.bookshelfSB.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -36,16 +37,18 @@ public class Book {
 
     private String linkToCover;
 
+    @JsonBackReference   // Solve problems with cyclic object serialization and lazy initialization.
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private User bookOwner;
 
-    public Book() {}
+    public Book() {
+    }
 
-    public Book(String title, String author, BookStatus status, User user) {
+    public Book(String title, String author, BookStatus status, User bookOwner) {
         this.title = title;
         this.author = author;
         this.status = status;
-        this.user = user;
+        this.bookOwner = bookOwner;
     }
 }

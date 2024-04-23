@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mybooks.bookshelfSB.book.Book;
 import com.mybooks.bookshelfSB.user.token.Token;
 import jakarta.persistence.*;
@@ -30,10 +31,11 @@ public class User implements UserDetails {
     private Boolean locked = false;
     private Boolean enabled = false;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "tokenOwner")
     private Set<Token> tokens;
 
-    @OneToMany(mappedBy = "user")
+    @JsonManagedReference   // Solve problems with cyclic object serialization and lazy initialization.
+    @OneToMany(mappedBy = "bookOwner")
     private Set<Book> books;
 
     public User() {

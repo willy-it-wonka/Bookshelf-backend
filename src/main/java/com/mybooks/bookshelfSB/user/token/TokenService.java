@@ -41,7 +41,7 @@ public class TokenService {
         setConfirmationDate(token);
 
         // Update "enabled" in DB in table "users".
-        enableUser(confirmationToken.getUser().getEmail());
+        enableUser(confirmationToken.getTokenOwner().getEmail());
 
         return "Token confirmed.";
     }
