@@ -1,8 +1,10 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
+import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
+import com.mybooks.bookshelfSB.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,40 +20,47 @@ public class BookService {
     }
 
     // Get the list of user's books.
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    List<Book> getAllBooks(UserDetails userDetails) {
+        return bookRepository.findByBookOwner((User) userDetails);
     }
 
     // Get the book with specified id. If id doesn't exist, throw an exception.
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    Book getBookById(Long id, UserDetails userDetails) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+
+        // Checks if the logged-in user is the owner of the book with the specified id.
+        if (!book.getBookOwner().getId().equals(((User) userDetails).getId()))
+            throw new UnauthorizedAccessException();
+
+        return book;
     }
 
     // Get a list of books by status.
-    public List<Book> getBookByStatus(String status) {
+    List<Book> getBookByStatus(String status, UserDetails userDetails) {
         BookStatus bookStatus = BookStatus.valueOf(status.toUpperCase()); // Without this only address .../status/READ will be ok, .../status/read will not.
-        return bookRepository.findByStatus(bookStatus);
+        return bookRepository.findByStatusAndBookOwner(bookStatus, (User) userDetails);
     }
 
-    // Add the book to the list.
-    public Book createBook(Book book) {
+    // Add the book to the database.
+    Book createBook(Book book, UserDetails userDetails) {
+        book.setBookOwner((User) userDetails);
         return bookRepository.save(book);
     }
 
     // Get the book by id and modify it.
-    public ResponseEntity<Book> updateBook(Long id, Book book) {
-        Book bookToUpdate = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    Book updateBook(Long id, Book book, UserDetails userDetails) {
+        Book bookToUpdate = getBookById(id, userDetails);
         bookToUpdate.setTitle(book.getTitle());
         bookToUpdate.setAuthor(book.getAuthor());
         bookToUpdate.setStatus(book.getStatus());
         bookToUpdate.setLinkToCover(book.getLinkToCover());
-        Book updatedBook = bookRepository.save(bookToUpdate);
-        return ResponseEntity.ok(updatedBook);
+        return bookRepository.save(bookToUpdate);
     }
 
     // Delete the book with the specified id.
-    public void deleteBookById(Long id) {
-        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    void deleteBookById(Long id, UserDetails userDetails) {
+        Book book = getBookById(id, userDetails);
         bookRepository.delete(book);
     }
+
 }
