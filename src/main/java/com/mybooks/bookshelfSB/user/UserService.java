@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,7 +42,7 @@ public class UserService implements UserDetailsService {
      *    REGISTRATION
      */
 
-    String createUser(UserDto userDto) {
+    Map<String, String> createUser(UserDto userDto) {
         // Check if the email address is correct.
         if (!isEmailValid(userDto.getEmail()))
             throw new EmailIssueException("is invalid");
@@ -64,7 +66,9 @@ public class UserService implements UserDetailsService {
         // Send an email with an account activation token.
         sendConfirmationEmail(token, userDto.getEmail(), userDto.getNick());
 
-        return String.format("nick: %s\ntoken: %s", user.getNick(), token.getToken());
+        Map<String, String> response = new HashMap<>();
+        response.put("nick: " + user.getNick(), "token: " + token.getToken());
+        return response;
     }
 
     // Returns true if the email address is already taken.
