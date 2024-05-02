@@ -4,6 +4,7 @@ import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserRole;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -22,6 +23,12 @@ public class BookRepositoryTests {
 
     @Autowired
     private EntityManager entityManager;
+
+    @AfterEach
+    void tearDown() {
+        bookRepository.deleteAll();
+        entityManager.clear();
+    }
 
     @Test
     void givenNewBook_whenSave_thenSuccess() {
