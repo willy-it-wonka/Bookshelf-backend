@@ -61,9 +61,8 @@ class BookServiceTest {
     @Test
     void getBookById_BookDoesNotExist_ThrowsResourceNotFoundException() {
         Long idOfNonExistentBook = 999L;
-        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () -> {
-            bookService.getBookById(idOfNonExistentBook, user);
-        });
+        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () ->
+                bookService.getBookById(idOfNonExistentBook, user));
         assertEquals("Book with ID: 999 doesn't exist.", thrown.getMessage());
     }
 
@@ -73,9 +72,8 @@ class BookServiceTest {
         User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
         anotherUser.setId(2L);
 
-        UnauthorizedAccessException thrown = assertThrows(UnauthorizedAccessException.class, () -> {
-            bookService.getBookById(idOfUserFirstBook, anotherUser);
-        });
+        UnauthorizedAccessException thrown = assertThrows(UnauthorizedAccessException.class, () ->
+                bookService.getBookById(idOfUserFirstBook, anotherUser));
 
         assertEquals("You don't have authorization.", thrown.getMessage());
     }
@@ -124,17 +122,15 @@ class BookServiceTest {
         anotherUser.setId(2L);
         Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
 
-        assertThrows(UnauthorizedAccessException.class, () -> {
-            bookService.updateBook(1L, updatedDetails, anotherUser);
-        });
+        assertThrows(UnauthorizedAccessException.class, () ->
+                bookService.updateBook(1L, updatedDetails, anotherUser));
     }
 
     @Test
     void updateBook_BookDoesNotExist_ThrowsResourceNotFoundException() {
         Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
-        assertThrows(ResourceNotFoundException.class, () -> {
-            bookService.updateBook(999L, updatedDetails, user);
-        });
+        assertThrows(ResourceNotFoundException.class, () ->
+                bookService.updateBook(999L, updatedDetails, user));
     }
 
     @Test
@@ -146,9 +142,8 @@ class BookServiceTest {
 
     @Test
     void deleteBookById_BookDoesNotExist_ThrowsResourceNotFoundException() {
-        assertThrows(ResourceNotFoundException.class, () -> {
-            bookService.deleteBookById(999L, user);
-        });
+        assertThrows(ResourceNotFoundException.class, () ->
+                bookService.deleteBookById(999L, user));
     }
 
 }
