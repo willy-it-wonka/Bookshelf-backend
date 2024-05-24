@@ -57,7 +57,7 @@ public class User implements UserDetails {
     // Below are the getters we need to override (impl UserDetails), for the rest: @Getter Lombok.
     @Override
     public String getUsername() {
-        return nick;
+        return email;
     }
 
     @Override
