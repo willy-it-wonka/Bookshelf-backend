@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -18,8 +19,11 @@ import java.util.function.Function;
 @Component
 public class JsonWebToken {
 
-    private static final String SECRET_KEY = "93721485036254182059368741293054786147565149476321988498446591465";
-    private static final long EXPIRATION = 259_200_000; // 3 days
+    @Value("${security.jwt.secret}")
+    private String secretKey;
+
+    @Value("${security.jwt.expiration}")
+    private long expiration;
 
     public String generateToken(User user) {
         return generateToken(new HashMap<>(), user);
@@ -36,7 +40,7 @@ public class JsonWebToken {
 
     private String generateToken(Map<String, Object> extraClaims, User user) {
         extraClaims.put("nick", user.getNick());
-        return createJWT(extraClaims, user, EXPIRATION);
+        return createJWT(extraClaims, user, expiration);
     }
 
     private String createJWT(Map<String, Object> claims, User user, long expiration) {
@@ -52,7 +56,7 @@ public class JsonWebToken {
     // Generates an HMAC signature key based on the "secretKey". The key is decoded from Base64
     // format and used for signing JWT tokens to ensure their authenticity.
     private Key generateSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
