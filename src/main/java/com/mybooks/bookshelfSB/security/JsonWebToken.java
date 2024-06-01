@@ -35,13 +35,13 @@ public class JsonWebToken {
     }
 
     private String generateToken(Map<String, Object> extraClaims, User user) {
+        extraClaims.put("nick", user.getNick());
         return createJWT(extraClaims, user, EXPIRATION);
     }
 
     private String createJWT(Map<String, Object> claims, User user, long expiration) {
         JwtBuilder jwtBuilder = Jwts.builder()
                 .claims(claims)
-                .claim("nick", user.getNick())
                 .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
