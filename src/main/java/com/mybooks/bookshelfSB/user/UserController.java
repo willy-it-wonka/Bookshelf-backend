@@ -4,7 +4,6 @@ import com.mybooks.bookshelfSB.user.payload.LoginResponse;
 import com.mybooks.bookshelfSB.user.payload.UserDto;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -23,8 +22,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> createUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.createUser(userDto));
+    public Map<String, String> createUser(@RequestBody UserDto userDto) {
+        return userService.createUser(userDto);
     }
 
     @GetMapping("/register/confirm")
@@ -33,9 +32,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserDto userDto) {
-        LoginResponse loginResponse = userService.login(userDto);
-        return ResponseEntity.ok(loginResponse);
+    public LoginResponse loginUser(@RequestBody UserDto userDto) {
+        return userService.login(userDto);
     }
 
     @GetMapping("/enabled/{id}")
@@ -44,9 +42,9 @@ public class UserController {
     }
 
     @PostMapping("/new-conf-email/{id}")
-    public ResponseEntity<String> sendNewConfirmationEmail(@PathVariable String id) {
+    public String sendNewConfirmationEmail(@PathVariable String id) {
         userService.sendNewConfirmationEmail(id);
-        return ResponseEntity.ok("New email sent.");
+        return "A new email has been sent.";
     }
 
 }
