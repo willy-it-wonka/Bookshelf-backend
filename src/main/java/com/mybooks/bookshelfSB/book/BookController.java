@@ -1,7 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +24,8 @@ public class BookController {
     }
 
     @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
-        Book book = bookService.getBookById(id, userDetails);
-        return ResponseEntity.ok(book);
+    public Book getBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
+        return bookService.getBookById(id, userDetails);
     }
 
     @GetMapping("/books/status/{status}") // In case: "/books/{status}" - would lead to a conflict with "/books/{id}".
@@ -41,9 +39,8 @@ public class BookController {
     }
 
     @PutMapping("/books/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book, @AuthenticationPrincipal UserDetails userDetails) {
-        Book updatedBook = bookService.updateBook(id, book, userDetails);
-        return ResponseEntity.ok(updatedBook);
+    public Book updateBook(@PathVariable Long id, @RequestBody Book book, @AuthenticationPrincipal UserDetails userDetails) {
+        return bookService.updateBook(id, book, userDetails);
     }
 
     @DeleteMapping("/books/{id}")
