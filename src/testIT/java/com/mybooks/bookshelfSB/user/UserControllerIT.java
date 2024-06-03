@@ -162,7 +162,7 @@ public class UserControllerIT {
 
         mockMvc.perform(post("/api/new-conf-email/{id}", userId))
                 .andExpect(status().isOk())
-                .andExpect(content().string("New email sent."));
+                .andExpect(content().string("A new email has been sent."));
     }
 
 }
