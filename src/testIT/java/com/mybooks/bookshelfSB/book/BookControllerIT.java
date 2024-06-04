@@ -63,7 +63,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com") // Mock logged-in user.
-    void getAllBooks_UserIsAuthorized_ReturnsListOfBooks() throws Exception {
+    void whenUserAuthorized_ReturnListOfBooks() throws Exception {
         when(bookService.getAllBooks(eq(userDetails))).thenReturn(books);
 
         mockMvc.perform(get("/api/books")
@@ -76,7 +76,7 @@ public class BookControllerIT {
 
     @Test
     // Unauthorized request.
-    void getAllBooks_UserIsNotAuthorized_ReturnsForbidden() throws Exception {
+    void whenUserNotAuthorized_ReturnForbidden() throws Exception {
         when(bookService.getAllBooks(eq(userDetails))).thenReturn(books);
 
         mockMvc.perform(get("/api/books")
@@ -86,7 +86,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void getBookById_BookExistsAndUserIsAuthorized_ReturnsBook() throws Exception {
+    void whenBookExistsByIdAndUserAuthorized_ReturnBook() throws Exception {
         Long pathVariable = 1L;
         when(bookService.getBookById(eq(pathVariable), eq(userDetails))).thenReturn(book1);
 
@@ -99,7 +99,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void getBookById_BookDoesNotExist_ThrowsResourceNotFoundException() throws Exception {
+    void whenBookDoesNotExistById_ThrowResourceNotFoundException() throws Exception {
         Long pathVariable = 999L;
         when(bookService.getBookById(eq(pathVariable), eq(userDetails))).thenThrow(new ResourceNotFoundException(pathVariable));
 
@@ -111,7 +111,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void getBookByStatus_BooksExistAndUserIsAuthorized_ReturnsBooksList() throws Exception {
+    void whenBooksExistByStatusAndUserAuthorized_ReturnListOfBooks() throws Exception {
         String status = "READ";
         when(bookService.getBookByStatus(eq(status), eq(userDetails))).thenReturn(Collections.singletonList(book2));
 
@@ -124,7 +124,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void createBook_CorrectDataProvided_ReturnsSavedBook() throws Exception {
+    void whenCorrectBookDataProvided_ReturnSavedBook() throws Exception {
         when(bookService.createBook(any(Book.class), eq(userDetails))).thenReturn(book1);
 
         mockMvc.perform(post("/api/books")
@@ -137,7 +137,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void updateBook_BookExistsAndUserIsAuthorized_ReturnsUpdatedBook() throws Exception {
+    void whenBookExistsAndUserAuthorized_ReturnUpdatedBook() throws Exception {
         Book updatedBook1 = new Book("Updated Title", "Author1", BookStatus.WAITING, user);
         updatedBook1.setId(1L);
         when(bookService.updateBook(eq(book1.getId()), any(Book.class), eq(userDetails))).thenReturn(updatedBook1);
@@ -151,7 +151,7 @@ public class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void deleteBookById_BookExistsAndUserIsAuthorized_DeletesBook() throws Exception {
+    void whenBookExistsByIdAndUserAuthorized_DeleteBook() throws Exception {
         Long bookId = 1L;
 
         mockMvc.perform(delete("/api/books/{id}", bookId))

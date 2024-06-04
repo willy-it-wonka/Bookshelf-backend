@@ -61,13 +61,13 @@ public class TokenRepositoryIT {
     }
 
     @Test
-    void save_CorrectDataProvided_SavesToken() {
+    void whenCorrectTokenDataProvided_SaveToken() {
         Token savedToken = tokenRepository.save(token);
         assertThat(entityManager.find(Token.class, savedToken.getId())).isEqualTo(token);
     }
 
     @Test
-    void findByToken_TokenFound_ReturnsIt() {
+    void whenTokenFound_ReturnToken() {
         entityManager.persist(token);
 
         Optional<Token> foundToken = tokenRepository.findByToken(token.getToken());
@@ -77,14 +77,14 @@ public class TokenRepositoryIT {
     }
 
     @Test
-    void findByToken_NonExistingToken_ReturnsEmpty() {
+    void whenTokenDoesNotExist_ReturnEmpty() {
         entityManager.persist(token);
         Optional<Token> notFoundToken = tokenRepository.findByToken("wrong-token");
         assertThat(notFoundToken).isNotPresent();
     }
 
     @Test
-    void updateConfirmationDate_WithValidToken_UpdatesAndReturnsMoreThanZero() {
+    void whenValidToken_UpdateConfirmationDateAndReturnPositive() {
         entityManager.persist(token);
         LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
 
@@ -96,7 +96,7 @@ public class TokenRepositoryIT {
     }
 
     @Test
-    void updateConfirmationDate_WithInvalidToken_NoUpdatesAndReturnsZero() {
+    void whenInvalidToken_NoUpdateAndReturnZero() {
         entityManager.persist(token);
         LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
 

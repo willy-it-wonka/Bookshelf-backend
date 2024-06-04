@@ -45,7 +45,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_CorrectDataProvided_CreatesUserAndSendsEmail() {
+    void whenCorrectUserDataProvided_CreateUserAndSendEmail() {
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
         String encodedPassword = "encodedPassword";
         String emailContent = "Mocked email content";
@@ -63,7 +63,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_InvalidEmail_ThrowsEmailIssueException() {
+    void whenInvalidEmail_ThrowEmailIssueException() {
         UserDto userDto = new UserDto("Tom", "invalidEmail", "123");
 
         EmailIssueException e = assertThrows(EmailIssueException.class, () ->
@@ -73,7 +73,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createUser_EmailAlreadyTaken_ThrowsEmailIssueException() {
+    void whenEmailAlreadyTaken_ThrowEmailIssueException() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
@@ -85,7 +85,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void sendNewConfirmationEmail_UserExists_EmailSent() {
+    void whenUserExistsAndAsksForNewConfirmation_SendNewConfirmationEmail() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         String emailContent = "Mocked email content";
@@ -98,7 +98,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void loadUserByUsername_UserExists_ReturnsUserDetails() {
+    void whenUserExistsByUsername_ReturnUserDetails() {
         User existingUser = new User("Martin", "martin@gmail.com", "123", UserRole.USER);
         userRepository.save(existingUser);
 
@@ -108,7 +108,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void loadUserByUsername_UserDoesNotExist_ThrowsUsernameNotFoundException() {
+    void whenUserDoesNotExistByUsername_ThrowUsernameNotFoundException() {
         String nonExistentEmail = "wrong@email.com";
 
         UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
@@ -118,7 +118,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void loadUserById_UserExists_ReturnsUser() {
+    void whenUserExistsById_ReturnUser() {
         User existingUser = new User("Martin", "martin@gmail.com", "123", UserRole.USER);
         userRepository.save(existingUser);
 
@@ -128,7 +128,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void loadUserById_UserDoesNotExist_ThrowsUsernameNotFoundException() {
+    void whenUserDoesNotExistById_ThrowUsernameNotFoundException() {
         Long nonExistentUserId = 999L;
 
         UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
@@ -138,7 +138,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void login_WithCorrectCredentials_ReturnsSuccessfulLoginResponse() {
+    void whenCredentialsCorrect_ReturnSuccessfulLoginResponse() {
         User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
         when(passwordEncoder.matches("123", user.getPassword())).thenReturn(true);
@@ -152,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void login_WithIncorrectPassword_ReturnsFailureLoginResponse() {
+    void whenIncorrectPassword_ReturnFailureLoginResponse() {
         User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "wrongPassword");
@@ -164,7 +164,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void login_UserDoesNotExist_ReturnsFailureLoginResponse() {
+    void whenUserDoesNotExist_ReturnFailureLoginResponse() {
         UserDto userDto = new UserDto("non", "non@gmail.com", "123");
         // Don't save user in InMemoryUserRepository.
 
@@ -175,7 +175,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void isEnabled_WhenUserEnabled_ReturnsTrue() {
+    void whenUserEnabled_ReturnTrue() {
         User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
         user.setEnabled(true);
         userRepository.save(user);
@@ -184,7 +184,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void isEnabled_WhenUserDisabled_ReturnsFalse() {
+    void whenUserDisabled_ReturnFalse() {
         User user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         user.setEnabled(false);
         userRepository.save(user);

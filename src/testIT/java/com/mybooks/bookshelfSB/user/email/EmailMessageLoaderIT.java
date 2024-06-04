@@ -14,7 +14,7 @@ public class EmailMessageLoaderIT {
     private EmailMessageLoader emailMessageLoader;
 
     @Test
-    void loadMessage_WithCorrectPath_LoadsMessage() {
+    void whenCorrectPath_LoadMessage() {
         String location = "templates/message.html";
         String expectedContentStart = "<!DOCTYPE html>";
 
@@ -29,7 +29,7 @@ public class EmailMessageLoaderIT {
     }
 
     @Test
-    void loadMessage_WithIncorrectPath_ThrowsIllegalStateException() {
+    void whenIncorrectPath_ThrowIllegalStateException() {
         String invalidLocation = "templates/wrong.html";
 
         IllegalStateException e = assertThrows(IllegalStateException.class, () ->

@@ -28,7 +28,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void send_CorrectDataProvided_SendsEmail() throws MessagingException {
+    void whenCorrectEmailDataProvided_SendEmail() throws MessagingException {
         String addressee = "test@gmail.com";
         String message = "Message content.";
         MimeMessage mimeMessage = mock(MimeMessage.class);
@@ -44,7 +44,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void send_EmailSendingFails_ThrowsIllegalStateException() {
+    void whenEmailSendingFails_ThrowIllegalStateException() {
         String addressee = "test@gmail.com";
         String message = "Message content.";
         when(javaMailSender.createMimeMessage()).thenThrow(new IllegalStateException());
@@ -54,7 +54,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void buildEmail_CorrectReplacement_ReturnsBuiltEmail() {
+    void whenCorrectReplacement_ReturnBuiltEmail() {
         String name = "John";
         String link = "http://test.com/confirm?token=";
         String templateContent = "Hi {name}, please visit {link} to activate your account.";

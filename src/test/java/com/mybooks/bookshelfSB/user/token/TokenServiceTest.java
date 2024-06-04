@@ -41,7 +41,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void saveToken_CorrectDataProvided_SavesToken() {
+    void whenCorrectTokenDataProvided_SaveToken() {
         tokenService.saveToken(token);
 
         Optional<Token> foundToken = tokenRepository.findByToken("test-token");
@@ -50,7 +50,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void confirmToken_TokenExists_ConfirmsSuccessfully() {
+    void whenTokenExists_ConfirmToken() {
         tokenRepository.save(token);
 
         String result = tokenService.confirmToken(token.getToken());
@@ -66,7 +66,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void confirmToken_TokenDoesNotExist_ThrowsIllegalStateException() {
+    void whenTokenToConfirmationDoesNotExist_ThrowIllegalStateException() {
         String invalidToken = "invalid-token";
 
         IllegalStateException e = assertThrows(IllegalStateException.class, () ->
@@ -76,7 +76,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void confirmToken_TokenAlreadyConfirmed_ThrowsIllegalStateException() {
+    void whenTokenAlreadyConfirmed_ThrowIllegalStateException() {
         token.setConfirmationDate(testTime.minusMinutes(5));
         tokenRepository.save(token);
 
@@ -87,7 +87,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void confirmToken_TokenExpired_ThrowsIllegalStateException() {
+    void whenTokenExpired_ThrowIllegalStateException() {
         token.setExpirationDate(testTime.minusMinutes(60));
         tokenRepository.save(token);
 

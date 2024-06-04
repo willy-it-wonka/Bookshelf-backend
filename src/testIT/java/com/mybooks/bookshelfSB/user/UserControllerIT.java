@@ -39,7 +39,7 @@ public class UserControllerIT {
     private TokenService tokenService;
 
     @Test
-    void createUser_CorrectUserDtoProvided_ReturnsMapAndStatusOk() throws Exception {
+    void whenCorrectUserDtoProvided_CreateUserAndReturnMap() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "123");
         Map<String, String> expectedResponse = Map.of("nick", "token");
         when(userService.createUser(any(UserDto.class))).thenReturn(expectedResponse);
@@ -53,7 +53,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void createUser_WithInvalidEmail_ReturnsBadRequest() throws Exception {
+    void whenInvalidEmail_ReturnBadRequest() throws Exception {
         UserDto userDto = new UserDto("user", "invalid-email", "123");
         when(userService.createUser(any(UserDto.class))).thenThrow(new EmailIssueException("is invalid"));
 
@@ -65,7 +65,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void createUser_WithEmailAlreadyExists_ReturnsBadRequest() throws Exception {
+    void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "123");
         when(userService.createUser(any(UserDto.class))).thenThrow(new EmailIssueException("is already associated with some account"));
 
@@ -77,7 +77,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void confirmToken_TokenIsValid_ReturnsConfirmationMessage() throws Exception {
+    void whenTokenIsValid_ReturnConfirmationMessage() throws Exception {
         String validToken = "token";
         String response = "Token confirmed.";
         when(tokenService.confirmToken(anyString())).thenReturn(response);
@@ -90,7 +90,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void confirmToken_TokenIsExpired_ReturnsErrorMessage() throws Exception {
+    void whenTokenIsExpired_ReturnErrorMessage() throws Exception {
         String expiredToken = "expired-token";
         String response = "Token expired.";
         when(tokenService.confirmToken(anyString())).thenThrow(new IllegalStateException(response));
@@ -103,7 +103,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void loginUser_CorrectCredentialsProvided_ReturnsJwt() throws Exception {
+    void whenCorrectCredentialsProvided_LoginAndReturnJwt() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "123");
         LoginResponse response = new LoginResponse("JWT", true);
         when(userService.login(any(UserDto.class))).thenReturn(response);
@@ -117,7 +117,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void loginUser_WithIncorrectCredentials_ReturnsErrorMessage() throws Exception {
+    void whenIncorrectCredentialsProvided_ReturnErrorMessage() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "wrongPass");
         LoginResponse response = new LoginResponse("Incorrect password.", false);
         when(userService.login(any(UserDto.class))).thenReturn(response);
@@ -131,7 +131,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void loginUser_NonExistentUser_ReturnsErrorMessage() throws Exception {
+    void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
         UserDto userDto = new UserDto("user", "nonexistent@gmail.com", "123");
         LoginResponse response = new LoginResponse("User not found.", false);
         when(userService.login(any(UserDto.class))).thenReturn(response);
@@ -145,7 +145,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void isEnabled_CorrectUserId_ReturnsUserStatus() throws Exception {
+    void whenCorrectUserId_ReturnUserEnabled() throws Exception {
         String userId = "1";
         boolean isEnabled = true;
         when(userService.isEnabled(anyString())).thenReturn(isEnabled);
@@ -157,7 +157,7 @@ public class UserControllerIT {
     }
 
     @Test
-    void sendNewConfirmationEmail_CorrectUserId_SendsEmail() throws Exception {
+    void whenCorrectUserId_SendNewConfirmationEmail() throws Exception {
         String userId = "1";
 
         mockMvc.perform(post("/api/new-conf-email/{id}", userId))

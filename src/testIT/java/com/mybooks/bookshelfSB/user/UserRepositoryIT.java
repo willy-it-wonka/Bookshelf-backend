@@ -55,13 +55,13 @@ public class UserRepositoryIT {
     }
 
     @Test
-    void save_CorrectDataProvided_SavesUser() {
+    void whenCorrectUserDataProvided_SaveUser() {
         User savedUser = userRepository.save(user);
         assertThat(entityManager.find(User.class, savedUser.getId())).isEqualTo(user);
     }
 
     @Test
-    void findByEmail_ExistingEmail_ReturnsUser() {
+    void whenEmailExists_ReturnUser() {
         entityManager.persist(user);
 
         Optional<User> foundUser = userRepository.findByEmail(user.getEmail());
@@ -71,14 +71,14 @@ public class UserRepositoryIT {
     }
 
     @Test
-    void findByEmail_NonExistingEmail_ReturnsEmpty() {
+    void whenEmailDoesNotExist_ReturnEmpty() {
         entityManager.persist(user);
         Optional<User> notFoundUser = userRepository.findByEmail("wrong@gmail.com");
         assertThat(notFoundUser).isNotPresent();
     }
 
     @Test
-    void findById_ExistingId_ReturnsUser() {
+    void whenIdExists_ReturnUser() {
         entityManager.persist(user);
 
         Optional<User> foundUser = userRepository.findById(user.getId());
@@ -88,14 +88,14 @@ public class UserRepositoryIT {
     }
 
     @Test
-    void findById_NonExistingId_ReturnsEmpty() {
+    void whenIdDoesNotExist_ReturnEmpty() {
         entityManager.persist(user);
         Optional<User> notFoundUser = userRepository.findById(999L);
         assertThat(notFoundUser).isNotPresent();
     }
 
     @Test
-    void updateEnabled_ExistingEmail_UpdatesAndReturnsMoreThanZero() {
+    void whenEmailExists_UpdateEnabledAndReturnPositive() {
         user.setEnabled(false);
         entityManager.persist(user);
 
@@ -107,7 +107,7 @@ public class UserRepositoryIT {
     }
 
     @Test
-    void updateEnabled_ExistingEmail_NoUpdatesAndReturnsZero() {
+    void whenEmailDoesNotExist_NoUpdateAndReturnZero() {
         user.setEnabled(true);
         entityManager.persist(user);
 

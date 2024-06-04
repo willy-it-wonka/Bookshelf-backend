@@ -61,27 +61,27 @@ public class BookRepositoryIT {
     }
 
     @Test
-    void save_CorrectDataProvided_SavesBook() {
+    void whenCorrectBookDataProvided_SaveBook() {
         Book savedBook = bookRepository.save(book);
         assertThat(entityManager.find(Book.class, savedBook.getId())).isEqualTo(book);
     }
 
     @Test
-    void findById_FoundBook_ReturnsBook() {
+    void whenBookFoundById_ReturnBook() {
         entityManager.persist(book);
         Optional<Book> retrievedBook = bookRepository.findById(book.getId());
         assertThat(retrievedBook).contains(book);
     }
 
     @Test
-    void delete_ValidDeletion_RemovesBookFromDB() {
+    void whenValidDeletion_RemoveBookFromDB() {
         entityManager.persist(book);
         bookRepository.delete(book);
         assertThat(entityManager.find(Book.class, book.getId())).isNull();
     }
 
     @Test
-    void findByBookOwner_FoundBooks_ReturnsTheOwnerBooks() {
+    void whenBooksFoundByOwner_ReturnOwnerBooks() {
         Book book1 = new Book("Title1", "Author1", BookStatus.WAITING, user);
         Book book2 = new Book("Title2", "Author2", BookStatus.WAITING, user);
         Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, user);
@@ -93,7 +93,7 @@ public class BookRepositoryIT {
     }
 
     @Test
-    void findByStatusAndBookOwner_FoundBooks_ReturnsTheOwnerBooksByStatus() {
+    void whenBooksFoundByStatusAndOwner_ReturnOwnerBooksByStatus() {
         Book book1 = new Book("Title1", "Author1", BookStatus.READ, user);
         Book book2 = new Book("Title2", "Author2", BookStatus.READ, user);
         Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, user);
