@@ -7,7 +7,6 @@ import com.mybooks.bookshelfSB.user.payload.LoginResponse;
 import com.mybooks.bookshelfSB.user.payload.UserDto;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +27,6 @@ public class UserService implements UserDetailsService {
     private final EmailService emailService;
     private final JsonWebToken jsonWebToken;
 
-    @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService, JsonWebToken jsonWebToken) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

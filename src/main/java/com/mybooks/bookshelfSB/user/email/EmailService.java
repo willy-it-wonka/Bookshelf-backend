@@ -2,7 +2,6 @@ package com.mybooks.bookshelfSB.user.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,7 +17,6 @@ public class EmailService {
     private final JavaMailSenderImpl fromProperties;
     private final EmailMessageLoader emailMessageLoader;
 
-    @Autowired
     public EmailService(JavaMailSender javaMailSender, JavaMailSenderImpl fromProperties, EmailMessageLoader emailMessageLoader) {
         this.javaMailSender = javaMailSender;
         this.fromProperties = fromProperties;

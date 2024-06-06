@@ -3,7 +3,6 @@ package com.mybooks.bookshelfSB.user;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
 import com.mybooks.bookshelfSB.user.payload.UserDto;
 import com.mybooks.bookshelfSB.user.token.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -15,7 +14,6 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
 
-    @Autowired
     public UserController(UserService userService, TokenService tokenService) {
         this.userService = userService;
         this.tokenService = tokenService;
