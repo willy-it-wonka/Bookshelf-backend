@@ -35,14 +35,14 @@ class BookServiceTest {
 
     @Test
     void whenBooksExist_ReturnListOfUserBooks() {
-        List<Book> books = bookService.getAllBooks(user);
+        List<Book> books = bookService.getAllUserBooks(user);
         assertEquals(2, books.size());
     }
 
     @Test
     void whenNoBooks_ReturnEmptyList() {
         User sadUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
-        List<Book> books = bookService.getAllBooks(sadUser);
+        List<Book> books = bookService.getAllUserBooks(sadUser);
         assertTrue(books.isEmpty());
     }
 
@@ -51,7 +51,7 @@ class BookServiceTest {
         Book expectedBook = new Book("Title 1", "Author 1", BookStatus.WAITING, user);
         Long expectedBookId = 1L;
 
-        Book foundBook = bookService.getBookById(expectedBookId, user);
+        Book foundBook = bookService.getUserBookById(expectedBookId, user);
 
         assertNotNull(foundBook);
         assertEquals(expectedBookId, foundBook.getId());
@@ -62,7 +62,7 @@ class BookServiceTest {
     void whenBookWithGivenIdDoesNotExist_ThrowResourceNotFoundException() {
         Long idOfNonExistentBook = 999L;
         ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () ->
-                bookService.getBookById(idOfNonExistentBook, user));
+                bookService.getUserBookById(idOfNonExistentBook, user));
         assertEquals("Book with ID: 999 doesn't exist.", thrown.getMessage());
     }
 
@@ -73,14 +73,14 @@ class BookServiceTest {
         anotherUser.setId(2L);
 
         UnauthorizedAccessException thrown = assertThrows(UnauthorizedAccessException.class, () ->
-                bookService.getBookById(idOfUserFirstBook, anotherUser));
+                bookService.getUserBookById(idOfUserFirstBook, anotherUser));
 
         assertEquals("You don't have authorization.", thrown.getMessage());
     }
 
     @Test
     void whenValidBookStatus_ReturnListOfMatchingBooks() {
-        List<Book> booksRead = bookService.getBookByStatus("READ", user);
+        List<Book> booksRead = bookService.getUserBooksByStatus("READ", user);
 
         assertEquals(1, booksRead.size());
         assertTrue(booksRead.stream().allMatch(book -> book.getStatus() == BookStatus.READ));
@@ -88,7 +88,7 @@ class BookServiceTest {
 
     @Test
     void whenNoBooksFoundByStatus_ReturnEmptyList() {
-        List<Book> booksReading = bookService.getBookByStatus("READING", user);
+        List<Book> booksReading = bookService.getUserBooksByStatus("READING", user);
         assertTrue(booksReading.isEmpty());
     }
 

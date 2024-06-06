@@ -114,7 +114,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
-    LoginResponse login(UserDto userDto) {
+    LoginResponse loginUser(UserDto userDto) {
         LoginResponse loginResponse = new LoginResponse();
         try {
             UserDetails userDetails = loadUserByUsername(userDto.getEmail());

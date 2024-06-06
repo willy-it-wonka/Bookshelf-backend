@@ -64,7 +64,7 @@ public class BookControllerIT {
     @Test
     @WithMockUser(username = "user@gmail.com") // Mock logged-in user.
     void whenUserAuthorized_ReturnListOfBooks() throws Exception {
-        when(bookService.getAllBooks(eq(userDetails))).thenReturn(books);
+        when(bookService.getAllUserBooks(eq(userDetails))).thenReturn(books);
 
         mockMvc.perform(get("/api/books")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -77,7 +77,7 @@ public class BookControllerIT {
     @Test
     // Unauthorized request.
     void whenUserNotAuthorized_ReturnForbidden() throws Exception {
-        when(bookService.getAllBooks(eq(userDetails))).thenReturn(books);
+        when(bookService.getAllUserBooks(eq(userDetails))).thenReturn(books);
 
         mockMvc.perform(get("/api/books")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -88,7 +88,7 @@ public class BookControllerIT {
     @WithMockUser(username = "user@gmail.com")
     void whenBookExistsByIdAndUserAuthorized_ReturnBook() throws Exception {
         Long pathVariable = 1L;
-        when(bookService.getBookById(eq(pathVariable), eq(userDetails))).thenReturn(book1);
+        when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenReturn(book1);
 
         mockMvc.perform(get("/api/books/{id}", pathVariable)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -101,7 +101,7 @@ public class BookControllerIT {
     @WithMockUser(username = "user@gmail.com")
     void whenBookDoesNotExistById_ThrowResourceNotFoundException() throws Exception {
         Long pathVariable = 999L;
-        when(bookService.getBookById(eq(pathVariable), eq(userDetails))).thenThrow(new ResourceNotFoundException(pathVariable));
+        when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenThrow(new ResourceNotFoundException(pathVariable));
 
         mockMvc.perform(get("/api/books/{id}", pathVariable)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -113,7 +113,7 @@ public class BookControllerIT {
     @WithMockUser(username = "user@gmail.com")
     void whenBooksExistByStatusAndUserAuthorized_ReturnListOfBooks() throws Exception {
         String status = "READ";
-        when(bookService.getBookByStatus(eq(status), eq(userDetails))).thenReturn(Collections.singletonList(book2));
+        when(bookService.getUserBooksByStatus(eq(status), eq(userDetails))).thenReturn(Collections.singletonList(book2));
 
         mockMvc.perform(get("/api/books/status/{status}", status)
                         .contentType(MediaType.APPLICATION_JSON))

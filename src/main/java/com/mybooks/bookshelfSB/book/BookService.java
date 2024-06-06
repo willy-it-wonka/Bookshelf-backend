@@ -18,12 +18,12 @@ public class BookService {
     }
 
     // Get the list of user's books.
-    List<Book> getAllBooks(UserDetails userDetails) {
+    List<Book> getAllUserBooks(UserDetails userDetails) {
         return bookRepository.findByBookOwner((User) userDetails);
     }
 
     // Get the book with specified id. If id doesn't exist, throw an exception.
-    Book getBookById(Long id, UserDetails userDetails) {
+    Book getUserBookById(Long id, UserDetails userDetails) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
 
         // Checks if the logged-in user is the owner of the book with the specified id.
@@ -34,7 +34,7 @@ public class BookService {
     }
 
     // Get a list of books by status.
-    List<Book> getBookByStatus(String status, UserDetails userDetails) {
+    List<Book> getUserBooksByStatus(String status, UserDetails userDetails) {
         BookStatus bookStatus = BookStatus.valueOf(status.toUpperCase()); // Without this only address .../status/READ will be ok, .../status/read will not.
         return bookRepository.findByStatusAndBookOwner(bookStatus, (User) userDetails);
     }
@@ -47,7 +47,7 @@ public class BookService {
 
     // Get the book by id and modify it.
     Book updateBook(Long id, Book book, UserDetails userDetails) {
-        Book bookToUpdate = getBookById(id, userDetails);
+        Book bookToUpdate = getUserBookById(id, userDetails);
         bookToUpdate.setTitle(book.getTitle());
         bookToUpdate.setAuthor(book.getAuthor());
         bookToUpdate.setStatus(book.getStatus());
@@ -57,7 +57,7 @@ public class BookService {
 
     // Delete the book with the specified id.
     void deleteBookById(Long id, UserDetails userDetails) {
-        Book book = getBookById(id, userDetails);
+        Book book = getUserBookById(id, userDetails);
         bookRepository.delete(book);
     }
 

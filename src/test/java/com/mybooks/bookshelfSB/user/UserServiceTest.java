@@ -145,7 +145,7 @@ public class UserServiceTest {
         when(jsonWebToken.generateToken(user)).thenReturn("JWT");
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
 
-        LoginResponse loginResponse = userService.login(userDto);
+        LoginResponse loginResponse = userService.loginUser(userDto);
 
         assertTrue(loginResponse.getStatus());
         assertEquals("JWT", loginResponse.getMessage());
@@ -157,7 +157,7 @@ public class UserServiceTest {
         userRepository.save(user);
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "wrongPassword");
 
-        LoginResponse loginResponse = userService.login(userDto);
+        LoginResponse loginResponse = userService.loginUser(userDto);
 
         assertFalse(loginResponse.getStatus());
         assertEquals("Incorrect password.", loginResponse.getMessage());
@@ -168,7 +168,7 @@ public class UserServiceTest {
         UserDto userDto = new UserDto("non", "non@gmail.com", "123");
         // Don't save user in InMemoryUserRepository.
 
-        LoginResponse loginResponse = userService.login(userDto);
+        LoginResponse loginResponse = userService.loginUser(userDto);
 
         assertFalse(loginResponse.getStatus());
         assertEquals("User not found.", loginResponse.getMessage());

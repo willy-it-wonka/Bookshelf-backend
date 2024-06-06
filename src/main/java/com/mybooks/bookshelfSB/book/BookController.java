@@ -17,18 +17,18 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public List<Book> getAllBooks(@AuthenticationPrincipal UserDetails userDetails) { // @AuthenticationPrincipal - Spring Security provides a UserDetails object representing the logged-in user.
-        return bookService.getAllBooks(userDetails);
+    public List<Book> getAllUserBooks(@AuthenticationPrincipal UserDetails userDetails) { // @AuthenticationPrincipal - Spring Security provides a UserDetails object representing the logged-in user.
+        return bookService.getAllUserBooks(userDetails);
     }
 
     @GetMapping("/books/{id}")
-    public Book getBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
-        return bookService.getBookById(id, userDetails);
+    public Book getUserBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
+        return bookService.getUserBookById(id, userDetails);
     }
 
     @GetMapping("/books/status/{status}") // In case: "/books/{status}" - would lead to a conflict with "/books/{id}".
-    public List<Book> getBookByStatus(@PathVariable String status, @AuthenticationPrincipal UserDetails userDetails) {
-        return bookService.getBookByStatus(status, userDetails);
+    public List<Book> getUserBooksByStatus(@PathVariable String status, @AuthenticationPrincipal UserDetails userDetails) {
+        return bookService.getUserBooksByStatus(status, userDetails);
     }
 
     @PostMapping("/books")

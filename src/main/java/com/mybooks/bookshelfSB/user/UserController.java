@@ -31,7 +31,7 @@ public class UserController {
 
     @PostMapping("/login")
     public LoginResponse loginUser(@RequestBody UserDto userDto) {
-        return userService.login(userDto);
+        return userService.loginUser(userDto);
     }
 
     @GetMapping("/enabled/{id}")

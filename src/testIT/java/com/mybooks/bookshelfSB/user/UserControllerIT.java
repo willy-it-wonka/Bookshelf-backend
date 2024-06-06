@@ -106,7 +106,7 @@ public class UserControllerIT {
     void whenCorrectCredentialsProvided_LoginAndReturnJwt() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "123");
         LoginResponse response = new LoginResponse("JWT", true);
-        when(userService.login(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +120,7 @@ public class UserControllerIT {
     void whenIncorrectCredentialsProvided_ReturnErrorMessage() throws Exception {
         UserDto userDto = new UserDto("user", "user@gmail.com", "wrongPass");
         LoginResponse response = new LoginResponse("Incorrect password.", false);
-        when(userService.login(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +134,7 @@ public class UserControllerIT {
     void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
         UserDto userDto = new UserDto("user", "nonexistent@gmail.com", "123");
         LoginResponse response = new LoginResponse("User not found.", false);
-        when(userService.login(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
