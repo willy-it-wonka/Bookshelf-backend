@@ -1,6 +1,5 @@
 package com.mybooks.bookshelfSB.book;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,6 @@ public class BookController {
 
     private final BookService bookService;
 
-    @Autowired // Automatically injects an object.
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }

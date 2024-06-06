@@ -1,7 +1,6 @@
 package com.mybooks.bookshelfSB.security;
 
 import com.mybooks.bookshelfSB.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +17,6 @@ public class AuthenticationConfig {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public AuthenticationConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

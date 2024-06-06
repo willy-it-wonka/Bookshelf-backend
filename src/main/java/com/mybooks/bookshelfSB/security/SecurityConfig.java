@@ -1,6 +1,5 @@
 package com.mybooks.bookshelfSB.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,7 +26,6 @@ public class SecurityConfig {
     private final AuthenticationConfig authenticationConfig;
     private final JsonWebTokenFilter jsonWebTokenFilter;
 
-    @Autowired
     public SecurityConfig(AuthenticationConfig authenticationConfig, JsonWebTokenFilter jsonWebTokenFilter) {
         this.authenticationConfig = authenticationConfig;
         this.jsonWebTokenFilter = jsonWebTokenFilter;
