@@ -1,6 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
-import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
+import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserRole;
@@ -61,7 +61,7 @@ class BookServiceTest {
     @Test
     void whenBookWithGivenIdDoesNotExist_ThrowResourceNotFoundException() {
         Long idOfNonExistentBook = 999L;
-        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () ->
+        BookNotFoundException thrown = assertThrows(BookNotFoundException.class, () ->
                 bookService.getUserBookById(idOfNonExistentBook, user));
         assertEquals("Book with ID: 999 doesn't exist.", thrown.getMessage());
     }
@@ -129,7 +129,7 @@ class BookServiceTest {
     @Test
     void whenTriesUpdateBookThatDoesNotExist_ThrowResourceNotFoundException() {
         Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
-        assertThrows(ResourceNotFoundException.class, () ->
+        assertThrows(BookNotFoundException.class, () ->
                 bookService.updateBook(999L, updatedDetails, user));
     }
 
@@ -142,7 +142,7 @@ class BookServiceTest {
 
     @Test
     void whenBookToDeleteDoesNotExist_ThrowResourceNotFoundException() {
-        assertThrows(ResourceNotFoundException.class, () ->
+        assertThrows(BookNotFoundException.class, () ->
                 bookService.deleteBookById(999L, user));
     }
 

@@ -1,6 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
-import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
+import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +24,7 @@ public class BookService {
 
     // Get the book with specified id. If id doesn't exist, throw an exception.
     Book getUserBookById(Long id, UserDetails userDetails) {
-        Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
 
         // Checks if the logged-in user is the owner of the book with the specified id.
         if (!book.getBookOwner().getId().equals(((User) userDetails).getId()))

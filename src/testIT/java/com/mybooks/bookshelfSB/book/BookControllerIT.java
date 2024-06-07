@@ -1,7 +1,7 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mybooks.bookshelfSB.exception.ResourceNotFoundException;
+import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,7 +101,7 @@ public class BookControllerIT {
     @WithMockUser(username = "user@gmail.com")
     void whenBookDoesNotExistById_ThrowResourceNotFoundException() throws Exception {
         Long pathVariable = 999L;
-        when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenThrow(new ResourceNotFoundException(pathVariable));
+        when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenThrow(new BookNotFoundException(pathVariable));
 
         mockMvc.perform(get("/api/books/{id}", pathVariable)
                         .contentType(MediaType.APPLICATION_JSON))
