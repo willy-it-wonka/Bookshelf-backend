@@ -1,5 +1,7 @@
 package com.mybooks.bookshelfSB.book.note;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.mybooks.bookshelfSB.book.Book;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,11 +19,17 @@ public class Note {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @OneToOne
+    @JoinColumn(name = "book_id", nullable = false, unique = true)
+    @JsonBackReference
+    private Book book;
+
     public Note() {
     }
 
-    public Note(String content) {
+    public Note(String content, Book book) {
         this.content = content;
+        this.book = book;
     }
 
 }

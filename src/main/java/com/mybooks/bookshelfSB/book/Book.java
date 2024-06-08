@@ -1,6 +1,8 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.mybooks.bookshelfSB.book.note.Note;
 import com.mybooks.bookshelfSB.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,6 +43,10 @@ public class Book {
     @JoinColumn(nullable = false, name = "user_id")
     @JsonBackReference   // Solve problems with cyclic object serialization and lazy initialization.
     private User bookOwner;
+
+    @OneToOne(mappedBy = "book")
+    @JsonManagedReference
+    private Note note;
 
     public Book() {
     }
