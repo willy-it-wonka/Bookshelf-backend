@@ -16,8 +16,10 @@ public class Token {   // Tokens used to confirm an email account.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String token;
+
     private LocalDateTime creationDate;
     private LocalDateTime confirmationDate;
     private LocalDateTime expirationDate;

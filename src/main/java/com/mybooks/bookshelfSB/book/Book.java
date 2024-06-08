@@ -11,11 +11,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "books")
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
 public class Book {
 
     @Id
@@ -33,13 +33,13 @@ public class Book {
 
     @LastModifiedDate
     @Column(nullable = false)
-    protected LocalDateTime lastModifiedDate;
+    private LocalDateTime lastModifiedDate;
 
     private String linkToCover;
 
-    @JsonBackReference   // Solve problems with cyclic object serialization and lazy initialization.
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
+    @JsonBackReference   // Solve problems with cyclic object serialization and lazy initialization.
     private User bookOwner;
 
     public Book() {

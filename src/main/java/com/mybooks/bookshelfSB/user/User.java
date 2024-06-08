@@ -23,19 +23,22 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nick;
     private String email;
     private String password;
+
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
     private Boolean locked = false;
     private Boolean enabled = false;
 
     @OneToMany(mappedBy = "tokenOwner")
     private Set<Token> tokens;
 
-    @JsonManagedReference   // Solve problems with cyclic object serialization and lazy initialization.
     @OneToMany(mappedBy = "bookOwner")
+    @JsonManagedReference   // Solve problems with cyclic object serialization and lazy initialization.
     private Set<Book> books;
 
     public User() {
