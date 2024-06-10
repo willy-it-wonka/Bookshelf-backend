@@ -1,10 +1,13 @@
 package com.mybooks.bookshelfSB.book;
 
+import com.mybooks.bookshelfSB.book.note.NoteService;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
+import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,9 +15,11 @@ import java.util.List;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final NoteService noteService;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, NoteService noteService) {
         this.bookRepository = bookRepository;
+        this.noteService = noteService;
     }
 
     // Get the list of user's books.
@@ -56,7 +61,13 @@ public class BookService {
     }
 
     // Delete the book with the specified id.
+    @Transactional
     void deleteBookById(Long id, UserDetails userDetails) {
+        // First, delete the notes for this book.
+        try {
+            noteService.deleteNoteByBookId(id);
+        } catch (NoteNotFoundException ignored) {}
+
         Book book = getUserBookById(id, userDetails);
         bookRepository.delete(book);
     }

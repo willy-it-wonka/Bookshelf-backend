@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
+import com.mybooks.bookshelfSB.book.note.NoteService;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
@@ -11,17 +12,20 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class BookServiceTest {
 
     private InMemoryBookRepository bookRepository;
     private BookService bookService;
+    private NoteService noteService;
     private User user;
 
     @BeforeEach
     void setUp() {
         bookRepository = new InMemoryBookRepository();
-        bookService = new BookService(bookRepository);
+        noteService = mock(NoteService.class); // TODO: Will be replaced when creating tests for NoteService.
+        bookService = new BookService(bookRepository, noteService);
         user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         user.setId(1L);
         bookRepository.save(new Book("Title 1", "Author 1", BookStatus.WAITING, user));

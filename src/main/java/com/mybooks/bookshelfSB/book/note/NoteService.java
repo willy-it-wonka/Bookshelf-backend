@@ -12,6 +12,11 @@ public class NoteService {
         this.noteRepository = noteRepository;
     }
 
+    public void deleteNoteByBookId(Long bookId) {
+        Note note = getNoteByBookId(bookId);
+        noteRepository.delete(note);
+    }
+
     Note getNoteByBookId(Long bookId) {
         return noteRepository.findByBookId(bookId).orElseThrow(() -> new NoteNotFoundException(bookId));
     }
@@ -24,11 +29,6 @@ public class NoteService {
         Note noteToUpdate = getNoteByBookId(bookId);
         noteToUpdate.setContent(note.getContent());
         return noteRepository.save(noteToUpdate);
-    }
-
-    void deleteNoteByBookId(Long bookId) {
-        Note note = getNoteByBookId(bookId);
-        noteRepository.delete(note);
     }
 
 }
