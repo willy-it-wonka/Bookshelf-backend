@@ -29,14 +29,13 @@ With this application you can manage your library. Create a reading schedule. Ke
 * registration and login
 * sending confirmation email
 * security configuration
-* authentication and authorization with JWT
+* JWT authorization
 * exception handling
-* create books, update, delete, etc.
+* CRUD
 * unit testing
 * integration testing
 </br></br>
 
 ## Future features
 * Reading schedule.
-* Your notes, conclusions about the book.
-* Saving images (book covers) to a database.
+* DTOs.
