@@ -115,24 +115,18 @@ public class UserService implements UserDetailsService {
     }
 
     LoginResponse loginUser(UserDto userDto) {
-        LoginResponse loginResponse = new LoginResponse();
         try {
             UserDetails userDetails = loadUserByUsername(userDto.getEmail());
 
             String encodedPassword = userDetails.getPassword();
 
-            if (passwordEncoder.matches(userDto.getPassword(), encodedPassword)) {
-                loginResponse.setMessage(jsonWebToken.generateToken((User) userDetails));
-                loginResponse.setStatus(true);
-            } else {
-                loginResponse.setMessage("Incorrect password.");
-                loginResponse.setStatus(false);
-            }
+            if (passwordEncoder.matches(userDto.getPassword(), encodedPassword))
+                return new LoginResponse(jsonWebToken.generateToken((User) userDetails), true);
+            else
+                return new LoginResponse("Incorrect password.", false);
         } catch (UsernameNotFoundException e) {
-            loginResponse.setMessage("User not found.");
-            loginResponse.setStatus(false);
+            return new LoginResponse("User not found.", false);
         }
-        return loginResponse;
     }
 
     boolean isEnabled(String userId) {
