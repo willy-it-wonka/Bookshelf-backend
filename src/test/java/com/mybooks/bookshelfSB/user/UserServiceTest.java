@@ -147,8 +147,8 @@ public class UserServiceTest {
 
         LoginResponse loginResponse = userService.loginUser(userDto);
 
-        assertTrue(loginResponse.getStatus());
-        assertEquals("JWT", loginResponse.getMessage());
+        assertTrue(loginResponse.status());
+        assertEquals("JWT", loginResponse.message());
     }
 
     @Test
@@ -159,8 +159,8 @@ public class UserServiceTest {
 
         LoginResponse loginResponse = userService.loginUser(userDto);
 
-        assertFalse(loginResponse.getStatus());
-        assertEquals("Incorrect password.", loginResponse.getMessage());
+        assertFalse(loginResponse.status());
+        assertEquals("Incorrect password.", loginResponse.message());
     }
 
     @Test
@@ -170,8 +170,8 @@ public class UserServiceTest {
 
         LoginResponse loginResponse = userService.loginUser(userDto);
 
-        assertFalse(loginResponse.getStatus());
-        assertEquals("User not found.", loginResponse.getMessage());
+        assertFalse(loginResponse.status());
+        assertEquals("User not found.", loginResponse.message());
     }
 
     @Test
