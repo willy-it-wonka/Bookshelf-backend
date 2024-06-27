@@ -49,17 +49,17 @@ public class UserServiceTest {
         UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
         String encodedPassword = "encodedPassword";
         String emailContent = "Mocked email content";
-        when(passwordEncoder.encode(userDto.getPassword())).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(userDto.password())).thenReturn(encodedPassword);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
 
         Map<String, String> response = userService.createUser(userDto);
 
-        User savedUser = userRepository.findByEmail(userDto.getEmail()).orElseThrow(() ->
+        User savedUser = userRepository.findByEmail(userDto.email()).orElseThrow(() ->
                 new AssertionError("User should be present in the InMemoryUserRepository."));
         assertEquals(encodedPassword, savedUser.getPassword());
         assertTrue(response.values().stream().anyMatch(value -> value.startsWith("token: ")));
         verify(tokenService, times(1)).saveToken(any(Token.class)); // Check if token is saved.
-        verify(emailService).send(eq(userDto.getEmail()), eq(emailContent)); // Check if email is sent.
+        verify(emailService).send(eq(userDto.email()), eq(emailContent)); // Check if email is sent.
     }
 
     @Test

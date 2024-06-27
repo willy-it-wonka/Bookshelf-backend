@@ -42,13 +42,13 @@ public class UserService implements UserDetailsService {
 
     Map<String, String> createUser(UserDto userDto) {
         // Check if the email address is correct.
-        if (!isEmailValid(userDto.getEmail()))
+        if (!isEmailValid(userDto.email()))
             throw new EmailIssueException("is invalid");
 
         User user = new User(
-                userDto.getNick(),
-                userDto.getEmail(),
-                this.passwordEncoder.encode(userDto.getPassword()),
+                userDto.nick(),
+                userDto.email(),
+                this.passwordEncoder.encode(userDto.password()),
                 UserRole.USER);
 
         // Check if the email address is taken.
@@ -62,7 +62,7 @@ public class UserService implements UserDetailsService {
         Token token = createConfirmationToken(user);
 
         // Send an email with an account activation token.
-        sendConfirmationEmail(token, userDto.getEmail(), userDto.getNick());
+        sendConfirmationEmail(token, userDto.email(), userDto.nick());
 
         Map<String, String> response = new HashMap<>();
         response.put("nick: " + user.getNick(), "token: " + token.getToken());
@@ -116,11 +116,11 @@ public class UserService implements UserDetailsService {
 
     LoginResponse loginUser(UserDto userDto) {
         try {
-            UserDetails userDetails = loadUserByUsername(userDto.getEmail());
+            UserDetails userDetails = loadUserByUsername(userDto.email());
 
             String encodedPassword = userDetails.getPassword();
 
-            if (passwordEncoder.matches(userDto.getPassword(), encodedPassword))
+            if (passwordEncoder.matches(userDto.password(), encodedPassword))
                 return new LoginResponse(jsonWebToken.generateToken((User) userDetails), true);
             else
                 return new LoginResponse("Incorrect password.", false);
