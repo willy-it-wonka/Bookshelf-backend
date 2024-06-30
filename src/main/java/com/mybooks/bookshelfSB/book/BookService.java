@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.book.note.NoteService;
+import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
@@ -45,8 +46,8 @@ public class BookService {
     }
 
     // Add the book to the database.
-    Book createBook(Book book, UserDetails userDetails) {
-        book.setBookOwner((User) userDetails);
+    Book createBook(CreateBookRequest request, UserDetails userDetails) {
+        Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
         return bookRepository.save(book);
     }
 

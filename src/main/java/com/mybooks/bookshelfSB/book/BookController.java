@@ -1,12 +1,13 @@
 package com.mybooks.bookshelfSB.book;
 
+import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Makes this class a REST controller: will handle HTTP requests.
+@RestController
 @RequestMapping("/api")
 public class BookController {
 
@@ -32,8 +33,8 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public Book createBook(@RequestBody Book book, @AuthenticationPrincipal UserDetails userDetails) { // @RequestBody - Spring automatically deserializes the JSON into a Java type Book.
-        return bookService.createBook(book, userDetails);
+    public Book createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) { // @RequestBody - Spring automatically deserializes JSON to the specified Java type.
+        return bookService.createBook(request, userDetails);
     }
 
     @PutMapping("/books/{id}")

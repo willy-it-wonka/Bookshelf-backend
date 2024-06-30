@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserRole;
@@ -125,7 +126,7 @@ public class BookControllerIT {
     @Test
     @WithMockUser(username = "user@gmail.com")
     void whenCorrectBookDataProvided_ReturnSavedBook() throws Exception {
-        when(bookService.createBook(any(Book.class), eq(userDetails))).thenReturn(book1);
+        when(bookService.createBook(any(CreateBookRequest.class), eq(userDetails))).thenReturn(book1);
 
         mockMvc.perform(post("/api/books")
                         .contentType(MediaType.APPLICATION_JSON)

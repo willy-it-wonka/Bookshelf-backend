@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.book.note.NoteService;
+import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
@@ -98,9 +99,9 @@ class BookServiceTest {
 
     @Test
     void whenCorrectBookDataProvided_SaveBook() {
-        Book newBook = new Book("Title 3", "Author 3", BookStatus.WAITING, "link", null);
+        CreateBookRequest request = new CreateBookRequest("Title 3", "Author 3", BookStatus.WAITING, "link");
 
-        Book savedBook = bookService.createBook(newBook, user);
+        Book savedBook = bookService.createBook(request, user);
 
         assertEquals(user, savedBook.getBookOwner());
         assertEquals(1L, user.getId());
