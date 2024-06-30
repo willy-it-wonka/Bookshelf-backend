@@ -51,7 +51,7 @@ public class BookRepositoryIT {
     void setUp() {
         user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
         entityManager.persist(user);
-        book = new Book("Title", "Author", BookStatus.WAITING, user);
+        book = new Book("Title", "Author", BookStatus.WAITING, "link", user);
     }
 
     @AfterEach
@@ -82,9 +82,9 @@ public class BookRepositoryIT {
 
     @Test
     void whenBooksFoundByOwner_ReturnOwnerBooks() {
-        Book book1 = new Book("Title1", "Author1", BookStatus.WAITING, user);
-        Book book2 = new Book("Title2", "Author2", BookStatus.WAITING, user);
-        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, user);
+        Book book1 = new Book("Title1", "Author1", BookStatus.WAITING, "link", user);
+        Book book2 = new Book("Title2", "Author2", BookStatus.WAITING, "link", user);
+        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, "link", user);
         bookRepository.saveAll(List.of(book, book1, book2, book3));
 
         List<Book> booksByOwner = bookRepository.findByBookOwner(user);
@@ -94,10 +94,10 @@ public class BookRepositoryIT {
 
     @Test
     void whenBooksFoundByStatusAndOwner_ReturnOwnerBooksByStatus() {
-        Book book1 = new Book("Title1", "Author1", BookStatus.READ, user);
-        Book book2 = new Book("Title2", "Author2", BookStatus.READ, user);
-        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, user);
-        Book book4 = new Book("Title4", "Author4", BookStatus.WAITING, user);
+        Book book1 = new Book("Title1", "Author1", BookStatus.READ, "link", user);
+        Book book2 = new Book("Title2", "Author2", BookStatus.READ, "link", user);
+        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, "link", user);
+        Book book4 = new Book("Title4", "Author4", BookStatus.WAITING, "link", user);
         bookRepository.saveAll(List.of(book, book1, book2, book3, book4));
 
         List<Book> books = bookRepository.findByStatusAndBookOwner(BookStatus.READ, user);

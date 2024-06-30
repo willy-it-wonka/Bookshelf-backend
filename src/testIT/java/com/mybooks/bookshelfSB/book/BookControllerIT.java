@@ -54,8 +54,8 @@ public class BookControllerIT {
                 .authorities("USER")
                 .build();
 
-        book1 = new Book("Book One", "Author1", BookStatus.WAITING, user);
-        book2 = new Book("Book Two", "Author2", BookStatus.READ, user);
+        book1 = new Book("Book One", "Author1", BookStatus.WAITING, "link", user);
+        book2 = new Book("Book Two", "Author2", BookStatus.READ, "link", user);
         book1.setId(1L);
         book2.setId(2L);
         books = Arrays.asList(book1, book2);
@@ -138,7 +138,7 @@ public class BookControllerIT {
     @Test
     @WithMockUser(username = "user@gmail.com")
     void whenBookExistsAndUserAuthorized_ReturnUpdatedBook() throws Exception {
-        Book updatedBook1 = new Book("Updated Title", "Author1", BookStatus.WAITING, user);
+        Book updatedBook1 = new Book("Updated Title", "Author1", BookStatus.WAITING, "link", user);
         updatedBook1.setId(1L);
         when(bookService.updateBook(eq(book1.getId()), any(Book.class), eq(userDetails))).thenReturn(updatedBook1);
 

@@ -29,6 +29,8 @@ public class Book {
     @Enumerated(EnumType.STRING)
     private BookStatus status;
 
+    private String linkToCover;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
@@ -36,8 +38,6 @@ public class Book {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime lastModifiedDate;
-
-    private String linkToCover;
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
@@ -51,10 +51,11 @@ public class Book {
     public Book() {
     }
 
-    public Book(String title, String author, BookStatus status, User bookOwner) {
+    public Book(String title, String author, BookStatus status, String linkToCover, User bookOwner) {
         this.title = title;
         this.author = author;
         this.status = status;
+        this.linkToCover = linkToCover;
         this.bookOwner = bookOwner;
     }
 }

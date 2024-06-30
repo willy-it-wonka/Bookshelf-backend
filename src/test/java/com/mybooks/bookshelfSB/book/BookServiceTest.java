@@ -28,8 +28,8 @@ class BookServiceTest {
         bookService = new BookService(bookRepository, noteService);
         user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         user.setId(1L);
-        bookRepository.save(new Book("Title 1", "Author 1", BookStatus.WAITING, user));
-        bookRepository.save(new Book("Title 2", "Author 2", BookStatus.READ, user));
+        bookRepository.save(new Book("Title 1", "Author 1", BookStatus.WAITING, "link", user));
+        bookRepository.save(new Book("Title 2", "Author 2", BookStatus.READ, "link", user));
     }
 
     @AfterEach
@@ -52,7 +52,7 @@ class BookServiceTest {
 
     @Test
     void whenBookWithGivenIdExists_ReturnBook() {
-        Book expectedBook = new Book("Title 1", "Author 1", BookStatus.WAITING, user);
+        Book expectedBook = new Book("Title 1", "Author 1", BookStatus.WAITING, "link", user);
         Long expectedBookId = 1L;
 
         Book foundBook = bookService.getUserBookById(expectedBookId, user);
@@ -98,7 +98,7 @@ class BookServiceTest {
 
     @Test
     void whenCorrectBookDataProvided_SaveBook() {
-        Book newBook = new Book("Title 3", "Author 3", BookStatus.WAITING, null);
+        Book newBook = new Book("Title 3", "Author 3", BookStatus.WAITING, "link", null);
 
         Book savedBook = bookService.createBook(newBook, user);
 
@@ -109,7 +109,7 @@ class BookServiceTest {
 
     @Test
     void whenValidUpdate_UpdateBookDetails() {
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
+        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
         updatedDetails.setLinkToCover("new link");
 
         Book updatedBook = bookService.updateBook(1L, updatedDetails, user);
@@ -124,7 +124,7 @@ class BookServiceTest {
     void whenTriesUpdateBookThatUserIsNotOwner_ThrowUnauthorizedAccessException() {
         User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
         anotherUser.setId(2L);
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
+        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
 
         assertThrows(UnauthorizedAccessException.class, () ->
                 bookService.updateBook(1L, updatedDetails, anotherUser));
@@ -132,7 +132,7 @@ class BookServiceTest {
 
     @Test
     void whenTriesUpdateBookThatDoesNotExist_ThrowResourceNotFoundException() {
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, user);
+        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
         assertThrows(BookNotFoundException.class, () ->
                 bookService.updateBook(999L, updatedDetails, user));
     }
