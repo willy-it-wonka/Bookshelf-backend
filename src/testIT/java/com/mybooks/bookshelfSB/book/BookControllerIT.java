@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.book;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
+import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserRole;
@@ -141,7 +142,7 @@ public class BookControllerIT {
     void whenBookExistsAndUserAuthorized_ReturnUpdatedBook() throws Exception {
         Book updatedBook1 = new Book("Updated Title", "Author1", BookStatus.WAITING, "link", user);
         updatedBook1.setId(1L);
-        when(bookService.updateBook(eq(book1.getId()), any(Book.class), eq(userDetails))).thenReturn(updatedBook1);
+        when(bookService.updateBook(eq(book1.getId()), any(UpdateBookRequest.class), eq(userDetails))).thenReturn(updatedBook1);
 
         mockMvc.perform(put("/api/books/{id}", book1.getId())
                         .contentType(MediaType.APPLICATION_JSON)

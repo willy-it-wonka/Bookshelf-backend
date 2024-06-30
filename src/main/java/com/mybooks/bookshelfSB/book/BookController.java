@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
+import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,8 @@ public class BookController {
     }
 
     @PutMapping("/books/{id}")
-    public Book updateBook(@PathVariable Long id, @RequestBody Book book, @AuthenticationPrincipal UserDetails userDetails) {
-        return bookService.updateBook(id, book, userDetails);
+    public Book updateBook(@PathVariable Long id, @RequestBody UpdateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        return bookService.updateBook(id, request, userDetails);
     }
 
     @DeleteMapping("/books/{id}")

@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.book.note.NoteService;
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
+import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
@@ -110,32 +111,31 @@ class BookServiceTest {
 
     @Test
     void whenValidUpdate_UpdateBookDetails() {
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
-        updatedDetails.setLinkToCover("new link");
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "newLink");
 
-        Book updatedBook = bookService.updateBook(1L, updatedDetails, user);
+        Book updatedBook = bookService.updateBook(1L, request, user);
 
         assertEquals("Title 11", updatedBook.getTitle());
         assertEquals("Author 11", updatedBook.getAuthor());
         assertEquals(BookStatus.READ, updatedBook.getStatus());
-        assertEquals("new link", updatedBook.getLinkToCover());
+        assertEquals("newLink", updatedBook.getLinkToCover());
     }
 
     @Test
     void whenTriesUpdateBookThatUserIsNotOwner_ThrowUnauthorizedAccessException() {
         User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
         anotherUser.setId(2L);
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link");
 
         assertThrows(UnauthorizedAccessException.class, () ->
-                bookService.updateBook(1L, updatedDetails, anotherUser));
+                bookService.updateBook(1L, request, anotherUser));
     }
 
     @Test
     void whenTriesUpdateBookThatDoesNotExist_ThrowResourceNotFoundException() {
-        Book updatedDetails = new Book("Title 11", "Author 11", BookStatus.READ, "link", user);
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link");
         assertThrows(BookNotFoundException.class, () ->
-                bookService.updateBook(999L, updatedDetails, user));
+                bookService.updateBook(999L, request, user));
     }
 
     @Test

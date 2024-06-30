@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.book;
 
 import com.mybooks.bookshelfSB.book.note.NoteService;
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
+import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
 import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
@@ -52,12 +53,12 @@ public class BookService {
     }
 
     // Get the book by id and modify it.
-    Book updateBook(Long id, Book book, UserDetails userDetails) {
+    Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
         Book bookToUpdate = getUserBookById(id, userDetails);
-        bookToUpdate.setTitle(book.getTitle());
-        bookToUpdate.setAuthor(book.getAuthor());
-        bookToUpdate.setStatus(book.getStatus());
-        bookToUpdate.setLinkToCover(book.getLinkToCover());
+        bookToUpdate.setTitle(request.title());
+        bookToUpdate.setAuthor(request.author());
+        bookToUpdate.setStatus(request.status());
+        bookToUpdate.setLinkToCover(request.linkToCover());
         return bookRepository.save(bookToUpdate);
     }
 
