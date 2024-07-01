@@ -1,5 +1,6 @@
 package com.mybooks.bookshelfSB.book.note;
 
+import com.mybooks.bookshelfSB.book.note.payload.CreateNoteRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +19,8 @@ public class NoteController {
     }
 
     @PostMapping("/notes")
-    public Note createNote(@RequestBody Note note) {
-        return noteService.createNote(note);
+    public Note createNote(@RequestBody CreateNoteRequest request) {
+        return noteService.createNote(request);
     }
 
     @PutMapping("/notes/{bookId}")
