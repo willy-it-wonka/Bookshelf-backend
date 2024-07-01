@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book.note;
 
 import com.mybooks.bookshelfSB.book.note.payload.CreateNoteRequest;
+import com.mybooks.bookshelfSB.book.note.payload.UpdateNoteRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,8 +25,8 @@ public class NoteController {
     }
 
     @PutMapping("/notes/{bookId}")
-    public Note updateNote(@PathVariable Long bookId, @RequestBody Note note) {
-        return noteService.updateNote(bookId, note);
+    public Note updateNote(@PathVariable Long bookId, @RequestBody UpdateNoteRequest request) {
+        return noteService.updateNote(bookId, request);
     }
 
     @DeleteMapping("/notes/{bookId}")

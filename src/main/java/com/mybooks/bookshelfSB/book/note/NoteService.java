@@ -1,6 +1,7 @@
 package com.mybooks.bookshelfSB.book.note;
 
 import com.mybooks.bookshelfSB.book.note.payload.CreateNoteRequest;
+import com.mybooks.bookshelfSB.book.note.payload.UpdateNoteRequest;
 import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +28,9 @@ public class NoteService {
         return noteRepository.save(note);
     }
 
-    Note updateNote(Long bookId, Note note) {
+    Note updateNote(Long bookId, UpdateNoteRequest request) {
         Note noteToUpdate = getNoteByBookId(bookId);
-        noteToUpdate.setContent(note.getContent());
+        noteToUpdate.setContent(request.content());
         return noteRepository.save(noteToUpdate);
     }
 
