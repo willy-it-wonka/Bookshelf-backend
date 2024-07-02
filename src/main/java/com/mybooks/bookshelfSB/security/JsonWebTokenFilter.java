@@ -2,6 +2,7 @@ package com.mybooks.bookshelfSB.security;
 
 import com.mybooks.bookshelfSB.user.User;
 import com.mybooks.bookshelfSB.user.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,25 +35,32 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
         String userId = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            userId = jsonWebToken.extractUserId(jwt);
-        }
-
-        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userService.loadUserById(Long.parseLong(userId));
-
-            if (jsonWebToken.isTokenValid(jwt, user)) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        user.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource()
-                        .buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        try {
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                jwt = authorizationHeader.substring(7);
+                userId = jsonWebToken.extractUserId(jwt);
             }
-        }
 
-        filterChain.doFilter(request, response);
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                User user = userService.loadUserById(Long.parseLong(userId));
+
+                if (jsonWebToken.isTokenValid(jwt, user)) {
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            user.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource()
+                            .buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            }
+
+            filterChain.doFilter(request, response);
+
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Your session has expired. Log in again.");
+            response.getWriter().flush();
+        }
     }
 }
