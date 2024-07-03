@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mybooks.bookshelfSB.book.Book;
 import com.mybooks.bookshelfSB.user.token.Token;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@EqualsAndHashCode
 public class User implements UserDetails {
 
     @Id

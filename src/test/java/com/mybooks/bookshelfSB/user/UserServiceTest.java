@@ -105,6 +105,7 @@ public class UserServiceTest {
         UserDetails userDetails = userService.loadUserByUsername(existingUser.getEmail());
 
         assertEquals(existingUser.getEmail(), userDetails.getUsername());
+        assertEquals(existingUser, userDetails);
     }
 
     @Test
@@ -125,6 +126,7 @@ public class UserServiceTest {
         User user = userService.loadUserById(existingUser.getId());
 
         assertEquals(existingUser.getEmail(), user.getEmail());
+        assertEquals(existingUser, user);
     }
 
     @Test

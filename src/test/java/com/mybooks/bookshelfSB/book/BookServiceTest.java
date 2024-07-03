@@ -55,13 +55,12 @@ class BookServiceTest {
     @Test
     void whenBookWithGivenIdExists_ReturnBook() {
         Book expectedBook = new Book("Title 1", "Author 1", BookStatus.WAITING, "link", user);
-        Long expectedBookId = 1L;
+        expectedBook.setId(1L);
 
-        Book foundBook = bookService.getUserBookById(expectedBookId, user);
+        Book foundBook = bookService.getUserBookById(expectedBook.getId(), user);
 
         assertNotNull(foundBook);
-        assertEquals(expectedBookId, foundBook.getId());
-        assertEquals(expectedBook.getTitle(), foundBook.getTitle());
+        assertEquals(expectedBook, foundBook);
     }
 
     @Test
@@ -105,8 +104,11 @@ class BookServiceTest {
         Book savedBook = bookService.createBook(request, user);
 
         assertEquals(user, savedBook.getBookOwner());
-        assertEquals(1L, user.getId());
         assertEquals("Title 3", savedBook.getTitle());
+        assertEquals("Author 3", savedBook.getAuthor());
+        assertEquals(BookStatus.WAITING, savedBook.getStatus());
+        assertEquals("link", savedBook.getLinkToCover());
+        assertEquals(user, savedBook.getBookOwner());
     }
 
     @Test
@@ -119,6 +121,7 @@ class BookServiceTest {
         assertEquals("Author 11", updatedBook.getAuthor());
         assertEquals(BookStatus.READ, updatedBook.getStatus());
         assertEquals("newLink", updatedBook.getLinkToCover());
+        assertEquals(user, updatedBook.getBookOwner());
     }
 
     @Test
@@ -127,6 +130,7 @@ class BookServiceTest {
         anotherUser.setId(2L);
         UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link");
 
+        assertNotEquals(user, anotherUser);
         assertThrows(UnauthorizedAccessException.class, () ->
                 bookService.updateBook(1L, request, anotherUser));
     }
