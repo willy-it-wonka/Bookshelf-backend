@@ -1,6 +1,6 @@
 ## Links
 Front-end: [repository](https://github.com/willy-it-wonka/Bookshelf-frontend)\
-Demo: [soon]
+YT presentation: [soon]
 </br></br>
 
 ## Tech stack
@@ -31,11 +31,10 @@ With this application you can manage your library. Create a reading schedule. Ke
 * security configuration
 * JWT authorization
 * exception handling
-* CRUD
+* CRUD books, notes
 * unit testing
 * integration testing
 </br></br>
 
 ## Future features
 * Reading schedule.
-* DTOs.
