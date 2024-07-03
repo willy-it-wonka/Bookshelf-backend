@@ -64,14 +64,13 @@ public class BookService {
 
     // Delete the book with the specified id.
     @Transactional
-    void deleteBookById(Long id, UserDetails userDetails) {
+    void deleteBookById(Long id) {
         // First, delete the notes for this book.
         try {
             noteService.deleteNoteByBookId(id);
         } catch (NoteNotFoundException ignored) {}
 
-        Book book = getUserBookById(id, userDetails);
-        bookRepository.delete(book);
+        bookRepository.deleteById(id);
     }
 
 }

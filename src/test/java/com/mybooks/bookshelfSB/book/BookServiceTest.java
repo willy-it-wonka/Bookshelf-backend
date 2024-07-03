@@ -141,14 +141,8 @@ class BookServiceTest {
     @Test
     void whenValidDeletion_RemoveBookFromRepository() {
         Long bookId = 1L;
-        bookService.deleteBookById(bookId, user);
+        bookService.deleteBookById(bookId);
         assertFalse(bookRepository.findById(bookId).isPresent());
-    }
-
-    @Test
-    void whenBookToDeleteDoesNotExist_ThrowResourceNotFoundException() {
-        assertThrows(BookNotFoundException.class, () ->
-                bookService.deleteBookById(999L, user));
     }
 
 }

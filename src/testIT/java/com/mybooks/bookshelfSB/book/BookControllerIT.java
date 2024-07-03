@@ -158,7 +158,7 @@ public class BookControllerIT {
 
         mockMvc.perform(delete("/api/books/{id}", bookId))
                 .andExpect(status().isOk());
-        verify(bookService).deleteBookById(eq(bookId), eq(userDetails));
+        verify(bookService).deleteBookById(eq(bookId));
     }
 
 }

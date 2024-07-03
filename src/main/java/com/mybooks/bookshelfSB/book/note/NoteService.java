@@ -4,6 +4,7 @@ import com.mybooks.bookshelfSB.book.note.payload.CreateNoteRequest;
 import com.mybooks.bookshelfSB.book.note.payload.UpdateNoteRequest;
 import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NoteService {
@@ -14,9 +15,9 @@ public class NoteService {
         this.noteRepository = noteRepository;
     }
 
+    @Transactional
     public void deleteNoteByBookId(Long bookId) {
-        Note note = getNoteByBookId(bookId);
-        noteRepository.delete(note);
+        noteRepository.deleteByBookId(bookId);
     }
 
     Note getNoteByBookId(Long bookId) {

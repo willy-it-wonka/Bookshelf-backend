@@ -36,10 +36,9 @@ public class InMemoryBookRepository implements BookRepository {
     }
 
     @Override
-    public void delete(@NonNull Book book) {
-        books.remove(book.getId());
+    public void deleteById(Long id) {
+        books.remove(id);
     }
-
 
     @Override
     public List<Book> findByBookOwner(User user) {
@@ -92,7 +91,7 @@ public class InMemoryBookRepository implements BookRepository {
     }
 
     @Override
-    public void deleteById(Long aLong) {
+    public void delete(Book entity) {
     }
 
     @Override

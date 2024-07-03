@@ -55,8 +55,8 @@ public class BookController {
     }
 
     @DeleteMapping("/books/{id}")
-    public void deleteBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        bookService.deleteBookById(id, userDetails);
+    public void deleteBookById(@PathVariable Long id) {
+        bookService.deleteBookById(id);
     }
 
     private BookDto convertToDto(Book book) {
