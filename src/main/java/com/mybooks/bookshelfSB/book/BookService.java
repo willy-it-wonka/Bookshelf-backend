@@ -41,9 +41,8 @@ public class BookService {
     }
 
     // Get a list of books by status.
-    List<Book> getUserBooksByStatus(String status, UserDetails userDetails) {
-        BookStatus bookStatus = BookStatus.valueOf(status.toUpperCase()); // Without this only address .../status/READ will be ok, .../status/read will not.
-        return bookRepository.findByStatusAndBookOwner(bookStatus, (User) userDetails);
+    List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
+        return bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
     }
 
     // Add the book to the database.
@@ -68,7 +67,8 @@ public class BookService {
         // First, delete the notes for this book.
         try {
             noteService.deleteNoteByBookId(id);
-        } catch (NoteNotFoundException ignored) {}
+        } catch (NoteNotFoundException ignored) {
+        }
 
         bookRepository.deleteById(id);
     }

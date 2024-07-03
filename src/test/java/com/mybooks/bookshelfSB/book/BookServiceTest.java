@@ -86,7 +86,7 @@ class BookServiceTest {
 
     @Test
     void whenValidBookStatus_ReturnListOfMatchingBooks() {
-        List<Book> booksRead = bookService.getUserBooksByStatus("READ", user);
+        List<Book> booksRead = bookService.getUserBooksByStatus(BookStatus.READ, user);
 
         assertEquals(1, booksRead.size());
         assertTrue(booksRead.stream().allMatch(book -> book.getStatus() == BookStatus.READ));
@@ -94,7 +94,7 @@ class BookServiceTest {
 
     @Test
     void whenNoBooksFoundByStatus_ReturnEmptyList() {
-        List<Book> booksReading = bookService.getUserBooksByStatus("READING", user);
+        List<Book> booksReading = bookService.getUserBooksByStatus(BookStatus.READING, user);
         assertTrue(booksReading.isEmpty());
     }
 

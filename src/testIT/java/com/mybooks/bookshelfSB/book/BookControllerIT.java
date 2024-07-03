@@ -114,7 +114,7 @@ public class BookControllerIT {
     @Test
     @WithMockUser(username = "user@gmail.com")
     void whenBooksExistByStatusAndUserAuthorized_ReturnListOfBooks() throws Exception {
-        String status = "READ";
+        BookStatus status = BookStatus.READ;
         when(bookService.getUserBooksByStatus(eq(status), eq(userDetails))).thenReturn(Collections.singletonList(book2));
 
         mockMvc.perform(get("/api/books/status/{status}", status)

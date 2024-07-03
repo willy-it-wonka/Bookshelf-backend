@@ -35,7 +35,7 @@ public class BookController {
     }
 
     @GetMapping("/books/status/{status}") // In case: "/books/{status}" - would lead to a conflict with "/books/{id}".
-    public List<BookDto> getUserBooksByStatus(@PathVariable String status, @AuthenticationPrincipal UserDetails userDetails) {
+    public List<BookDto> getUserBooksByStatus(@PathVariable BookStatus status, @AuthenticationPrincipal UserDetails userDetails) {
         List<Book> books = bookService.getUserBooksByStatus(status, userDetails);
         return books.stream()
                 .map(this::convertToDto)
