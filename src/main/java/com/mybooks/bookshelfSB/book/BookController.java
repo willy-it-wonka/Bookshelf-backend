@@ -66,6 +66,7 @@ public class BookController {
                 book.getAuthor(),
                 book.getStatus(),
                 book.getLinkToCover(),
+                book.getCategories(),
                 book.getCreatedDate(),
                 book.getLastModifiedDate());
     }

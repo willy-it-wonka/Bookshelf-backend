@@ -48,6 +48,7 @@ public class BookService {
     // Add the book to the database.
     Book createBook(CreateBookRequest request, UserDetails userDetails) {
         Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
+        book.setCategories(request.categories());
         return bookRepository.save(book);
     }
 
@@ -58,6 +59,7 @@ public class BookService {
         bookToUpdate.setAuthor(request.author());
         bookToUpdate.setStatus(request.status());
         bookToUpdate.setLinkToCover(request.linkToCover());
+        bookToUpdate.setCategories(request.categories());
         return bookRepository.save(bookToUpdate);
     }
 
