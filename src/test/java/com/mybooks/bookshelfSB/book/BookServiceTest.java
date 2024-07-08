@@ -11,7 +11,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -26,7 +28,7 @@ class BookServiceTest {
     @BeforeEach
     void setUp() {
         bookRepository = new InMemoryBookRepository();
-        noteService = mock(NoteService.class); // TODO: Will be replaced when creating tests for NoteService.
+        noteService = mock(NoteService.class); // TODO: Replace when creating tests for NoteService.
         bookService = new BookService(bookRepository, noteService);
         user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         user.setId(1L);
@@ -99,7 +101,9 @@ class BookServiceTest {
 
     @Test
     void whenCorrectBookDataProvided_SaveBook() {
-        CreateBookRequest request = new CreateBookRequest("Title 3", "Author 3", BookStatus.WAITING, "link");
+        Set<BookCategory> categories = new HashSet<>();
+        categories.add(BookCategory.IT);
+        CreateBookRequest request = new CreateBookRequest("Title 3", "Author 3", BookStatus.WAITING, "link", categories);
 
         Book savedBook = bookService.createBook(request, user);
 
@@ -108,12 +112,15 @@ class BookServiceTest {
         assertEquals("Author 3", savedBook.getAuthor());
         assertEquals(BookStatus.WAITING, savedBook.getStatus());
         assertEquals("link", savedBook.getLinkToCover());
+        assertEquals(categories, savedBook.getCategories());
         assertEquals(user, savedBook.getBookOwner());
     }
 
     @Test
     void whenValidUpdate_UpdateBookDetails() {
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "newLink");
+        Set<BookCategory> categories = new HashSet<>();
+        categories.add(BookCategory.IT);
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "newLink", categories);
 
         Book updatedBook = bookService.updateBook(1L, request, user);
 
@@ -121,6 +128,7 @@ class BookServiceTest {
         assertEquals("Author 11", updatedBook.getAuthor());
         assertEquals(BookStatus.READ, updatedBook.getStatus());
         assertEquals("newLink", updatedBook.getLinkToCover());
+        assertEquals(categories, updatedBook.getCategories());
         assertEquals(user, updatedBook.getBookOwner());
     }
 
@@ -128,7 +136,7 @@ class BookServiceTest {
     void whenTriesUpdateBookThatUserIsNotOwner_ThrowUnauthorizedAccessException() {
         User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
         anotherUser.setId(2L);
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link");
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link", new HashSet<>());
 
         assertNotEquals(user, anotherUser);
         assertThrows(UnauthorizedAccessException.class, () ->
@@ -137,7 +145,7 @@ class BookServiceTest {
 
     @Test
     void whenTriesUpdateBookThatDoesNotExist_ThrowResourceNotFoundException() {
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link");
+        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link", new HashSet<>());
         assertThrows(BookNotFoundException.class, () ->
                 bookService.updateBook(999L, request, user));
     }
