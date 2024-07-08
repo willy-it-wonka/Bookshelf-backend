@@ -13,6 +13,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "books")
@@ -32,6 +34,12 @@ public class Book {
     private BookStatus status;
 
     private String linkToCover;
+
+    @ElementCollection(targetClass = BookCategory.class)
+    @CollectionTable(name = "book_categories", joinColumns = @JoinColumn(name = "book_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private Set<BookCategory> categories = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

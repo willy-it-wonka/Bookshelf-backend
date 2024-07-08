@@ -1,8 +1,10 @@
 package com.mybooks.bookshelfSB.book.payload;
 
+import com.mybooks.bookshelfSB.book.BookCategory;
 import com.mybooks.bookshelfSB.book.BookStatus;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record BookDto(
         Long id,
@@ -10,6 +12,7 @@ public record BookDto(
         String author,
         BookStatus status,
         String linkToCover,
+        Set<BookCategory> categories,
         LocalDateTime createdDate,
         LocalDateTime lastModifiedDate) {
 }
