@@ -7,6 +7,7 @@ import com.mybooks.bookshelfSB.exception.BookNotFoundException;
 import com.mybooks.bookshelfSB.exception.NoteNotFoundException;
 import com.mybooks.bookshelfSB.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelfSB.user.User;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,21 @@ public class BookService {
     }
 
     // Get the list of user's books.
+    @Transactional(readOnly = true)
     List<Book> getAllUserBooks(UserDetails userDetails) {
-        return bookRepository.findByBookOwner((User) userDetails);
+        List<Book> books = bookRepository.findByBookOwner((User) userDetails);
+
+        // Solution for lazy collection initialization.
+        books.forEach(book -> Hibernate.initialize(book.getCategories()));
+
+        return books;
     }
 
     // Get the book with specified id. If id doesn't exist, throw an exception.
+    @Transactional(readOnly = true)
     Book getUserBookById(Long id, UserDetails userDetails) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        Hibernate.initialize(book.getCategories());
 
         // Checks if the logged-in user is the owner of the book with the specified id.
         if (!book.getBookOwner().getId().equals(((User) userDetails).getId()))
@@ -41,11 +50,15 @@ public class BookService {
     }
 
     // Get a list of books by status.
+    @Transactional(readOnly = true)
     List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
-        return bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
+        List<Book> books = bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
+        books.forEach(book -> Hibernate.initialize(book.getCategories()));
+        return books;
     }
 
     // Add the book to the database.
+    @Transactional
     Book createBook(CreateBookRequest request, UserDetails userDetails) {
         Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
         book.setCategories(request.categories());
@@ -53,6 +66,7 @@ public class BookService {
     }
 
     // Get the book by id and modify it.
+    @Transactional
     Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
         Book bookToUpdate = getUserBookById(id, userDetails);
         bookToUpdate.setTitle(request.title());
