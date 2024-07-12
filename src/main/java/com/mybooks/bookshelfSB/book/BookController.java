@@ -1,6 +1,6 @@
 package com.mybooks.bookshelfSB.book;
 
-import com.mybooks.bookshelfSB.book.payload.BookDto;
+import com.mybooks.bookshelfSB.book.payload.BookResponse;
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +21,7 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public List<BookDto> getAllUserBooks(@AuthenticationPrincipal UserDetails userDetails) { // @AuthenticationPrincipal - Spring Security provides a UserDetails object representing the logged-in user.
+    public List<BookResponse> getAllUserBooks(@AuthenticationPrincipal UserDetails userDetails) { // @AuthenticationPrincipal - Spring Security provides a UserDetails object representing the logged-in user.
         List<Book> books = bookService.getAllUserBooks(userDetails);
         return books.stream()
                 .map(this::convertToDto)
@@ -29,13 +29,13 @@ public class BookController {
     }
 
     @GetMapping("/books/{id}")
-    public BookDto getUserBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
+    public BookResponse getUserBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
         Book book = bookService.getUserBookById(id, userDetails);
         return convertToDto(book);
     }
 
     @GetMapping("/books/status/{status}") // In case: "/books/{status}" - would lead to a conflict with "/books/{id}".
-    public List<BookDto> getUserBooksByStatus(@PathVariable BookStatus status, @AuthenticationPrincipal UserDetails userDetails) {
+    public List<BookResponse> getUserBooksByStatus(@PathVariable BookStatus status, @AuthenticationPrincipal UserDetails userDetails) {
         List<Book> books = bookService.getUserBooksByStatus(status, userDetails);
         return books.stream()
                 .map(this::convertToDto)
@@ -43,13 +43,13 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public BookDto createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) { // @RequestBody - Spring automatically deserializes JSON to the specified Java type.
+    public BookResponse createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) { // @RequestBody - Spring automatically deserializes JSON to the specified Java type.
         Book book = bookService.createBook(request, userDetails);
         return convertToDto(book);
     }
 
     @PutMapping("/books/{id}")
-    public BookDto updateBook(@PathVariable Long id, @RequestBody UpdateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public BookResponse updateBook(@PathVariable Long id, @RequestBody UpdateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookService.updateBook(id, request, userDetails);
         return convertToDto(book);
     }
@@ -59,8 +59,8 @@ public class BookController {
         bookService.deleteBookById(id);
     }
 
-    private BookDto convertToDto(Book book) {
-        return new BookDto(
+    private BookResponse convertToDto(Book book) {
+        return new BookResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getAuthor(),

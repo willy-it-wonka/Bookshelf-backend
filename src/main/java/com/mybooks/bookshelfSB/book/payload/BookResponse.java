@@ -6,7 +6,7 @@ import com.mybooks.bookshelfSB.book.BookStatus;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-public record BookDto(
+public record BookResponse(
         Long id,
         String title,
         String author,
