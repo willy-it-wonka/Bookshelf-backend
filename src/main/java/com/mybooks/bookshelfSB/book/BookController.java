@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -25,7 +24,7 @@ public class BookController {
         List<Book> books = bookService.getAllUserBooks(userDetails);
         return books.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/books/{id}")
@@ -39,7 +38,7 @@ public class BookController {
         List<Book> books = bookService.getUserBooksByStatus(status, userDetails);
         return books.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @PostMapping("/books")
