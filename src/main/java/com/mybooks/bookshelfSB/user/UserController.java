@@ -1,11 +1,11 @@
 package com.mybooks.bookshelfSB.user;
 
+import com.mybooks.bookshelfSB.user.payload.LoginRequest;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
-import com.mybooks.bookshelfSB.user.payload.UserDto;
+import com.mybooks.bookshelfSB.user.payload.RegisterRequest;
+import com.mybooks.bookshelfSB.user.payload.RegisterResponse;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -20,8 +20,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public Map<String, String> createUser(@RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
+    public RegisterResponse createUser(@RequestBody RegisterRequest request) {
+        return userService.createUser(request);
     }
 
     @GetMapping("/register/confirm")
@@ -30,8 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponse loginUser(@RequestBody UserDto userDto) {
-        return userService.loginUser(userDto);
+    public LoginResponse loginUser(@RequestBody LoginRequest request) {
+        return userService.loginUser(request);
     }
 
     @GetMapping("/enabled/{id}")

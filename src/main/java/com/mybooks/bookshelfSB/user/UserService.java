@@ -3,8 +3,10 @@ package com.mybooks.bookshelfSB.user;
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
 import com.mybooks.bookshelfSB.security.JsonWebToken;
 import com.mybooks.bookshelfSB.user.email.EmailService;
+import com.mybooks.bookshelfSB.user.payload.LoginRequest;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
-import com.mybooks.bookshelfSB.user.payload.UserDto;
+import com.mybooks.bookshelfSB.user.payload.RegisterRequest;
+import com.mybooks.bookshelfSB.user.payload.RegisterResponse;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,15 +40,15 @@ public class UserService implements UserDetailsService {
      *    REGISTRATION
      */
 
-    Map<String, String> createUser(UserDto userDto) {
+    RegisterResponse createUser(RegisterRequest request) {
         // Check if the email address is correct.
-        if (!isEmailValid(userDto.email()))
+        if (!isEmailValid(request.email()))
             throw new EmailIssueException("is invalid");
 
         User user = new User(
-                userDto.nick(),
-                userDto.email(),
-                this.passwordEncoder.encode(userDto.password()),
+                request.nick(),
+                request.email(),
+                this.passwordEncoder.encode(request.password()),
                 UserRole.USER);
 
         // Check if the email address is taken.
@@ -62,11 +62,9 @@ public class UserService implements UserDetailsService {
         Token token = createConfirmationToken(user);
 
         // Send an email with an account activation token.
-        sendConfirmationEmail(token, userDto.email(), userDto.nick());
+        sendConfirmationEmail(token, request.email(), request.nick());
 
-        Map<String, String> response = new HashMap<>();
-        response.put("nick: " + user.getNick(), "token: " + token.getToken());
-        return response;
+        return new RegisterResponse(user.getNick(), token.getToken());
     }
 
     // Returns true if the email address is already taken.
@@ -114,13 +112,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }
 
-    LoginResponse loginUser(UserDto userDto) {
+    LoginResponse loginUser(LoginRequest request) {
         try {
-            UserDetails userDetails = loadUserByUsername(userDto.email());
+            UserDetails userDetails = loadUserByUsername(request.email());
 
             String encodedPassword = userDetails.getPassword();
 
-            if (passwordEncoder.matches(userDto.password(), encodedPassword))
+            if (passwordEncoder.matches(request.password(), encodedPassword))
                 return new LoginResponse(jsonWebToken.generateToken((User) userDetails), true);
             else
                 return new LoginResponse("Incorrect password.", false);

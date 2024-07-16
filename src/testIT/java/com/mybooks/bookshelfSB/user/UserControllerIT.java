@@ -2,8 +2,10 @@ package com.mybooks.bookshelfSB.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
+import com.mybooks.bookshelfSB.user.payload.LoginRequest;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
-import com.mybooks.bookshelfSB.user.payload.UserDto;
+import com.mybooks.bookshelfSB.user.payload.RegisterRequest;
+import com.mybooks.bookshelfSB.user.payload.RegisterResponse;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,38 +40,39 @@ public class UserControllerIT {
 
     @Test
     void whenCorrectUserDtoProvided_CreateUserAndReturnMap() throws Exception {
-        UserDto userDto = new UserDto("user", "user@gmail.com", "123");
-        Map<String, String> expectedResponse = Map.of("nick", "token");
-        when(userService.createUser(any(UserDto.class))).thenReturn(expectedResponse);
+        RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
+        RegisterResponse response = new RegisterResponse("nick", "token");
+        when(userService.createUser(any(RegisterRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON) // Inform Spring MVC that the content type of the request is JSON.
-                        .content(objectMapper.writeValueAsString(userDto))) // Serialize UserDto to a JSON string for the request body.
+                        .content(objectMapper.writeValueAsString(request))) // Serialize RegisterRequest to a JSON string for the request body.
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse))) // Verify that the response content is JSON and matches the expectedResponse JSON.
-                .andExpect(jsonPath("$.nick").value("token"));
+                .andExpect(content().json(objectMapper.writeValueAsString(response))) // Verify that the response content is JSON and matches the response JSON.
+                .andExpect(jsonPath("$.nick").value("nick"))
+                .andExpect(jsonPath("$.token").value("token"));
     }
 
     @Test
     void whenInvalidEmail_ReturnBadRequest() throws Exception {
-        UserDto userDto = new UserDto("user", "invalid-email", "123");
-        when(userService.createUser(any(UserDto.class))).thenThrow(new EmailIssueException("is invalid"));
+        RegisterRequest request = new RegisterRequest("user", "invalid-email", "123");
+        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailIssueException("is invalid"));
 
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("This email is invalid."));
     }
 
     @Test
     void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
-        UserDto userDto = new UserDto("user", "user@gmail.com", "123");
-        when(userService.createUser(any(UserDto.class))).thenThrow(new EmailIssueException("is already associated with some account"));
+        RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
+        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailIssueException("is already associated with some account"));
 
         mockMvc.perform(post("/api/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("This email is already associated with some account."));
     }
@@ -104,13 +105,13 @@ public class UserControllerIT {
 
     @Test
     void whenCorrectCredentialsProvided_LoginAndReturnJwt() throws Exception {
-        UserDto userDto = new UserDto("user", "user@gmail.com", "123");
+        LoginRequest request = new LoginRequest("user@gmail.com", "123");
         LoginResponse response = new LoginResponse("JWT", true);
-        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(true))
                 .andExpect(jsonPath("$.message").value("JWT"));
@@ -118,13 +119,13 @@ public class UserControllerIT {
 
     @Test
     void whenIncorrectCredentialsProvided_ReturnErrorMessage() throws Exception {
-        UserDto userDto = new UserDto("user", "user@gmail.com", "wrongPass");
+        LoginRequest request = new LoginRequest("user@gmail.com", "wrongPass");
         LoginResponse response = new LoginResponse("Incorrect password.", false);
-        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(false))
                 .andExpect(jsonPath("$.message").value("Incorrect password."));
@@ -132,13 +133,13 @@ public class UserControllerIT {
 
     @Test
     void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
-        UserDto userDto = new UserDto("user", "nonexistent@gmail.com", "123");
+        LoginRequest request = new LoginRequest("nonexistent@gmail.com", "123");
         LoginResponse response = new LoginResponse("User not found.", false);
-        when(userService.loginUser(any(UserDto.class))).thenReturn(response);
+        when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(false))
                 .andExpect(jsonPath("$.message").value("User not found."));

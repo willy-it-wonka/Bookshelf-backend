@@ -3,8 +3,10 @@ package com.mybooks.bookshelfSB.user;
 import com.mybooks.bookshelfSB.exception.EmailIssueException;
 import com.mybooks.bookshelfSB.security.JsonWebToken;
 import com.mybooks.bookshelfSB.user.email.EmailService;
+import com.mybooks.bookshelfSB.user.payload.LoginRequest;
 import com.mybooks.bookshelfSB.user.payload.LoginResponse;
-import com.mybooks.bookshelfSB.user.payload.UserDto;
+import com.mybooks.bookshelfSB.user.payload.RegisterRequest;
+import com.mybooks.bookshelfSB.user.payload.RegisterResponse;
 import com.mybooks.bookshelfSB.user.token.Token;
 import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.junit.jupiter.api.AfterEach;
@@ -13,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,28 +46,27 @@ public class UserServiceTest {
 
     @Test
     void whenCorrectUserDataProvided_CreateUserAndSendEmail() {
-        UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
+        RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
         String encodedPassword = "encodedPassword";
         String emailContent = "Mocked email content";
-        when(passwordEncoder.encode(userDto.password())).thenReturn(encodedPassword);
+        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
 
-        Map<String, String> response = userService.createUser(userDto);
+        RegisterResponse response = userService.createUser(request);
 
-        User savedUser = userRepository.findByEmail(userDto.email()).orElseThrow(() ->
+        User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() ->
                 new AssertionError("User should be present in the InMemoryUserRepository."));
         assertEquals(encodedPassword, savedUser.getPassword());
-        assertTrue(response.values().stream().anyMatch(value -> value.startsWith("token: ")));
         verify(tokenService, times(1)).saveToken(any(Token.class)); // Check if token is saved.
-        verify(emailService).send(eq(userDto.email()), eq(emailContent)); // Check if email is sent.
+        verify(emailService).send(eq(request.email()), eq(emailContent)); // Check if email is sent.
     }
 
     @Test
     void whenInvalidEmail_ThrowEmailIssueException() {
-        UserDto userDto = new UserDto("Tom", "invalidEmail", "123");
+        RegisterRequest request = new RegisterRequest("Tom", "invalidEmail", "123");
 
         EmailIssueException e = assertThrows(EmailIssueException.class, () ->
-                userService.createUser(userDto));
+                userService.createUser(request));
 
         assertEquals("This email is invalid.", e.getMessage());
     }
@@ -76,10 +75,10 @@ public class UserServiceTest {
     void whenEmailAlreadyTaken_ThrowEmailIssueException() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
-        UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
+        RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
 
         EmailIssueException e = assertThrows(EmailIssueException.class, () ->
-                userService.createUser(userDto));
+                userService.createUser(request));
 
         assertEquals("This email is already associated with some account.", e.getMessage());
     }
@@ -145,9 +144,9 @@ public class UserServiceTest {
         userRepository.save(user);
         when(passwordEncoder.matches("123", user.getPassword())).thenReturn(true);
         when(jsonWebToken.generateToken(user)).thenReturn("JWT");
-        UserDto userDto = new UserDto("Tom", "tom@gmail.com", "123");
+        LoginRequest request = new LoginRequest("tom@gmail.com", "123");
 
-        LoginResponse loginResponse = userService.loginUser(userDto);
+        LoginResponse loginResponse = userService.loginUser(request);
 
         assertTrue(loginResponse.status());
         assertEquals("JWT", loginResponse.message());
@@ -157,9 +156,9 @@ public class UserServiceTest {
     void whenIncorrectPassword_ReturnFailureLoginResponse() {
         User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
-        UserDto userDto = new UserDto("Tom", "tom@gmail.com", "wrongPassword");
+        LoginRequest request = new LoginRequest("tom@gmail.com", "wrongPassword");
 
-        LoginResponse loginResponse = userService.loginUser(userDto);
+        LoginResponse loginResponse = userService.loginUser(request);
 
         assertFalse(loginResponse.status());
         assertEquals("Incorrect password.", loginResponse.message());
@@ -167,10 +166,10 @@ public class UserServiceTest {
 
     @Test
     void whenUserDoesNotExist_ReturnFailureLoginResponse() {
-        UserDto userDto = new UserDto("non", "non@gmail.com", "123");
+        LoginRequest request = new LoginRequest("non@gmail.com", "123");
         // Don't save user in InMemoryUserRepository.
 
-        LoginResponse loginResponse = userService.loginUser(userDto);
+        LoginResponse loginResponse = userService.loginUser(request);
 
         assertFalse(loginResponse.status());
         assertEquals("User not found.", loginResponse.message());
