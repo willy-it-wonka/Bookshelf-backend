@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class AuthenticationConfig {
 
+    private static final String USER_NOT_FOUND_ERROR = "User not found.";
+
     private final UserRepository userRepository;
 
     public AuthenticationConfig(UserRepository userRepository) {
@@ -31,7 +33,7 @@ public class AuthenticationConfig {
     public UserDetailsService userDetailsService() {
         return userIdString -> {
             Long userId = Long.parseLong(userIdString);
-            return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+            return userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
         };
     }
 

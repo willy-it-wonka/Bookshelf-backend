@@ -13,6 +13,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
@@ -22,6 +23,12 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private static final String LOGGED_OUT_MESSAGE = "Logged out.";
+    private static final String CORS_ALLOWED_ORIGIN = "http://localhost:4200";
+    private static final String CORS_PATH_PATTERN = "/**";
+    private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
+    private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE");
 
     private final AuthenticationConfig authenticationConfig;
     private final JsonWebTokenFilter jsonWebTokenFilter;
@@ -49,24 +56,23 @@ public class SecurityConfig {
                         .logoutSuccessHandler((request, response, authentication) ->
                                 SecurityContextHolder.clearContext())
                         .logoutSuccessHandler((request, response, authentication) ->
-                                response.getWriter().println("Logged out.")
+                                response.getWriter().println(LOGGED_OUT_MESSAGE)
                         )
                 );
         return http.build();
     }
 
     // Instead of @CrossOrigin in controllers.
-    // Without this configuration, a CORS response appears when trying to log out.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:4200");
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.addAllowedOrigin(CORS_ALLOWED_ORIGIN);
+        configuration.setAllowedHeaders(CORS_ALLOWED_HEADERS);
+        configuration.setAllowedMethods(CORS_ALLOWED_METHODS);
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration(CORS_PATH_PATTERN, configuration);
         return source;
     }
 

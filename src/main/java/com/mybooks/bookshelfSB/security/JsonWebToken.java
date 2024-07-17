@@ -19,9 +19,10 @@ import java.util.function.Function;
 @Component
 public class JsonWebToken {
 
+    private static final String NICK_CLAIM = "nick";
+
     @Value("${security.jwt.secret}")
     private String secretKey;
-
     @Value("${security.jwt.expiration}")
     private long expiration;
 
@@ -39,7 +40,7 @@ public class JsonWebToken {
     }
 
     private String generateToken(Map<String, Object> extraClaims, User user) {
-        extraClaims.put("nick", user.getNick());
+        extraClaims.put(NICK_CLAIM, user.getNick());
         return createJWT(extraClaims, user, expiration);
     }
 

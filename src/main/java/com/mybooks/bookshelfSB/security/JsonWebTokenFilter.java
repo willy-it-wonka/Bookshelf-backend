@@ -23,6 +23,10 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonWebTokenFilter.class);
 
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String EXPIRED_SESSION_MESSAGE = "Your session has expired. Log in again.";
+
     private final JsonWebToken jsonWebToken;
     private final UserService userService;
 
@@ -35,12 +39,12 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader("Authorization");
+        final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
         String userId = null;
         String jwt = null;
 
         try {
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
                 jwt = authorizationHeader.substring(7);
                 userId = jsonWebToken.extractUserId(jwt);
             }
@@ -65,7 +69,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
             logger.error(e.getMessage());
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Your session has expired. Log in again.");
+            response.getWriter().write(EXPIRED_SESSION_MESSAGE);
             response.getWriter().flush();
         }
     }

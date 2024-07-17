@@ -13,6 +13,13 @@ import java.util.Objects;
 @Service
 public class EmailService {
 
+    private static final String ENCODING = "utf-8";
+    private static final String EMAIL_SUBJECT = "Confirm your email";
+    private static final String SENDING_EMAIL_ERROR = "Failed to send email.";
+    private static final String TEMPLATE_MESSAGE_PATH = "templates/message.html";
+    private static final String NAME_PLACEHOLDER = "{name}";
+    private static final String LINK_PLACEHOLDER = "{link}";
+
     private final JavaMailSender javaMailSender;
     private final JavaMailSenderImpl fromProperties;
     private final EmailMessageLoader emailMessageLoader;
@@ -28,19 +35,19 @@ public class EmailService {
     public void send(String addressee, String message) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
             mimeMessageHelper.setText(message, true);
             mimeMessageHelper.setTo(addressee);
-            mimeMessageHelper.setSubject("Confirm your email");
+            mimeMessageHelper.setSubject(EMAIL_SUBJECT);
             mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new IllegalStateException("Failed to send email.");
+            throw new IllegalStateException(SENDING_EMAIL_ERROR);
         }
     }
 
     public String buildEmail(String name, String link) {
-        String htmlContent = emailMessageLoader.loadMessage("templates/message.html");
-        return htmlContent.replace("{name}", name).replace("{link}", link);
+        String htmlContent = emailMessageLoader.loadMessage(TEMPLATE_MESSAGE_PATH);
+        return htmlContent.replace(NAME_PLACEHOLDER, name).replace(LINK_PLACEHOLDER, link);
     }
 }

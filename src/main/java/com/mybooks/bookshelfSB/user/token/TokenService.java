@@ -10,6 +10,11 @@ import java.util.Optional;
 @Service
 public class TokenService {
 
+    private static final String TOKEN_NOT_FOUND_ERROR = "Token not found.";
+    private static final String EMAIL_ALREADY_CONFIRMED_ERROR = "Email already confirmed.";
+    private static final String TOKEN_EXPIRED_ERROR = "Token expired.";
+    private static final String TOKEN_CONFIRMED_MESSAGE = "Token confirmed.";
+
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
 
@@ -25,15 +30,15 @@ public class TokenService {
     @Transactional
     public String confirmToken(String token) {
         // Get token from DB.
-        Token confirmationToken = getToken(token).orElseThrow(() -> new IllegalStateException("Token not found."));
+        Token confirmationToken = getToken(token).orElseThrow(() -> new IllegalStateException(TOKEN_NOT_FOUND_ERROR));
 
         if (confirmationToken.getConfirmationDate() != null)
-            throw new IllegalStateException("Email already confirmed.");
+            throw new IllegalStateException(EMAIL_ALREADY_CONFIRMED_ERROR);
 
         // Check if the token is valid.
         LocalDateTime expirationDate = confirmationToken.getExpirationDate();
         if (expirationDate.isBefore(LocalDateTime.now()))
-            throw new IllegalStateException("Token expired.");
+            throw new IllegalStateException(TOKEN_EXPIRED_ERROR);
 
         // Update "confirmation_date" in DB in table "tokens".
         setConfirmationDate(token);
@@ -41,7 +46,7 @@ public class TokenService {
         // Update "enabled" in DB in table "users".
         enableUser(confirmationToken.getTokenOwner().getEmail());
 
-        return "Token confirmed.";
+        return TOKEN_CONFIRMED_MESSAGE;
     }
 
     private Optional<Token> getToken(String token) {

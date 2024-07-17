@@ -21,6 +21,13 @@ import java.util.UUID;
 @Service
 public class UserService implements UserDetailsService {
 
+    private static final String INVALID_EMAIL_ERROR = "is invalid";
+    private static final String EMAIL_ALREADY_EXISTS_ERROR = "is already associated with some account";
+    private static final String REGEX_EMAIL_VALIDATION = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
+    private static final String EMAIL_CONFIRMATION_ENDPOINT = "http://localhost:8080/api/register/confirm?token=";
+    private static final String USER_NOT_FOUND_ERROR = "User not found.";
+    private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
@@ -43,7 +50,7 @@ public class UserService implements UserDetailsService {
     RegisterResponse createUser(RegisterRequest request) {
         // Check if the email address is correct.
         if (!isEmailValid(request.email()))
-            throw new EmailIssueException("is invalid");
+            throw new EmailIssueException(INVALID_EMAIL_ERROR);
 
         User user = new User(
                 request.nick(),
@@ -53,7 +60,7 @@ public class UserService implements UserDetailsService {
 
         // Check if the email address is taken.
         if (userExists(user))
-            throw new EmailIssueException("is already associated with some account");
+            throw new EmailIssueException(EMAIL_ALREADY_EXISTS_ERROR);
 
         // Save user entity in the DB.
         userRepository.save(user);
@@ -73,8 +80,7 @@ public class UserService implements UserDetailsService {
     }
 
     private boolean isEmailValid(String email) {
-        String regex = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
-        return email.matches(regex);
+        return email.matches(REGEX_EMAIL_VALIDATION);
     }
 
     private String createUniversallyUniqueId() {
@@ -88,7 +94,7 @@ public class UserService implements UserDetailsService {
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
-        String link = "http://localhost:8080/api/register/confirm?token=" + token.getToken();
+        String link = EMAIL_CONFIRMATION_ENDPOINT + token.getToken();
         emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 
@@ -105,11 +111,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
     }
 
     public User loadUserById(Long id) throws UsernameNotFoundException {
-        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
     }
 
     LoginResponse loginUser(LoginRequest request) {
@@ -121,9 +127,9 @@ public class UserService implements UserDetailsService {
             if (passwordEncoder.matches(request.password(), encodedPassword))
                 return new LoginResponse(jsonWebToken.generateToken((User) userDetails), true);
             else
-                return new LoginResponse("Incorrect password.", false);
+                return new LoginResponse(INCORRECT_PASSWORD_MESSAGE, false);
         } catch (UsernameNotFoundException e) {
-            return new LoginResponse("User not found.", false);
+            return new LoginResponse(USER_NOT_FOUND_ERROR, false);
         }
     }
 

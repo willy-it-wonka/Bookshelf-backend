@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class UserController {
 
+    private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
+
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -42,7 +44,7 @@ public class UserController {
     @PostMapping("/new-conf-email/{id}")
     public String sendNewConfirmationEmail(@PathVariable String id) {
         userService.sendNewConfirmationEmail(id);
-        return "A new email has been sent.";
+        return EMAIL_SENT_MESSAGE;
     }
 
 }
