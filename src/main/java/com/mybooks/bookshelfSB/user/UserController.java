@@ -8,7 +8,7 @@ import com.mybooks.bookshelfSB.user.token.TokenService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
@@ -21,27 +21,27 @@ public class UserController {
         this.tokenService = tokenService;
     }
 
-    @PostMapping("/register")
+    @PostMapping
     public RegisterResponse createUser(@RequestBody RegisterRequest request) {
         return userService.createUser(request);
     }
 
-    @GetMapping("/register/confirm")
+    @GetMapping("/confirmation")
     public String confirmToken(@RequestParam("token") String token) {
         return tokenService.confirmToken(token);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/session")
     public LoginResponse loginUser(@RequestBody LoginRequest request) {
         return userService.loginUser(request);
     }
 
-    @GetMapping("/enabled/{id}")
+    @GetMapping("/{id}/enabled")
     public boolean isEnabled(@PathVariable String id) {
         return userService.isEnabled(id);
     }
 
-    @PostMapping("/new-conf-email/{id}")
+    @PostMapping("/{id}/new-confirmation-email")
     public String sendNewConfirmationEmail(@PathVariable String id) {
         userService.sendNewConfirmationEmail(id);
         return EMAIL_SENT_MESSAGE;

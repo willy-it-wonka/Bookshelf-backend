@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,7 +25,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String LOGGED_OUT_MESSAGE = "Logged out.";
+    private static final String LOGOUT_METHOD = "DELETE";
+    private static final String LOGOUT_MESSAGE = "Logged out.";
     private static final String CORS_ALLOWED_ORIGIN = "http://localhost:4200";
     private static final String CORS_PATH_PATTERN = "/**";
     private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
@@ -44,20 +46,19 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(POST, "/api/register").permitAll()
-                        .requestMatchers(GET, "/api/register/confirm**").permitAll()
-                        .requestMatchers(POST, "/api/login").permitAll()
+                        .requestMatchers(POST, "/api/v1/users").permitAll()
+                        .requestMatchers(GET, "/api/v1/users/confirmation**").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/session").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationConfig.authenticationProvider())
                 .addFilterBefore(jsonWebTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
-                        .logoutUrl("/api/logout")
-                        .logoutSuccessHandler((request, response, authentication) ->
-                                SecurityContextHolder.clearContext())
-                        .logoutSuccessHandler((request, response, authentication) ->
-                                response.getWriter().println(LOGGED_OUT_MESSAGE)
-                        )
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/users/session", LOGOUT_METHOD))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            SecurityContextHolder.clearContext();
+                            response.getWriter().println(LOGOUT_MESSAGE);
+                        })
                 );
         return http.build();
     }
