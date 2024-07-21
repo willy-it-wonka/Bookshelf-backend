@@ -3,10 +3,12 @@ package com.mybooks.bookshelfSB.book.note;
 import com.mybooks.bookshelfSB.book.note.payload.CreateNoteRequest;
 import com.mybooks.bookshelfSB.book.note.payload.NoteResponse;
 import com.mybooks.bookshelfSB.book.note.payload.UpdateNoteRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/notes")
+@Tag(name = "NoteController")
 public class NoteController {
 
     private final NoteService noteService;

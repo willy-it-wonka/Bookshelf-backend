@@ -3,6 +3,7 @@ package com.mybooks.bookshelfSB.user;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mybooks.bookshelfSB.book.Book;
 import com.mybooks.bookshelfSB.user.token.Token;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -54,6 +55,7 @@ public class User implements UserDetails {
     }
 
     @Override
+    @Schema(hidden = true)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(userRole.name());
         return Collections.singletonList(simpleGrantedAuthority);

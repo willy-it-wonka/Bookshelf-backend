@@ -5,10 +5,12 @@ import com.mybooks.bookshelfSB.user.payload.LoginResponse;
 import com.mybooks.bookshelfSB.user.payload.RegisterRequest;
 import com.mybooks.bookshelfSB.user.payload.RegisterResponse;
 import com.mybooks.bookshelfSB.user.token.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "UserController")
 public class UserController {
 
     private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";

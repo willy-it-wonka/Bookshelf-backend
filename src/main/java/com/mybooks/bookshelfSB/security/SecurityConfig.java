@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/v1/users").permitAll()
                         .requestMatchers(GET, "/api/v1/users/confirmation**").permitAll()
                         .requestMatchers(POST, "/api/v1/users/session").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationConfig.authenticationProvider())
@@ -57,6 +58,7 @@ public class SecurityConfig {
                         .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/users/session", LOGOUT_METHOD))
                         .logoutSuccessHandler((request, response, authentication) -> {
                             SecurityContextHolder.clearContext();
+                            response.setContentType("text/plain");
                             response.getWriter().println(LOGOUT_MESSAGE);
                         })
                 );

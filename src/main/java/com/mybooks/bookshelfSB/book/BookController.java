@@ -3,6 +3,7 @@ package com.mybooks.bookshelfSB.book;
 import com.mybooks.bookshelfSB.book.payload.BookResponse;
 import com.mybooks.bookshelfSB.book.payload.CreateBookRequest;
 import com.mybooks.bookshelfSB.book.payload.UpdateBookRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/books")
+@Tag(name = "BookController")
 public class BookController {
 
     private final BookService bookService;
