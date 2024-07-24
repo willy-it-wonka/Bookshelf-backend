@@ -20,7 +20,7 @@ Demo: [AWS](http://bookshelf-app.s3-website.eu-north-1.amazonaws.com)
 ## Installation
 1. Clone the repository. [Instruction](https://www.jetbrains.com/help/idea/set-up-a-git-repository.html#clone-repo).
 2. In the appliction.properties configure the database and the SMTP ([outlook](https://support.microsoft.com/en-gb/office/pop-imap-and-smtp-settings-for-outlook-com-d088b986-291d-42b8-9564-9c414e2aa040), [gmail](https://www.getmailbird.com/setup/access-gmail-com-via-imap-smtp) or google it: "local SMTP" e.g. [MailDev](https://github.com/maildev/maildev), [Mailpit](https://github.com/axllent/mailpit)).
-3. Go to BookshelfSbApplication and run it.
+3. Go to BookshelfApplication and run it.
 4. Now you can send http requests using [Postman](https://www.postman.com) or run the [front-end](https://github.com/willy-it-wonka/Bookshelf-frontend) of this application.
 5. REST API Documentation:
    ``` bash
