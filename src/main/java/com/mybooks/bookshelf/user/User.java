@@ -38,11 +38,11 @@ public class User implements UserDetails {
     private Boolean enabled = false;
 
     @OneToMany(mappedBy = "tokenOwner")
-    private Set<Token> tokens;
+    private transient Set<Token> tokens;
 
     @OneToMany(mappedBy = "bookOwner")
-    @JsonManagedReference   // Solve problems with cyclic object serialization and lazy initialization.
-    private Set<Book> books;
+    @JsonManagedReference // Solve problems with cyclic object serialization and lazy initialization.
+    private transient Set<Book> books;
 
     public User() {
     }
@@ -62,6 +62,7 @@ public class User implements UserDetails {
     }
 
     // Below are the getters we need to override (impl UserDetails), for the rest: @Getter Lombok.
+
     @Override
     public String getUsername() {
         return email;
