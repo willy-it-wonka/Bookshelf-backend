@@ -1,8 +1,8 @@
 package com.mybooks.bookshelf.exception;
 
-public class EmailIssueException extends RuntimeException {
+public class EmailException extends RuntimeException {
 
-    public EmailIssueException(String message) {
+    public EmailException(String message) {
         super(String.format("This email %s.", message));
     }
 

@@ -1,6 +1,6 @@
 package com.mybooks.bookshelf.user;
 
-import com.mybooks.bookshelf.exception.EmailIssueException;
+import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.email.EmailService;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
@@ -50,7 +50,7 @@ public class UserService implements UserDetailsService {
     RegisterResponse createUser(RegisterRequest request) {
         // Check if the email address is correct.
         if (!isEmailValid(request.email()))
-            throw new EmailIssueException(INVALID_EMAIL_ERROR);
+            throw new EmailException(INVALID_EMAIL_ERROR);
 
         User user = new User(
                 request.nick(),
@@ -60,7 +60,7 @@ public class UserService implements UserDetailsService {
 
         // Check if the email address is taken.
         if (userExists(user))
-            throw new EmailIssueException(EMAIL_ALREADY_EXISTS_ERROR);
+            throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
 
         // Save user entity in the DB.
         userRepository.save(user);

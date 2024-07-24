@@ -68,7 +68,7 @@ public class BookControllerIT {
     void whenUserAuthorized_ReturnListOfBooks() throws Exception {
         when(bookService.getAllUserBooks(eq(userDetails))).thenReturn(books);
 
-        mockMvc.perform(get("/api/books")
+        mockMvc.perform(get("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -81,7 +81,7 @@ public class BookControllerIT {
     void whenUserNotAuthorized_ReturnForbidden() throws Exception {
         when(bookService.getAllUserBooks(eq(userDetails))).thenReturn(books);
 
-        mockMvc.perform(get("/api/books")
+        mockMvc.perform(get("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -92,7 +92,7 @@ public class BookControllerIT {
         Long pathVariable = 1L;
         when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenReturn(book1);
 
-        mockMvc.perform(get("/api/books/{id}", pathVariable)
+        mockMvc.perform(get("/api/v1/books/{id}", pathVariable)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title", is("Book One")))
@@ -105,7 +105,7 @@ public class BookControllerIT {
         Long pathVariable = 999L;
         when(bookService.getUserBookById(eq(pathVariable), eq(userDetails))).thenThrow(new BookNotFoundException(pathVariable));
 
-        mockMvc.perform(get("/api/books/{id}", pathVariable)
+        mockMvc.perform(get("/api/v1/books/{id}", pathVariable)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString(String.format("Book with ID: %s doesn't exist.", pathVariable))));
@@ -117,7 +117,8 @@ public class BookControllerIT {
         BookStatus status = BookStatus.READ;
         when(bookService.getUserBooksByStatus(eq(status), eq(userDetails))).thenReturn(Collections.singletonList(book2));
 
-        mockMvc.perform(get("/api/books/status/{status}", status)
+        mockMvc.perform(get("/api/v1/books/status", status)
+                        .param("status", status.toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -129,7 +130,7 @@ public class BookControllerIT {
     void whenCorrectBookDataProvided_ReturnSavedBook() throws Exception {
         when(bookService.createBook(any(CreateBookRequest.class), eq(userDetails))).thenReturn(book1);
 
-        mockMvc.perform(post("/api/books")
+        mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(book1)))
                 .andExpect(status().isOk())
@@ -144,7 +145,7 @@ public class BookControllerIT {
         updatedBook1.setId(1L);
         when(bookService.updateBook(eq(book1.getId()), any(UpdateBookRequest.class), eq(userDetails))).thenReturn(updatedBook1);
 
-        mockMvc.perform(put("/api/books/{id}", book1.getId())
+        mockMvc.perform(put("/api/v1/books/{id}", book1.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedBook1)))
                 .andExpect(status().isOk())
@@ -156,7 +157,7 @@ public class BookControllerIT {
     void whenBookExistsByIdAndUserAuthorized_DeleteBook() throws Exception {
         Long bookId = 1L;
 
-        mockMvc.perform(delete("/api/books/{id}", bookId))
+        mockMvc.perform(delete("/api/v1/books/{id}", bookId))
                 .andExpect(status().isOk());
         verify(bookService).deleteBookById(eq(bookId));
     }

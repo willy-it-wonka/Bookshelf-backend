@@ -11,10 +11,17 @@ import static org.springframework.http.HttpStatus.*;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(EmailIssueException.class)
+    @ExceptionHandler(EmailException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public String handleEmailIssueException(EmailIssueException e) {
+    public String handleEmailException(EmailException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(TokenException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    public String handleTokenException(TokenException e) {
         return e.getMessage();
     }
 

@@ -1,6 +1,6 @@
 package com.mybooks.bookshelf.user;
 
-import com.mybooks.bookshelf.exception.EmailIssueException;
+import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.email.EmailService;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
@@ -62,22 +62,22 @@ public class UserServiceTest {
     }
 
     @Test
-    void whenInvalidEmail_ThrowEmailIssueException() {
+    void whenInvalidEmail_ThrowEmailException() {
         RegisterRequest request = new RegisterRequest("Tom", "invalidEmail", "123");
 
-        EmailIssueException e = assertThrows(EmailIssueException.class, () ->
+        EmailException e = assertThrows(EmailException.class, () ->
                 userService.createUser(request));
 
         assertEquals("This email is invalid.", e.getMessage());
     }
 
     @Test
-    void whenEmailAlreadyTaken_ThrowEmailIssueException() {
+    void whenEmailAlreadyTaken_ThrowEmailException() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
 
-        EmailIssueException e = assertThrows(EmailIssueException.class, () ->
+        EmailException e = assertThrows(EmailException.class, () ->
                 userService.createUser(request));
 
         assertEquals("This email is already associated with some account.", e.getMessage());

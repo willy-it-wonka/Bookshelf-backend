@@ -1,5 +1,6 @@
 package com.mybooks.bookshelf.user.token;
 
+import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.user.InMemoryUserRepository;
 import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserRole;
@@ -66,35 +67,35 @@ public class TokenServiceTest {
     }
 
     @Test
-    void whenTokenToConfirmationDoesNotExist_ThrowIllegalStateException() {
+    void whenTokenToConfirmationDoesNotExist_ThrowTokenException() {
         String invalidToken = "invalid-token";
 
-        IllegalStateException e = assertThrows(IllegalStateException.class, () ->
+        TokenException e = assertThrows(TokenException.class, () ->
                 tokenService.confirmToken(invalidToken));
 
-        assertEquals("Token not found.", e.getMessage());
+        assertEquals("Email confirmation error: token not found.", e.getMessage());
     }
 
     @Test
-    void whenTokenAlreadyConfirmed_ThrowIllegalStateException() {
+    void whenTokenAlreadyConfirmed_ThrowTokenException() {
         token.setConfirmationDate(testTime.minusMinutes(5));
         tokenRepository.save(token);
 
-        IllegalStateException e = assertThrows(IllegalStateException.class, () ->
+        TokenException e = assertThrows(TokenException.class, () ->
                 tokenService.confirmToken(token.getToken()));
 
-        assertEquals("Email already confirmed.", e.getMessage());
+        assertEquals("Email confirmation error: email already confirmed.", e.getMessage());
     }
 
     @Test
-    void whenTokenExpired_ThrowIllegalStateException() {
+    void whenTokenExpired_ThrowTokenException() {
         token.setExpirationDate(testTime.minusMinutes(60));
         tokenRepository.save(token);
 
-        IllegalStateException e = assertThrows(IllegalStateException.class, () ->
+        TokenException e = assertThrows(TokenException.class, () ->
                 tokenService.confirmToken(token.getToken()));
 
-        assertEquals("Token expired.", e.getMessage());
+        assertEquals("Email confirmation error: token expired.", e.getMessage());
     }
 
 }

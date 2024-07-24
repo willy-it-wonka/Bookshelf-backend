@@ -1,7 +1,7 @@
 package com.mybooks.bookshelf.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mybooks.bookshelf.exception.EmailIssueException;
+import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
 import com.mybooks.bookshelf.user.payload.RegisterRequest;
@@ -44,7 +44,7 @@ public class UserControllerIT {
         RegisterResponse response = new RegisterResponse("nick", "token");
         when(userService.createUser(any(RegisterRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/register")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON) // Inform Spring MVC that the content type of the request is JSON.
                         .content(objectMapper.writeValueAsString(request))) // Serialize RegisterRequest to a JSON string for the request body.
                 .andExpect(status().isOk())
@@ -56,9 +56,9 @@ public class UserControllerIT {
     @Test
     void whenInvalidEmail_ReturnBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "invalid-email", "123");
-        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailIssueException("is invalid"));
+        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("is invalid"));
 
-        mockMvc.perform(post("/api/register")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -68,9 +68,9 @@ public class UserControllerIT {
     @Test
     void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
-        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailIssueException("is already associated with some account"));
+        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("is already associated with some account"));
 
-        mockMvc.perform(post("/api/register")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -83,7 +83,7 @@ public class UserControllerIT {
         String response = "Token confirmed.";
         when(tokenService.confirmToken(anyString())).thenReturn(response);
 
-        mockMvc.perform(get("/api/register/confirm")
+        mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", validToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -96,7 +96,7 @@ public class UserControllerIT {
         String response = "Token expired.";
         when(tokenService.confirmToken(anyString())).thenThrow(new IllegalStateException(response));
 
-        mockMvc.perform(get("/api/register/confirm")
+        mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", expiredToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -109,7 +109,7 @@ public class UserControllerIT {
         LoginResponse response = new LoginResponse("JWT", true);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/login")
+        mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -123,7 +123,7 @@ public class UserControllerIT {
         LoginResponse response = new LoginResponse("Incorrect password.", false);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/login")
+        mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -137,7 +137,7 @@ public class UserControllerIT {
         LoginResponse response = new LoginResponse("User not found.", false);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/login")
+        mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -151,7 +151,7 @@ public class UserControllerIT {
         boolean isEnabled = true;
         when(userService.isEnabled(anyString())).thenReturn(isEnabled);
 
-        mockMvc.perform(get("/api/enabled/{id}", userId)
+        mockMvc.perform(get("/api/v1/users/{id}/enabled", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(String.valueOf(isEnabled)));
@@ -161,7 +161,7 @@ public class UserControllerIT {
     void whenCorrectUserId_SendNewConfirmationEmail() throws Exception {
         String userId = "1";
 
-        mockMvc.perform(post("/api/new-conf-email/{id}", userId))
+        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("A new email has been sent."));
     }
