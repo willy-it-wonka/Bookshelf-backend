@@ -13,6 +13,8 @@ public class TokenService {
     private static final String TOKEN_NOT_FOUND_ERROR = "Token not found.";
     private static final String EMAIL_ALREADY_CONFIRMED_ERROR = "Email already confirmed.";
     private static final String TOKEN_EXPIRED_ERROR = "Token expired.";
+    private static final String CONFIRM_DATE_ERROR = "Failed to update confirmation date.";
+    private static final String ENABLE_USER_ERROR = "Failed to activate email.";
     private static final String TOKEN_CONFIRMED_MESSAGE = "Token confirmed.";
 
     private final TokenRepository tokenRepository;
@@ -29,7 +31,7 @@ public class TokenService {
 
     @Transactional
     public String confirmToken(String token) {
-        // Get token from DB.
+        // Get token from the DB.
         Token confirmationToken = getToken(token).orElseThrow(() -> new IllegalStateException(TOKEN_NOT_FOUND_ERROR));
 
         if (confirmationToken.getConfirmationDate() != null)
@@ -40,11 +42,13 @@ public class TokenService {
         if (expirationDate.isBefore(LocalDateTime.now()))
             throw new IllegalStateException(TOKEN_EXPIRED_ERROR);
 
-        // Update "confirmation_date" in DB in table "tokens".
-        setConfirmationDate(token);
+        // Update "confirmation_date" in the DB in the table "tokens".
+        if (setConfirmationDate(token) == 0)
+            throw new IllegalStateException(CONFIRM_DATE_ERROR);
 
-        // Update "enabled" in DB in table "users".
-        enableUser(confirmationToken.getTokenOwner().getEmail());
+        // Update "enabled" in the DB in the table "users".
+        if (enableUser(confirmationToken.getTokenOwner().getEmail()) == 0)
+            throw new IllegalStateException(ENABLE_USER_ERROR);
 
         return TOKEN_CONFIRMED_MESSAGE;
     }
