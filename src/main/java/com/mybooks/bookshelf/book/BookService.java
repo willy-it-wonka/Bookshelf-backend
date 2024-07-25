@@ -36,20 +36,13 @@ public class BookService {
         return books;
     }
 
-    // Get the book with specified id. If id doesn't exist, throw an exception.
+    // Get user's book by id.
     @Transactional(readOnly = true)
     public Book getUserBookById(Long id, UserDetails userDetails) {
-        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
-        Hibernate.initialize(book.getCategories());
-
-        // Checks if the logged-in user is the owner of the book with the specified id.
-        if (!book.getBookOwner().getId().equals(((User) userDetails).getId()))
-            throw new UnauthorizedAccessException();
-
-        return book;
+        return findUserBookById(id, userDetails);
     }
 
-    // Get a list of books by status.
+    // Get the list of user's books by status.
     @Transactional(readOnly = true)
     public List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
         List<Book> books = bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
@@ -57,7 +50,7 @@ public class BookService {
         return books;
     }
 
-    // Add the book to the database.
+    // Add new book to the database.
     @Transactional
     public Book createBook(CreateBookRequest request, UserDetails userDetails) {
         Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
@@ -68,7 +61,7 @@ public class BookService {
     // Get the book by id and modify it.
     @Transactional
     public Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
-        Book bookToUpdate = getUserBookById(id, userDetails);
+        Book bookToUpdate = findUserBookById(id, userDetails);
         bookToUpdate.setTitle(request.title());
         bookToUpdate.setAuthor(request.author());
         bookToUpdate.setStatus(request.status());
@@ -87,6 +80,22 @@ public class BookService {
         }
 
         bookRepository.deleteById(id);
+    }
+
+    /*
+     * Find the book with the specified id. If id doesn't exist, throw an exception.
+     *
+     * Logic used in more than one place in BookService, in @Transactional methods.
+     * To allow it to be called, it must be in a non-transactional method. */
+    private Book findUserBookById(Long id, UserDetails userDetails) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+        Hibernate.initialize(book.getCategories());
+
+        // Checks if the logged-in user is the owner of the book with the specified id.
+        if (!book.getBookOwner().getId().equals(((User) userDetails).getId()))
+            throw new UnauthorizedAccessException();
+
+        return book;
     }
 
 }
