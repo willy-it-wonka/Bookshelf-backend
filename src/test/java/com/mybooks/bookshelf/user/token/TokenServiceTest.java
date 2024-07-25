@@ -45,7 +45,7 @@ public class TokenServiceTest {
     void whenCorrectTokenDataProvided_SaveToken() {
         tokenService.saveToken(token);
 
-        Optional<Token> foundToken = tokenRepository.findByToken("test-token");
+        Optional<Token> foundToken = tokenRepository.findByConfirmationToken("test-token");
         assertTrue(foundToken.isPresent());
         assertEquals(user, foundToken.get().getTokenOwner());
     }
@@ -54,11 +54,11 @@ public class TokenServiceTest {
     void whenTokenExists_ConfirmToken() {
         tokenRepository.save(token);
 
-        String result = tokenService.confirmToken(token.getToken());
+        String result = tokenService.confirmToken(token.getConfirmationToken());
 
         User confirmedUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new AssertionError("User should be present in the InMemoryUserRepository."));
-        Token updatedToken = tokenRepository.findByToken(token.getToken())
+        Token updatedToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken())
                 .orElseThrow(() -> new AssertionError("Token should be present in the InMemoryTokenRepository."));
 
         assertNotNull(updatedToken.getConfirmationDate()); // Check: setConfirmationDate(token);
@@ -82,7 +82,7 @@ public class TokenServiceTest {
         tokenRepository.save(token);
 
         TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(token.getToken()));
+                tokenService.confirmToken(token.getConfirmationToken()));
 
         assertEquals("Email confirmation error: email already confirmed.", e.getMessage());
     }
@@ -93,7 +93,7 @@ public class TokenServiceTest {
         tokenRepository.save(token);
 
         TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(token.getToken()));
+                tokenService.confirmToken(token.getConfirmationToken()));
 
         assertEquals("Email confirmation error: token expired.", e.getMessage());
     }

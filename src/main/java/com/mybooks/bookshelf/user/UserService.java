@@ -71,7 +71,7 @@ public class UserService implements UserDetailsService {
         // Send an email with an account activation token.
         sendConfirmationEmail(token, request.email(), request.nick());
 
-        return new RegisterResponse(user.getNick(), token.getToken());
+        return new RegisterResponse(user.getNick(), token.getConfirmationToken());
     }
 
     // Returns true if the email address is already taken.
@@ -94,7 +94,7 @@ public class UserService implements UserDetailsService {
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
-        String link = EMAIL_CONFIRMATION_ENDPOINT + token.getToken();
+        String link = EMAIL_CONFIRMATION_ENDPOINT + token.getConfirmationToken();
         emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 

@@ -12,11 +12,11 @@ import java.util.Optional;
 @Repository
 public interface TokenRepository extends JpaRepository<Token, Long> {
 
-    Optional<Token> findByToken(String token);
+    Optional<Token> findByConfirmationToken(String confirmationToken);
 
     @Transactional
     @Modifying
-    @Query("UPDATE Token t " + "SET t.confirmationDate = ?2 " + "WHERE t.token = ?1")
-    int updateConfirmationDate(String token, LocalDateTime confirmationDate);
+    @Query("UPDATE Token t " + "SET t.confirmationDate = ?2 " + "WHERE t.confirmationToken = ?1")
+    int updateConfirmationDate(String confirmationToken, LocalDateTime confirmationDate);
 
 }

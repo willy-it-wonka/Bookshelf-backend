@@ -18,7 +18,7 @@ public class Token {   // Tokens used to confirm an email account.
     private Long id;
 
     @Column(nullable = false)
-    private String token;
+    private String confirmationToken;
 
     private LocalDateTime creationDate;
     private LocalDateTime confirmationDate;
@@ -31,8 +31,8 @@ public class Token {   // Tokens used to confirm an email account.
     public Token() {
     }
 
-    public Token(String token, LocalDateTime creationDate, LocalDateTime expirationDate, User tokenOwner) {
-        this.token = token;
+    public Token(String confirmationToken, LocalDateTime creationDate, LocalDateTime expirationDate, User tokenOwner) {
+        this.confirmationToken = confirmationToken;
         this.creationDate = creationDate;
         this.expirationDate = expirationDate;
         this.tokenOwner = tokenOwner;

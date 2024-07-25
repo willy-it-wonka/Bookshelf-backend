@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class TokenService {
@@ -31,34 +30,35 @@ public class TokenService {
     }
 
     @Transactional
-    public String confirmToken(String token) {
-        // Get token from the DB.
-        Token confirmationToken = getToken(token).orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));
+    public String confirmToken(String confirmationToken) {
+        // Get the token from the database.
+        Token token = getToken(confirmationToken);
 
-        if (confirmationToken.getConfirmationDate() != null)
+        if (token.getConfirmationDate() != null)
             throw new TokenException(EMAIL_ALREADY_CONFIRMED_ERROR);
 
-        // Check if the token is valid.
-        LocalDateTime expirationDate = confirmationToken.getExpirationDate();
+        LocalDateTime expirationDate = token.getExpirationDate();
         if (expirationDate.isBefore(LocalDateTime.now()))
             throw new TokenException(TOKEN_EXPIRED_ERROR);
 
-        // Update "confirmation_date" in the DB in the table "tokens".
-        if (setConfirmationDate(token) == 0)
+        // Update “confirmation_date” in the “tokens” table of the database.
+        if (setConfirmationDate(confirmationToken) == 0)
             throw new TokenException(CONFIRM_DATE_ERROR);
 
-        // Update "enabled" in the DB in the table "users".
-        if (enableUser(confirmationToken.getTokenOwner().getEmail()) == 0)
+        // Update “enabled” in the “users” table of the database.
+        if (enableUser(token.getTokenOwner().getEmail()) == 0)
             throw new TokenException(ENABLE_USER_ERROR);
 
         return TOKEN_CONFIRMED_MESSAGE;
     }
 
-    private Optional<Token> getToken(String token) {
-        return tokenRepository.findByToken(token);
+    // Get the full Token entity by confirmationToken, throw TokenException if not found.
+    private Token getToken(String confirmationToken) {
+        return tokenRepository.findByConfirmationToken(confirmationToken)
+                .orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));
     }
 
-    // int → returns 0 if no modifications; >0 if updates DB
+    // int → returns 0 if no modifications; >0 if the database has been updated.
     private int setConfirmationDate(String token) {
         return tokenRepository.updateConfirmationDate(token, LocalDateTime.now());
     }
@@ -66,4 +66,5 @@ public class TokenService {
     private int enableUser(String email) {
         return userRepository.updateEnabled(email);
     }
+
 }

@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 @Testcontainers
@@ -70,16 +71,16 @@ public class TokenRepositoryIT {
     void whenTokenFound_ReturnToken() {
         entityManager.persist(token);
 
-        Optional<Token> foundToken = tokenRepository.findByToken(token.getToken());
+        Optional<Token> foundToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken());
 
         assertThat(foundToken).isPresent();
-        assertThat(foundToken.get()).isEqualTo(token);
+        assertEquals(foundToken.get(), token);
     }
 
     @Test
     void whenTokenDoesNotExist_ReturnEmpty() {
         entityManager.persist(token);
-        Optional<Token> notFoundToken = tokenRepository.findByToken("wrong-token");
+        Optional<Token> notFoundToken = tokenRepository.findByConfirmationToken("wrong-token");
         assertThat(notFoundToken).isNotPresent();
     }
 
@@ -88,10 +89,10 @@ public class TokenRepositoryIT {
         entityManager.persist(token);
         LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
 
-        int updatedResp = tokenRepository.updateConfirmationDate(token.getToken(), confirmationDate);
+        int updatedResp = tokenRepository.updateConfirmationDate(token.getConfirmationToken(), confirmationDate);
         entityManager.refresh(token);
 
-        assertThat(updatedResp).isGreaterThan(0);
+        assertThat(updatedResp).isPositive();
         assertThat(token.getConfirmationDate()).isEqualTo(confirmationDate);
     }
 

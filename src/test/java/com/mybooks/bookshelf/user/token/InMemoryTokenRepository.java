@@ -29,15 +29,15 @@ public class InMemoryTokenRepository implements TokenRepository {
     }
 
     @Override
-    public Optional<Token> findByToken(String token) {
+    public Optional<Token> findByConfirmationToken(String token) {
         return tokens.values().stream()
-                .filter(t -> t.getToken().equals(token))
+                .filter(t -> t.getConfirmationToken().equals(token))
                 .findFirst();
     }
 
     @Override
     public int updateConfirmationDate(String token, LocalDateTime confirmationDate) {
-        Optional<Token> foundToken = findByToken(token);
+        Optional<Token> foundToken = findByConfirmationToken(token);
         if (foundToken.isPresent() && foundToken.get().getConfirmationDate() == null) {
             foundToken.get().setConfirmationDate(confirmationDate);
             return 1;
