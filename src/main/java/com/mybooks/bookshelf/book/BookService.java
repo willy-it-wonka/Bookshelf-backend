@@ -27,7 +27,7 @@ public class BookService {
 
     // Get the list of user's books.
     @Transactional(readOnly = true)
-    List<Book> getAllUserBooks(UserDetails userDetails) {
+    public List<Book> getAllUserBooks(UserDetails userDetails) {
         List<Book> books = bookRepository.findByBookOwner((User) userDetails);
 
         // Solution for lazy collection initialization.
@@ -38,7 +38,7 @@ public class BookService {
 
     // Get the book with specified id. If id doesn't exist, throw an exception.
     @Transactional(readOnly = true)
-    Book getUserBookById(Long id, UserDetails userDetails) {
+    public Book getUserBookById(Long id, UserDetails userDetails) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
         Hibernate.initialize(book.getCategories());
 
@@ -51,7 +51,7 @@ public class BookService {
 
     // Get a list of books by status.
     @Transactional(readOnly = true)
-    List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
+    public List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
         List<Book> books = bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
         books.forEach(book -> Hibernate.initialize(book.getCategories()));
         return books;
@@ -59,7 +59,7 @@ public class BookService {
 
     // Add the book to the database.
     @Transactional
-    Book createBook(CreateBookRequest request, UserDetails userDetails) {
+    public Book createBook(CreateBookRequest request, UserDetails userDetails) {
         Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
         book.setCategories(request.categories());
         return bookRepository.save(book);
@@ -67,7 +67,7 @@ public class BookService {
 
     // Get the book by id and modify it.
     @Transactional
-    Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
+    public Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
         Book bookToUpdate = getUserBookById(id, userDetails);
         bookToUpdate.setTitle(request.title());
         bookToUpdate.setAuthor(request.author());
@@ -79,7 +79,7 @@ public class BookService {
 
     // Delete the book with the specified id.
     @Transactional
-    void deleteBookById(Long id) {
+    public void deleteBookById(Long id) {
         // First, delete the notes for this book.
         try {
             noteService.deleteNoteByBookId(id);
