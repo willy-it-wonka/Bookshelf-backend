@@ -16,6 +16,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @DataJpaTest
 @Testcontainers
@@ -67,7 +69,7 @@ class UserRepositoryIT {
         Optional<User> foundUser = userRepository.findByEmail(user.getEmail());
 
         assertThat(foundUser).isPresent();
-        assertThat(foundUser.get()).isEqualTo(user);
+        assertEquals(foundUser.get(), user);
     }
 
     @Test
@@ -84,7 +86,7 @@ class UserRepositoryIT {
         Optional<User> foundUser = userRepository.findById(user.getId());
 
         assertThat(foundUser).isPresent();
-        assertThat(foundUser.get()).isEqualTo(user);
+        assertEquals(foundUser.get(), user);
     }
 
     @Test
@@ -102,7 +104,7 @@ class UserRepositoryIT {
         int updatedCount = userRepository.updateEnabled(user.getEmail());
         entityManager.refresh(user);
 
-        assertThat(updatedCount).isGreaterThan(0);
+        assertThat(updatedCount).isPositive();
         assertThat(user.isEnabled()).isTrue();
     }
 
