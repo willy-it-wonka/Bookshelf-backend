@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UserRepositoryIT {
+class UserRepositoryIT {
 
     @Container
     public static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")

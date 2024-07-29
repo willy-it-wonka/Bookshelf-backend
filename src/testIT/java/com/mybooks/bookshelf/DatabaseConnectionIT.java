@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Testcontainers
-public class DatabaseConnectionIT {
+class DatabaseConnectionIT {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;

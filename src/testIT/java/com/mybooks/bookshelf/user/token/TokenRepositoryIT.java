@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TokenRepositoryIT {
+class TokenRepositoryIT {
 
     @Container
     public static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")

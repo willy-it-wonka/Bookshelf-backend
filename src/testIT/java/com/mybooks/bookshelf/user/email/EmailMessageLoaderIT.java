@@ -8,7 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class EmailMessageLoaderIT {
+class EmailMessageLoaderIT {
 
     @Autowired
     private EmailMessageLoader emailMessageLoader;
