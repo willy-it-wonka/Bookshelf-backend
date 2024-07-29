@@ -21,7 +21,7 @@ import java.io.IOException;
 @Component
 public class JsonWebTokenFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonWebTokenFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonWebTokenFilter.class);
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -66,7 +66,7 @@ public class JsonWebTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(EXPIRED_SESSION_MESSAGE);
