@@ -1,19 +1,16 @@
 package com.mybooks.bookshelf.user.token;
 
+import com.mybooks.bookshelf.SingletonDatabaseContainer;
 import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserRole;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -22,15 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TokenRepositoryIT {
-
-    @Container
-    public static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
-            .withDatabaseName("testDB")
-            .withUsername("test")
-            .withPassword("test");
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -40,15 +30,15 @@ class TokenRepositoryIT {
 
     private Token token;
 
-    @DynamicPropertySource
-    static void databaseProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
+    @BeforeAll
+    public static void setUpBeforeAll() {
+        System.setProperty("spring.datasource.url", SingletonDatabaseContainer.getInstance().getJdbcUrl());
+        System.setProperty("spring.datasource.username", SingletonDatabaseContainer.getInstance().getUsername());
+        System.setProperty("spring.datasource.password", SingletonDatabaseContainer.getInstance().getPassword());
     }
 
     @BeforeEach
-    void setUp() {
+    void setUpBeforeEach() {
         User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
         entityManager.persist(user);
         LocalDateTime testTime = LocalDateTime.of(2024, 5, 16, 12, 0);
