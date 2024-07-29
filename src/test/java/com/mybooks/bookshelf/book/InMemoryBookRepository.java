@@ -36,7 +36,7 @@ public class InMemoryBookRepository implements BookRepository {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(@NonNull Long id) {
         books.remove(id);
     }
 
@@ -44,14 +44,14 @@ public class InMemoryBookRepository implements BookRepository {
     public List<Book> findByBookOwner(User user) {
         return books.values().stream()
                 .filter(book -> book.getBookOwner().equals(user))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<Book> findByStatusAndBookOwner(BookStatus status, User user) {
         return books.values().stream()
                 .filter(book -> book.getStatus() == status && book.getBookOwner().equals(user))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void clear() {
