@@ -6,7 +6,6 @@ import com.mybooks.bookshelf.user.email.EmailService;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
 import com.mybooks.bookshelf.user.payload.RegisterRequest;
-import com.mybooks.bookshelf.user.payload.RegisterResponse;
 import com.mybooks.bookshelf.user.token.Token;
 import com.mybooks.bookshelf.user.token.TokenService;
 import org.junit.jupiter.api.AfterEach;
@@ -52,13 +51,13 @@ class UserServiceTest {
         when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
 
-        RegisterResponse response = userService.createUser(request);
+        userService.createUser(request);
 
         User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() ->
                 new AssertionError("User should be present in the InMemoryUserRepository."));
         assertEquals(encodedPassword, savedUser.getPassword());
         verify(tokenService, times(1)).saveToken(any(Token.class)); // Check if token is saved.
-        verify(emailService).send(eq(request.email()), eq(emailContent)); // Check if email is sent.
+        verify(emailService).send(request.email(), emailContent); // Check if email is sent.
     }
 
     @Test
@@ -93,7 +92,7 @@ class UserServiceTest {
         userService.sendNewConfirmationEmail(existingUser.getId().toString());
 
         verify(tokenService).saveToken(any(Token.class)); // Check if token is saved.
-        verify(emailService).send(eq(existingUser.getEmail()), eq(emailContent)); // Check if email is sent.
+        verify(emailService).send(existingUser.getEmail(), emailContent); // Check if email is sent.
     }
 
     @Test
