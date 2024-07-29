@@ -143,11 +143,6 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public void deleteInBatch(Iterable<User> entities) {
-        UserRepository.super.deleteInBatch(entities);
-    }
-
-    @Override
     public void flush() {
     }
 

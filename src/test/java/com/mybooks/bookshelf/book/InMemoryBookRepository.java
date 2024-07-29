@@ -183,11 +183,6 @@ public class InMemoryBookRepository implements BookRepository {
     }
 
     @Override
-    public void deleteInBatch(Iterable<Book> entities) {
-        BookRepository.super.deleteInBatch(entities);
-    }
-
-    @Override
     public Book getOne(Long aLong) {
         return null;
     }
