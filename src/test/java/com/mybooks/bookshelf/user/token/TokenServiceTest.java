@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TokenServiceTest {
+class TokenServiceTest {
 
     private InMemoryTokenRepository tokenRepository;
     private InMemoryUserRepository userRepository;
@@ -61,8 +61,8 @@ public class TokenServiceTest {
         Token updatedToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken())
                 .orElseThrow(() -> new AssertionError("Token should be present in the InMemoryTokenRepository."));
 
-        assertNotNull(updatedToken.getConfirmationDate()); // Check: setConfirmationDate(token);
-        assertTrue(confirmedUser.getEnabled()); //Check: enableUser(confirmationToken.getTokenOwner().getEmail());
+        assertNotNull(updatedToken.getConfirmationDate());
+        assertTrue(confirmedUser.getEnabled());
         assertEquals("Token confirmed.", result);
     }
 
@@ -80,9 +80,10 @@ public class TokenServiceTest {
     void whenTokenAlreadyConfirmed_ThrowTokenException() {
         token.setConfirmationDate(testTime.minusMinutes(5));
         tokenRepository.save(token);
+        String updatedToken = token.getConfirmationToken();
 
         TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(token.getConfirmationToken()));
+                tokenService.confirmToken(updatedToken));
 
         assertEquals("Email confirmation error: email already confirmed.", e.getMessage());
     }
@@ -91,9 +92,10 @@ public class TokenServiceTest {
     void whenTokenExpired_ThrowTokenException() {
         token.setExpirationDate(testTime.minusMinutes(60));
         tokenRepository.save(token);
+        String updatedToken = token.getConfirmationToken();
 
         TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(token.getConfirmationToken()));
+                tokenService.confirmToken(updatedToken));
 
         assertEquals("Email confirmation error: token expired.", e.getMessage());
     }

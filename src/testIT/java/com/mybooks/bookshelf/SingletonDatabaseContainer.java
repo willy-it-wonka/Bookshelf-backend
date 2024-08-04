@@ -2,7 +2,7 @@ package com.mybooks.bookshelf;
 
 import org.testcontainers.containers.MySQLContainer;
 
-public abstract class SingletonDatabaseContainer {
+public class SingletonDatabaseContainer {
 
     private static final MySQLContainer<?> MYSQL_CONTAINER;
 
