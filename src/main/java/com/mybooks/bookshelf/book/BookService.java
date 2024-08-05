@@ -77,6 +77,8 @@ public class BookService {
         try {
             noteService.deleteNoteByBookId(id);
         } catch (NoteNotFoundException ignored) {
+            // If the notes do not exist, it will not disrupt the application,
+            // and the book will be deleted anyway.
         }
 
         bookRepository.deleteById(id);
