@@ -21,9 +21,7 @@ import java.util.UUID;
 @Service
 public class UserService implements UserDetailsService {
 
-    private static final String INVALID_EMAIL_ERROR = "is invalid";
     private static final String EMAIL_ALREADY_EXISTS_ERROR = "is already associated with some account";
-    private static final String REGEX_EMAIL_VALIDATION = "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
     private static final String EMAIL_CONFIRMATION_ENDPOINT = "http://localhost:8080/api/v1/users/confirmation?token=";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
@@ -48,10 +46,6 @@ public class UserService implements UserDetailsService {
      */
 
     RegisterResponse createUser(RegisterRequest request) {
-        // Check if the email address is correct.
-        if (!isEmailValid(request.email()))
-            throw new EmailException(INVALID_EMAIL_ERROR);
-
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = UserMapper.mapToEntity(request, encodedPassword);
 
@@ -74,10 +68,6 @@ public class UserService implements UserDetailsService {
     // Returns true if the email address is already taken.
     private boolean userExists(User user) {
         return userRepository.findByEmail(user.getEmail()).isPresent();
-    }
-
-    private boolean isEmailValid(String email) {
-        return email.matches(REGEX_EMAIL_VALIDATION);
     }
 
     private String createUniversallyUniqueId() {

@@ -6,6 +6,7 @@ import com.mybooks.bookshelf.user.payload.RegisterRequest;
 import com.mybooks.bookshelf.user.payload.RegisterResponse;
 import com.mybooks.bookshelf.user.token.TokenService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping
-    public RegisterResponse createUser(@RequestBody RegisterRequest request) {
+    public RegisterResponse createUser(@Valid @RequestBody RegisterRequest request) {
         return userService.createUser(request);
     }
 

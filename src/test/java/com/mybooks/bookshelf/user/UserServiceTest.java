@@ -61,16 +61,6 @@ class UserServiceTest {
     }
 
     @Test
-    void whenInvalidEmail_ThrowEmailException() {
-        RegisterRequest request = new RegisterRequest("Tom", "invalidEmail", "123");
-
-        EmailException e = assertThrows(EmailException.class, () ->
-                userService.createUser(request));
-
-        assertEquals("This email is invalid.", e.getMessage());
-    }
-
-    @Test
     void whenEmailAlreadyTaken_ThrowEmailException() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);

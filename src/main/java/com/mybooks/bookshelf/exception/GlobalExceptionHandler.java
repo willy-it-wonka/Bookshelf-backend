@@ -1,5 +1,6 @@
 package com.mybooks.bookshelf.exception;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -58,6 +59,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public String handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         return e.getMessage();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return e.getFieldError().getDefaultMessage();
     }
 
 }
