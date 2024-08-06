@@ -52,11 +52,8 @@ public class UserService implements UserDetailsService {
         if (!isEmailValid(request.email()))
             throw new EmailException(INVALID_EMAIL_ERROR);
 
-        User user = new User(
-                request.nick(),
-                request.email(),
-                this.passwordEncoder.encode(request.password()),
-                UserRole.USER);
+        String encodedPassword = passwordEncoder.encode(request.password());
+        User user = UserMapper.mapToEntity(request, encodedPassword);
 
         // Check if the email address is taken.
         if (userExists(user))
