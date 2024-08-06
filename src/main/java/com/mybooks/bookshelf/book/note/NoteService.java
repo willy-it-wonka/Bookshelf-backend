@@ -25,8 +25,7 @@ public class NoteService {
     }
 
     Note createNote(CreateNoteRequest request) {
-        Note note = new Note(request.content(), request.book());
-        return noteRepository.save(note);
+        return noteRepository.save(NoteMapper.mapToEntity(request));
     }
 
     Note updateNote(Long bookId, UpdateNoteRequest request) {

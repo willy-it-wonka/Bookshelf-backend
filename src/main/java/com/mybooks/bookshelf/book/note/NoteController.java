@@ -20,31 +20,24 @@ public class NoteController {
     @GetMapping("/{bookId}")
     public NoteResponse getNoteByBookId(@PathVariable Long bookId) {
         Note note = noteService.getNoteByBookId(bookId);
-        return convertToDto(note);
+        return NoteMapper.mapToNoteResponse(note);
     }
 
     @PostMapping
     public NoteResponse createNote(@RequestBody CreateNoteRequest request) {
         Note note = noteService.createNote(request);
-        return convertToDto(note);
+        return NoteMapper.mapToNoteResponse(note);
     }
 
     @PutMapping("/{bookId}")
     public NoteResponse updateNote(@PathVariable Long bookId, @RequestBody UpdateNoteRequest request) {
         Note note = noteService.updateNote(bookId, request);
-        return convertToDto(note);
+        return NoteMapper.mapToNoteResponse(note);
     }
 
     @DeleteMapping("/{bookId}")
     public void deleteNoteByBookId(@PathVariable Long bookId) {
         noteService.deleteNoteByBookId(bookId);
-    }
-
-    private NoteResponse convertToDto(Note note) {
-        return new NoteResponse(
-                note.getId(),
-                note.getContent(),
-                note.getBook().getId());
     }
 
 }
