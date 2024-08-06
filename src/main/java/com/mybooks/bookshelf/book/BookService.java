@@ -53,9 +53,7 @@ public class BookService {
     // Add new book to the database.
     @Transactional
     public Book createBook(CreateBookRequest request, UserDetails userDetails) {
-        Book book = new Book(request.title(), request.author(), request.status(), request.linkToCover(), (User) userDetails);
-        book.setCategories(request.categories());
-        return bookRepository.save(book);
+        return bookRepository.save(BookMapper.mapToEntity(request, userDetails));
     }
 
     // Get the book by id and modify it.

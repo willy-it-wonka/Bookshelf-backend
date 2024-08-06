@@ -1,6 +1,9 @@
 package com.mybooks.bookshelf.book;
 
 import com.mybooks.bookshelf.book.payload.BookResponse;
+import com.mybooks.bookshelf.book.payload.CreateBookRequest;
+import com.mybooks.bookshelf.user.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class BookMapper {
 
@@ -17,6 +20,17 @@ public class BookMapper {
                 book.getCategories(),
                 book.getCreatedDate(),
                 book.getLastModifiedDate());
+    }
+
+    static Book mapToEntity(CreateBookRequest request, UserDetails userDetails) {
+        Book book = new Book(
+                request.title(),
+                request.author(),
+                request.status(),
+                request.linkToCover(),
+                (User) userDetails);
+        book.setCategories(request.categories());
+        return book;
     }
 
 }
