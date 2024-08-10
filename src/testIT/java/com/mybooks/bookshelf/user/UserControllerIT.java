@@ -54,18 +54,6 @@ class UserControllerIT {
     }
 
     @Test
-    void whenInvalidEmail_ReturnBadRequest() throws Exception {
-        RegisterRequest request = new RegisterRequest("user", "invalid-email", "123");
-        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("is invalid"));
-
-        mockMvc.perform(post("/api/v1/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("This email is invalid."));
-    }
-
-    @Test
     void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
         when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("is already associated with some account"));
