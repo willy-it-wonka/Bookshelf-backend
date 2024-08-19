@@ -2,6 +2,7 @@ package com.mybooks.bookshelf.exception;
 
 import jakarta.mail.AuthenticationFailedException;
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
+import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,6 +69,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         return e.getFieldError().getDefaultMessage();
+    }
+
+    @ExceptionHandler(MailSendException.class)
+    @ResponseStatus(SERVICE_UNAVAILABLE)
+    @ResponseBody
+    public String handleMailSendException(MailSendException e) {
+        return e.getMessage();
     }
 
     @ExceptionHandler(SMTPSendFailedException.class)
