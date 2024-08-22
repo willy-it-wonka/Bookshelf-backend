@@ -1,6 +1,7 @@
 ## Links
 Front-end: [repository](https://github.com/willy-it-wonka/Bookshelf-frontend)\
-Demo: [AWS](http://bookshelf-app.s3-website.eu-north-1.amazonaws.com)
+Demo: [AWS](http://bookshelf-app.s3-website.eu-north-1.amazonaws.com)\
+Example data for the database: [repository](https://github.com/willy-it-wonka/Bookshelf-database)
 </br></br>
 
 ## Tech stack
@@ -38,7 +39,7 @@ With this application you can manage your library. Create a reading schedule. Ke
 * security configuration
 * JWT authorization
 * exception handling
-* CRUD books, notes
+* CRUD operations
 * unit testing
 * integration testing
 </br></br>
