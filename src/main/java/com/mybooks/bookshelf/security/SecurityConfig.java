@@ -32,11 +32,9 @@ public class SecurityConfig {
     private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
     private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE");
 
-    private final AuthenticationConfig authenticationConfig;
     private final JsonWebTokenFilter jsonWebTokenFilter;
 
-    public SecurityConfig(AuthenticationConfig authenticationConfig, JsonWebTokenFilter jsonWebTokenFilter) {
-        this.authenticationConfig = authenticationConfig;
+    public SecurityConfig(JsonWebTokenFilter jsonWebTokenFilter) {
         this.jsonWebTokenFilter = jsonWebTokenFilter;
     }
 
@@ -52,7 +50,6 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(authenticationConfig.authenticationProvider())
                 .addFilterBefore(jsonWebTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/users/session", LOGOUT_METHOD))

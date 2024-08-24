@@ -4,9 +4,8 @@ import com.mybooks.bookshelf.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -20,18 +19,16 @@ public class AuthenticationConfig {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // User authentication during login.
+    // Configures and provides the AuthenticationManager used for user authentication. It sets up
+    // a DaoAuthenticationProvider with a custom UserService for retrieving user details and
+    // a PasswordEncoder for password verification, ensuring secure authentication.
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-        return daoAuthenticationProvider;
-    }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+        return new ProviderManager(daoAuthenticationProvider);
     }
 
 }
