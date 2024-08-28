@@ -9,6 +9,7 @@ import com.mybooks.bookshelf.user.payload.RegisterRequest;
 import com.mybooks.bookshelf.user.payload.RegisterResponse;
 import com.mybooks.bookshelf.user.token.Token;
 import com.mybooks.bookshelf.user.token.TokenService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +23,6 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     private static final String EMAIL_ALREADY_EXISTS_ERROR = "is already associated with some account";
-    private static final String EMAIL_CONFIRMATION_ENDPOINT = "http://localhost:8080/api/v1/users/confirmation?token=";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
 
@@ -31,6 +31,9 @@ public class UserService implements UserDetailsService {
     private final TokenService tokenService;
     private final EmailService emailService;
     private final JsonWebToken jsonWebToken;
+
+    @Value("${email.confirmation.endpoint}")
+    private String emailConfirmationEndpoint;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService, JsonWebToken jsonWebToken) {
         this.userRepository = userRepository;
@@ -81,7 +84,7 @@ public class UserService implements UserDetailsService {
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
-        String link = EMAIL_CONFIRMATION_ENDPOINT + token.getConfirmationToken();
+        String link = emailConfirmationEndpoint + token.getConfirmationToken();
         emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 
