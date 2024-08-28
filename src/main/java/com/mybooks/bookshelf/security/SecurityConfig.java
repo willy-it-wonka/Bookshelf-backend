@@ -1,5 +1,6 @@
 package com.mybooks.bookshelf.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,12 +28,14 @@ public class SecurityConfig {
 
     private static final String LOGOUT_METHOD = "DELETE";
     private static final String LOGOUT_MESSAGE = "Logged out.";
-    private static final String CORS_ALLOWED_ORIGIN = "http://localhost:4200";
     private static final String CORS_PATH_PATTERN = "/**";
     private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
     private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE");
 
     private final JsonWebTokenFilter jsonWebTokenFilter;
+
+    @Value("${security.cors.allowed-origin}")
+    private String corsAllowedOrigin;
 
     public SecurityConfig(JsonWebTokenFilter jsonWebTokenFilter) {
         this.jsonWebTokenFilter = jsonWebTokenFilter;
@@ -66,7 +69,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin(CORS_ALLOWED_ORIGIN);
+        configuration.addAllowedOrigin(corsAllowedOrigin);
         configuration.setAllowedHeaders(CORS_ALLOWED_HEADERS);
         configuration.setAllowedMethods(CORS_ALLOWED_METHODS);
         configuration.setAllowCredentials(true);
