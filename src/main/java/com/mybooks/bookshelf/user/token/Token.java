@@ -7,11 +7,12 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+// Tokens used to confirm an email account.
 @Entity
 @Table(name = "tokens")
 @Getter
 @Setter
-public class Token {   // Tokens used to confirm an email account.
+public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -35,7 +35,7 @@ public class EmailService {
     }
 
     // Send confirmation mail.
-    @Async // Will make it execute in a separate thread.
+    @Async
     public void send(String addressee, String message) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -55,4 +55,5 @@ public class EmailService {
         String htmlContent = emailMessageLoader.loadMessage(TEMPLATE_MESSAGE_PATH);
         return htmlContent.replace(NAME_PLACEHOLDER, name).replace(LINK_PLACEHOLDER, link);
     }
+
 }

@@ -31,7 +31,6 @@ public class TokenService {
 
     @Transactional
     public String confirmToken(String confirmationToken) {
-        // Get the token from the database.
         Token token = getToken(confirmationToken);
 
         if (token.getConfirmationDate() != null)
@@ -52,7 +51,7 @@ public class TokenService {
         return TOKEN_CONFIRMED_MESSAGE;
     }
 
-    // Get the full Token entity by confirmationToken, throw TokenException if not found.
+    // Get the full Token entity by confirmationToken, throw TokenException if not found in the database.
     private Token getToken(String confirmationToken) {
         return tokenRepository.findByConfirmationToken(confirmationToken)
                 .orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));

@@ -51,7 +51,7 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
-    @JsonBackReference   // Solve problems with cyclic object serialization and lazy initialization.
+    @JsonBackReference
     private User bookOwner;
 
     @OneToOne(mappedBy = "book")
@@ -68,4 +68,5 @@ public class Book {
         this.linkToCover = linkToCover;
         this.bookOwner = bookOwner;
     }
+
 }

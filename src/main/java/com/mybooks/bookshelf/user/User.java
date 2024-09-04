@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private transient Set<Token> tokens;
 
     @OneToMany(mappedBy = "bookOwner")
-    @JsonManagedReference // Solve problems with cyclic object serialization and lazy initialization.
+    @JsonManagedReference
     private transient Set<Book> books;
 
     public User() {
@@ -87,4 +87,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     }
+
 }

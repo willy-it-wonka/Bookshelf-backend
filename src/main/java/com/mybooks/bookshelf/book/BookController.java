@@ -31,7 +31,7 @@ public class BookController {
 
     @GetMapping
     @Operation(summary = ALL_BOOKS_SUMMARY)
-    public List<BookResponse> getAllUserBooks(@AuthenticationPrincipal UserDetails userDetails) { // @AuthenticationPrincipal - Spring Security provides a UserDetails object representing the logged-in user.
+    public List<BookResponse> getAllUserBooks(@AuthenticationPrincipal UserDetails userDetails) {
         List<Book> books = bookService.getAllUserBooks(userDetails);
         return books.stream()
                 .map(BookMapper::mapToBookResponse)
@@ -40,7 +40,7 @@ public class BookController {
 
     @GetMapping("/{id}")
     @Operation(summary = BOOK_BY_ID_SUMMARY)
-    public BookResponse getUserBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) { // @PathVariable - get id from url
+    public BookResponse getUserBookById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookService.getUserBookById(id, userDetails);
         return BookMapper.mapToBookResponse(book);
     }
@@ -56,7 +56,7 @@ public class BookController {
 
     @PostMapping
     @Operation(summary = BOOK_CREATION_SUMMARY)
-    public BookResponse createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) { // @RequestBody - Spring automatically deserializes JSON to the specified Java type.
+    public BookResponse createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookService.createBook(request, userDetails);
         return BookMapper.mapToBookResponse(book);
     }

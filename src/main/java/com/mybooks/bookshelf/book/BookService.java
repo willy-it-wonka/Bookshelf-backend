@@ -82,11 +82,7 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    /*
-     * Find the book with the specified id. If id doesn't exist, throw an exception.
-     *
-     * Logic used in more than one place in BookService, in @Transactional methods.
-     * To allow it to be called, it must be in a non-transactional method. */
+    // Find the book with the specified id. If id doesn't exist, throw an exception.
     private Book findUserBookById(Long id, UserDetails userDetails) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
         Hibernate.initialize(book.getCategories());

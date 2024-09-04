@@ -65,7 +65,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Instead of @CrossOrigin in controllers.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

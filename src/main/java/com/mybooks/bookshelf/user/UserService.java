@@ -68,7 +68,6 @@ public class UserService implements UserDetailsService {
         return new RegisterResponse(user.getNick(), token.getConfirmationToken());
     }
 
-    // Returns true if the email address is already taken.
     private boolean userExists(User user) {
         return userRepository.findByEmail(user.getEmail()).isPresent();
     }
