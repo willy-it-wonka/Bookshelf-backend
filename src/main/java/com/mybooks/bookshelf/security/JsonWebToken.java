@@ -1,11 +1,11 @@
 package com.mybooks.bookshelf.security;
 
+import com.mybooks.bookshelf.exception.JwtAuthenticationException;
 import com.mybooks.bookshelf.user.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +20,8 @@ import java.util.function.Function;
 public class JsonWebToken {
 
     private static final String NICK_CLAIM = "nick";
+    private static final String EXPIRED_SESSION_ERROR = "Your session has expired. Log in again.";
+    private static final String INVALID_JWT_ERROR = "JWT token is invalid.";
 
     @Value("${security.jwt.secret}")
     private String secretKey;
@@ -75,11 +77,18 @@ public class JsonWebToken {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith((SecretKey) generateSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts
+                    .parser()
+                    .verifyWith((SecretKey) generateSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            throw new JwtAuthenticationException(EXPIRED_SESSION_ERROR, e);
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new JwtAuthenticationException(INVALID_JWT_ERROR, e);
+        }
     }
+
 }
