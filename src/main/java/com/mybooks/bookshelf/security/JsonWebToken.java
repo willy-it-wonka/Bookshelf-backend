@@ -41,12 +41,12 @@ public class JsonWebToken {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, User user) {
+    private String generateToken(Map<String, String> extraClaims, User user) {
         extraClaims.put(NICK_CLAIM, user.getNick());
         return createJWT(extraClaims, user, expiration);
     }
 
-    private String createJWT(Map<String, Object> claims, User user, long expiration) {
+    private String createJWT(Map<String, String> claims, User user, long expiration) {
         JwtBuilder jwtBuilder = Jwts.builder()
                 .claims(claims)
                 .subject(String.valueOf(user.getId()))
