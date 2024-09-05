@@ -1,13 +1,13 @@
 package com.mybooks.bookshelf.user;
 
+import com.mybooks.bookshelf.email.EmailService;
+import com.mybooks.bookshelf.email.token.Token;
+import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.security.JsonWebToken;
-import com.mybooks.bookshelf.user.email.EmailService;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
 import com.mybooks.bookshelf.user.payload.RegisterRequest;
-import com.mybooks.bookshelf.user.token.Token;
-import com.mybooks.bookshelf.user.token.TokenService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

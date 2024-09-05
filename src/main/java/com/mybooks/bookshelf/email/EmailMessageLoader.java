@@ -1,4 +1,4 @@
-package com.mybooks.bookshelf.user.email;
+package com.mybooks.bookshelf.email;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;

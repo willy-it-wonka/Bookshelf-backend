@@ -1,4 +1,4 @@
-package com.mybooks.bookshelf.user.token;
+package com.mybooks.bookshelf.email.token;
 
 import com.mybooks.bookshelf.SingletonDatabaseContainer;
 import com.mybooks.bookshelf.user.User;

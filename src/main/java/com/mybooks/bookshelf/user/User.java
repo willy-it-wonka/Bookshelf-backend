@@ -2,7 +2,7 @@ package com.mybooks.bookshelf.user;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mybooks.bookshelf.book.Book;
-import com.mybooks.bookshelf.user.token.Token;
+import com.mybooks.bookshelf.email.token.Token;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;

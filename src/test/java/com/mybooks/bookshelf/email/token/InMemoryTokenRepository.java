@@ -1,4 +1,4 @@
-package com.mybooks.bookshelf.user.token;
+package com.mybooks.bookshelf.email.token;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;

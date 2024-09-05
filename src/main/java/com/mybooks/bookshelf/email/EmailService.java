@@ -1,4 +1,4 @@
-package com.mybooks.bookshelf.user.email;
+package com.mybooks.bookshelf.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

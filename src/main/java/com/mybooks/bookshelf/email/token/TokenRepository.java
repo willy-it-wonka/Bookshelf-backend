@@ -1,4 +1,4 @@
-package com.mybooks.bookshelf.user.token;
+package com.mybooks.bookshelf.email.token;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
