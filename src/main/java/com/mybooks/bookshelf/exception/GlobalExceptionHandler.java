@@ -4,6 +4,7 @@ import jakarta.mail.AuthenticationFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
 import org.springframework.mail.MailSendException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,11 +12,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Optional;
+
 import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    public static final String UNKNOWN_VALIDATION_ERROR = "Unknown email validation error.";
 
     @ExceptionHandler(EmailException.class)
     @ResponseStatus(BAD_REQUEST)
@@ -78,7 +83,9 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error(e.getMessage(), e);
-        return e.getFieldError().getDefaultMessage();
+        return Optional.ofNullable(e.getBindingResult().getFieldError())
+                .map(FieldError::getDefaultMessage)
+                .orElse(UNKNOWN_VALIDATION_ERROR);
     }
 
     @ExceptionHandler(MailSendException.class)
