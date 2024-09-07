@@ -24,31 +24,26 @@ public class BookService {
         this.noteService = noteService;
     }
 
-    // Get the list of user's books.
     @Transactional(readOnly = true)
     public List<Book> getAllUserBooks(UserDetails userDetails) {
         return bookRepository.findByBookOwner((User) userDetails);
     }
 
-    // Get user's book by id.
     @Transactional(readOnly = true)
     public Book getUserBookById(Long id, UserDetails userDetails) {
         return findUserBookById(id, userDetails);
     }
 
-    // Get the list of user's books by status.
     @Transactional(readOnly = true)
     public List<Book> getUserBooksByStatus(BookStatus status, UserDetails userDetails) {
         return bookRepository.findByStatusAndBookOwner(status, (User) userDetails);
     }
 
-    // Add new book to the database.
     @Transactional
     public Book createBook(CreateBookRequest request, UserDetails userDetails) {
         return bookRepository.save(BookMapper.mapToEntity(request, userDetails));
     }
 
-    // Get the book by id and modify it.
     @Transactional
     public Book updateBook(Long id, UpdateBookRequest request, UserDetails userDetails) {
         Book bookToUpdate = findUserBookById(id, userDetails);
@@ -60,21 +55,18 @@ public class BookService {
         return bookRepository.save(bookToUpdate);
     }
 
-    // Delete the book with the specified id.
     @Transactional
     public void deleteBookById(Long id) {
         // First, delete the notes for this book.
         try {
             noteService.deleteNoteByBookId(id);
         } catch (NoteNotFoundException ignored) {
-            // If the notes do not exist, it will not disrupt the application,
-            // and the book will be deleted anyway.
+            // If the notes do not exist, do not interrupt the application.
         }
 
         bookRepository.deleteById(id);
     }
 
-    // Find the book with the specified id. If id doesn't exist, throw an exception.
     private Book findUserBookById(Long id, UserDetails userDetails) {
         Book book = bookRepository.findByIdWithCategories(id).orElseThrow(() -> new BookNotFoundException(id));
 
