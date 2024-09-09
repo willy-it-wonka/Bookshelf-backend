@@ -3,6 +3,7 @@ package com.mybooks.bookshelf.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
 import com.mybooks.bookshelf.user.payload.RegisterRequest;
@@ -13,10 +14,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,7 +42,7 @@ class UserControllerIT {
     private TokenService tokenService;
 
     @Test
-    void whenCorrectUserDtoProvided_CreateUserAndReturnMap() throws Exception {
+    void whenCorrectRegisterRequestProvided_CreateUserAndReturnMap() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
         RegisterResponse response = new RegisterResponse("nick", "token");
         when(userService.createUser(any(RegisterRequest.class))).thenReturn(response);
@@ -81,8 +84,8 @@ class UserControllerIT {
     @Test
     void whenTokenIsExpired_ReturnErrorMessage() throws Exception {
         String expiredToken = "expired-token";
-        String response = "Token expired.";
-        when(tokenService.confirmToken(anyString())).thenThrow(new IllegalStateException(response));
+        String response = "Email confirmation error: token expired.";
+        when(tokenService.confirmToken(anyString())).thenThrow(new TokenException("token expired."));
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", expiredToken)
@@ -92,7 +95,7 @@ class UserControllerIT {
     }
 
     @Test
-    void whenCorrectCredentialsProvided_LoginAndReturnJwt() throws Exception {
+    void whenCorrectLoginRequestProvided_LoginAndReturnJwt() throws Exception {
         LoginRequest request = new LoginRequest("user@gmail.com", "123");
         LoginResponse response = new LoginResponse("JWT", true);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
@@ -106,7 +109,7 @@ class UserControllerIT {
     }
 
     @Test
-    void whenIncorrectCredentialsProvided_ReturnErrorMessage() throws Exception {
+    void whenIncorrectLoginRequestProvided_ReturnErrorMessage() throws Exception {
         LoginRequest request = new LoginRequest("user@gmail.com", "wrongPass");
         LoginResponse response = new LoginResponse("Incorrect password.", false);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
@@ -146,12 +149,34 @@ class UserControllerIT {
     }
 
     @Test
+    void whenNonexistentUserId_ReturnUserNotEnabled() throws Exception {
+        String nonexistentUserId = "999";
+        when(userService.isEnabled(nonexistentUserId)).thenReturn(false);
+
+        mockMvc.perform(get("/api/v1/users/{id}/enabled", nonexistentUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
     void whenCorrectUserId_SendNewConfirmationEmail() throws Exception {
         String userId = "1";
 
         mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("A new email has been sent."));
+    }
+
+    @Test
+    void whenNonexistentUserId_SendNewConfirmationEmailFails() throws Exception {
+        String nonexistentUserId = "999";
+        String errorMessage = "User not found";
+        doThrow(new UsernameNotFoundException(errorMessage)).when(userService).sendNewConfirmationEmail(nonexistentUserId);
+
+        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", nonexistentUserId))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(errorMessage));
     }
 
 }
