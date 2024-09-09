@@ -101,7 +101,7 @@ class BookControllerIT {
 
     @Test
     @WithMockUser(username = "user@gmail.com")
-    void whenBookDoesNotExistById_ThrowResourceNotFoundException() throws Exception {
+    void whenBookDoesNotExistById_ThrowBookNotFoundException() throws Exception {
         Long pathVariable = 999L;
         when(bookService.getUserBookById(pathVariable, userDetails)).thenThrow(new BookNotFoundException(pathVariable));
 
@@ -124,6 +124,16 @@ class BookControllerIT {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].title", is("Book Two")));
     }
+
+    @Test
+    @WithMockUser(username = "user@gmail.com")
+    void whenInvalidBookStatusProvided_ReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/v1/books/status")
+                        .param("status", "invalid_status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     @WithMockUser(username = "user@gmail.com")
