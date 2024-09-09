@@ -4,6 +4,7 @@ import jakarta.mail.AuthenticationFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
 import org.springframework.mail.MailSendException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,6 +51,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public String handleNoteNotFoundException(NoteNotFoundException e) {
+        log.error(e.getMessage(), e);
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    public String handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error(e.getMessage(), e);
         return e.getMessage();
     }
