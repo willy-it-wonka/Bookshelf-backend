@@ -98,7 +98,7 @@ class UserRepositoryIT {
     }
 
     @Test
-    void whenEmailDoesNotExist_NoUpdateAndReturnZero() {
+    void whenEmailExistsAndISActivated_NoUpdateAndReturnZero() {
         user.setEnabled(true);
         entityManager.persist(user);
 
@@ -107,6 +107,13 @@ class UserRepositoryIT {
 
         assertThat(updatedCount).isZero();
         assertThat(user.isEnabled()).isTrue();
+    }
+
+    @Test
+    void whenEmailDoesNotExist_NoUpdateAndReturnZero() {
+        String nonExistentEmail = "nonexistent@test.com";
+        int updatedCount = userRepository.updateEnabled(nonExistentEmail);
+        assertThat(updatedCount).isZero();
     }
 
 }
