@@ -71,6 +71,18 @@ class BookRepositoryIT {
     }
 
     @Test
+    void whenBookFoundByIdWithCategories_ReturnBookWithCategories() {
+        book.getCategories().add(BookCategory.HISTORY);
+        book.getCategories().add(BookCategory.BIOGRAPHY);
+        entityManager.persist(book);
+
+        Optional<Book> retrievedBook = bookRepository.findByIdWithCategories(book.getId());
+
+        assertThat(retrievedBook).isPresent();
+        assertThat(retrievedBook.get().getCategories()).hasSize(2);
+    }
+
+    @Test
     void whenBooksFoundByOwner_ReturnOwnerBooks() {
         Book book1 = new Book("Title1", "Author1", BookStatus.WAITING, "link", user);
         Book book2 = new Book("Title2", "Author2", BookStatus.WAITING, "link", user);
@@ -93,6 +105,13 @@ class BookRepositoryIT {
         List<Book> books = bookRepository.findByStatusAndBookOwner(BookStatus.READ, user);
 
         assertThat(books).containsExactlyInAnyOrder(book1, book2);
+    }
+
+    @Test
+    void whenAreNoBooksWithGivenStatus_ReturnEmptyList() {
+        entityManager.persist(book);
+        List<Book> books = bookRepository.findByStatusAndBookOwner(BookStatus.READ, user);
+        assertThat(books).isEmpty();
     }
 
 }
