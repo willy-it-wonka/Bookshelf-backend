@@ -42,7 +42,7 @@ class UserControllerIT {
     private TokenService tokenService;
 
     @Test
-    void whenCorrectRegisterRequestProvided_CreateUserAndReturnMap() throws Exception {
+    void whenCorrectRegisterRequest_CreateUserAndRegisterResponse() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
         RegisterResponse response = new RegisterResponse("nick", "token");
         when(userService.createUser(any(RegisterRequest.class))).thenReturn(response);
@@ -66,6 +66,16 @@ class UserControllerIT {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("This email is already associated with some account."));
+    }
+
+    @Test
+    void whenEmailIsInvalid_ReturnBadRequest() throws Exception {
+        RegisterRequest request = new RegisterRequest("user", "invalid-email", "123");
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid email format."));
     }
 
     @Test
