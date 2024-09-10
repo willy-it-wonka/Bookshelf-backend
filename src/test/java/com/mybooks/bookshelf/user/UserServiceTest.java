@@ -44,7 +44,7 @@ class UserServiceTest {
     }
 
     @Test
-    void whenCorrectUserDataProvided_CreateUserAndSendEmail() {
+    void whenCorrectRegisterRequest_CreateUserAndSendEmail() {
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
         String encodedPassword = "encodedPassword";
         String emailContent = "Mocked email content";
@@ -66,14 +66,24 @@ class UserServiceTest {
         userRepository.save(existingUser);
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
 
-        EmailException e = assertThrows(EmailException.class, () ->
-                userService.createUser(request));
+        EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request));
 
         assertEquals("This email is already associated with some account.", e.getMessage());
     }
 
     @Test
-    void whenUserExistsAndAsksForNewConfirmation_SendNewConfirmationEmail() {
+    void whenTwoRegisterRequestWithSameEmail_ThrowEmailException() {
+        RegisterRequest request1 = new RegisterRequest("Tom", "tom@gmail.com", "123");
+        RegisterRequest request2 = new RegisterRequest("Tom", "tom@gmail.com", "123");
+
+        userService.createUser(request1);
+        EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request2));
+
+        assertEquals("This email is already associated with some account.", e.getMessage());
+    }
+
+    @Test
+    void whenUserExistsAndAsksForNewConfirmation_SendNewEmail() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         String emailContent = "Mocked email content";
@@ -128,7 +138,7 @@ class UserServiceTest {
     }
 
     @Test
-    void whenCredentialsCorrect_ReturnSuccessfulLoginResponse() {
+    void whenCorrectLoginRequest_ReturnSuccessfulLoginResponse() {
         User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
         when(passwordEncoder.matches("123", user.getPassword())).thenReturn(true);
