@@ -40,6 +40,7 @@ class EmailServiceTest {
         verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(addressee));
         verify(mimeMessage).setSubject("Confirm your email", "utf-8");
         verify(mimeMessage).setContent(message, "text/html;charset=utf-8");
+        verify(mimeMessage).setFrom(new InternetAddress("noreply@gmail.com"));
         verify(javaMailSender).send(mimeMessage);
     }
 
@@ -54,7 +55,15 @@ class EmailServiceTest {
     }
 
     @Test
-    void whenCorrectReplacement_ReturnBuiltEmail() {
+    void whenMessageIsNull_ThrowIllegalArgumentException() {
+        String addressee = "test@gmail.com";
+
+        assertThrows(IllegalArgumentException.class, () ->
+                emailService.send(addressee, null));
+    }
+
+    @Test
+    void whenCorrectPlaceholdersProvided_ReturnEmailWithReplacedValues() {
         String name = "John";
         String link = "http://test.com/confirm?token=";
         String templateContent = "Hi {name}, please visit {link} to activate your account.";
@@ -66,6 +75,16 @@ class EmailServiceTest {
         assertTrue(result.contains(link));
         assertFalse(result.contains("{name}")); // Check lack of placeholder.
         assertFalse(result.contains("{link}"));
+    }
+
+    @Test
+    void whenTemplateNotFound_ThrowIllegalStateException() {
+        String name = "John";
+        String link = "http://test.com/confirm?token=";
+        when(emailMessageLoader.loadMessage(anyString())).thenThrow(new IllegalStateException("Template not found"));
+
+        assertThrows(IllegalStateException.class, () ->
+                emailService.buildEmail(name, link));
     }
 
 }
