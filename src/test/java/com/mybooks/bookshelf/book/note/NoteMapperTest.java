@@ -5,7 +5,6 @@ import com.mybooks.bookshelf.book.BookStatus;
 import com.mybooks.bookshelf.book.note.payload.CreateNoteRequest;
 import com.mybooks.bookshelf.book.note.payload.NoteResponse;
 import com.mybooks.bookshelf.user.User;
-import com.mybooks.bookshelf.user.UserRole;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,8 +13,7 @@ class NoteMapperTest {
 
     @Test
     void whenValidNoteProvided_ReturnNoteResponse() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", user);
+        Book book = new Book("Title", "Author", BookStatus.READ, "link", new User());
         book.setId(1L);
         Note note = new Note("Note content", book);
         note.setId(10L);
@@ -30,8 +28,7 @@ class NoteMapperTest {
 
     @Test
     void whenNoteHasEmptyContent_ReturnNoteResponse() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", user);
+        Book book = new Book("Title", "Author", BookStatus.READ, "link", new User());
         book.setId(1L);
         Note note = new Note("", book);
         note.setId(10L);
@@ -57,8 +54,7 @@ class NoteMapperTest {
 
     @Test
     void whenCreateNoteRequest_ReturnNote() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", user);
+        Book book = new Book("Title", "Author", BookStatus.READ, "link", new User());
         book.setId(1L);
         CreateNoteRequest request = new CreateNoteRequest("Note content", book);
 
