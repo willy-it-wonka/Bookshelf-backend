@@ -29,6 +29,7 @@ class NoteServiceTest {
         book = new Book("Title", "Author", BookStatus.READ, "link", user);
         book.setId(1L);
         note = new Note("Content of the note.", book);
+        noteRepository.save(note);
     }
 
     @AfterEach
@@ -38,22 +39,24 @@ class NoteServiceTest {
 
     @Test
     void whenNoteExists_DeleteNoteByBookId() {
-        noteRepository.save(note);
         noteService.deleteNoteByBookId(note.getBook().getId());
         assertFalse(noteRepository.findByBookId(note.getBook().getId()).isPresent());
     }
 
     @Test
     void whenNoteExists_ReturnNoteByBookId() {
-        noteRepository.save(note);
         Note foundNote = noteService.getNoteByBookId(note.getBook().getId());
         assertEquals(note, foundNote);
     }
 
     @Test
     void whenNoteDoesNotExistByBookId_ThrowNoteNotFoundException() {
-        Long nonExistingBookId = 999L;
-        assertThrows(NoteNotFoundException.class, () -> noteService.getNoteByBookId(nonExistingBookId));
+        Long idOfBookWithoutNote = 999L;
+
+        NoteNotFoundException e = assertThrows(NoteNotFoundException.class, () ->
+                noteService.getNoteByBookId(idOfBookWithoutNote));
+
+        assertEquals("Notes for the book with ID: 999 don't exist.", e.getMessage());
     }
 
     @Test
@@ -70,7 +73,6 @@ class NoteServiceTest {
 
     @Test
     void whenNoteExistsAndUpdateNoteRequest_UpdateNoteContent() {
-        noteRepository.save(note);
         UpdateNoteRequest request = new UpdateNoteRequest("Updated content");
 
         Note updatedNote = noteService.updateNote(note.getBook().getId(), request);
@@ -82,10 +84,13 @@ class NoteServiceTest {
 
     @Test
     void whenNoteDoesNotExistAndUpdateNoteRequest_ThrowNoteNotFoundException() {
-        Long nonExistingBookId = 999L;
+        Long idOfBookWithoutNote = 999L;
         UpdateNoteRequest request = new UpdateNoteRequest("Updated content");
 
-        assertThrows(NoteNotFoundException.class, () -> noteService.updateNote(nonExistingBookId, request));
+        NoteNotFoundException e = assertThrows(NoteNotFoundException.class, () ->
+                noteService.updateNote(idOfBookWithoutNote, request));
+
+        assertEquals("Notes for the book with ID: 999 don't exist.", e.getMessage());
     }
 
 }
