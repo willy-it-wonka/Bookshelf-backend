@@ -3,6 +3,7 @@ package com.mybooks.bookshelf.book.note;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mybooks.bookshelf.book.Book;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import lombok.Setter;
 @Table(name = "notes")
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Note {
 
     @Id

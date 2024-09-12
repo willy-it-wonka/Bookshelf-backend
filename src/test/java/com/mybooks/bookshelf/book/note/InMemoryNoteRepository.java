@@ -27,6 +27,12 @@ public class InMemoryNoteRepository implements NoteRepository {
 
     @Override
     @NonNull
+    public Optional<Note> findById(Long id) {
+        return Optional.ofNullable(notes.get(id));
+    }
+
+    @Override
+    @NonNull
     public <S extends Note> S save(S note) {
         if (note.getId() == null) // It's always null.
             note.setId(mapKey++);
@@ -114,11 +120,6 @@ public class InMemoryNoteRepository implements NoteRepository {
     @Override
     public List<Note> findAllById(Iterable<Long> longs) {
         return null;
-    }
-
-    @Override
-    public Optional<Note> findById(Long aLong) {
-        return Optional.empty();
     }
 
     @Override
