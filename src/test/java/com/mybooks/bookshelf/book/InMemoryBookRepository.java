@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class InMemoryBookRepository implements BookRepository {
 
@@ -29,7 +28,7 @@ public class InMemoryBookRepository implements BookRepository {
     @Override
     @NonNull
     public <S extends Book> S save(S book) {
-        if (book.getId() == null) // Always is null.
+        if (book.getId() == null) // It's always null.
             book.setId(mapKey++);
         books.put(book.getId(), book);
         return book;
@@ -38,6 +37,11 @@ public class InMemoryBookRepository implements BookRepository {
     @Override
     public void deleteById(@NonNull Long id) {
         books.remove(id);
+    }
+
+    @Override
+    public Optional<Book> findByIdWithCategories(Long id) {
+        return Optional.ofNullable(books.get(id));
     }
 
     @Override
@@ -191,4 +195,5 @@ public class InMemoryBookRepository implements BookRepository {
     public Book getById(Long aLong) {
         return null;
     }
+
 }

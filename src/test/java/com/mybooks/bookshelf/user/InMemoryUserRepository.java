@@ -21,7 +21,7 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     @NonNull
     public <S extends User> S save(S user) {
-        if (user.getId() == null) // Always is null.
+        if (user.getId() == null) // It's always null.
             user.setId(mapKey++);
         users.put(user.getId(), user);
         return user;
@@ -192,4 +192,5 @@ public class InMemoryUserRepository implements UserRepository {
     public <S extends User> List<S> findAll(Example<S> example, Sort sort) {
         return null;
     }
+
 }

@@ -22,7 +22,7 @@ public class InMemoryTokenRepository implements TokenRepository {
     @Override
     @NonNull
     public <S extends Token> S save(S token) {
-        if (token.getId() == null) // Always is null.
+        if (token.getId() == null) // It's always null.
             token.setId(mapKey++);
         tokens.put(token.getId(), token);
         return token;
@@ -55,11 +55,6 @@ public class InMemoryTokenRepository implements TokenRepository {
     /*
      * Below methods are not used. == Not implemented.
      */
-
-    @Override
-    public void deleteInBatch(Iterable<Token> entities) {
-        TokenRepository.super.deleteInBatch(entities);
-    }
 
     @Override
     public void flush() {
@@ -196,4 +191,5 @@ public class InMemoryTokenRepository implements TokenRepository {
     public <S extends Token, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
     }
+
 }
