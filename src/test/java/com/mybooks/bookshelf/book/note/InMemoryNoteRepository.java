@@ -42,7 +42,7 @@ public class InMemoryNoteRepository implements NoteRepository {
 
     @Override
     public void deleteByBookId(@NonNull Long bookId) {
-        notes.remove(bookId);
+        notes.values().removeIf(note -> note.getBook().getId().equals(bookId));
     }
 
     public void clear() {
