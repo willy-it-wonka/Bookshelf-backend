@@ -6,4 +6,8 @@ public class TokenException extends RuntimeException {
         super(String.format("Email confirmation error: %s", message));
     }
 
+    public TokenException(String message, boolean includePrefix) {
+        super(includePrefix ? String.format("Email confirmation error: %s", message) : message);
+    }
+
 }

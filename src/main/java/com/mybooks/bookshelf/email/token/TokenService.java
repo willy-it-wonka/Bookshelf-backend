@@ -1,6 +1,7 @@
 package com.mybooks.bookshelf.email.token;
 
 import com.mybooks.bookshelf.exception.TokenException;
+import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,11 @@ public class TokenService {
         return TOKEN_CONFIRMED_MESSAGE;
     }
 
-    // Get the full Token entity by confirmationToken, throw TokenException if not found in the database.
+    public Token getLatestUserToken(User user) {
+        return tokenRepository.findTop1ByTokenOwnerOrderByCreationDateDesc(user)
+                .orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));
+    }
+
     private Token getToken(String confirmationToken) {
         return tokenRepository.findByConfirmationToken(confirmationToken)
                 .orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));

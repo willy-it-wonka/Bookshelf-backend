@@ -4,6 +4,7 @@ import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     private static final String EMAIL_ALREADY_EXISTS_ERROR = "is already associated with some account";
+    private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
 
@@ -56,10 +59,10 @@ public class UserService implements UserDetailsService {
         if (userExists(user))
             throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
 
-        // Save user entity in the DB.
+        // Save the user entity in the DB.
         userRepository.save(user);
 
-        // Create token and save it in the DB.
+        // Create a token and save it in the DB.
         Token token = createConfirmationToken(user);
 
         // Send an email with an account activation token.
@@ -89,8 +92,18 @@ public class UserService implements UserDetailsService {
 
     void sendNewConfirmationEmail(String userId) {
         User user = loadUserById(Long.parseLong(userId));
-        Token token = createConfirmationToken(user);
-        sendConfirmationEmail(token, user.getEmail(), user.getNick());
+        Token latestToken = tokenService.getLatestUserToken(user);
+
+        // If it has been 5 minutes since the last email.
+        Duration timeElapsed = Duration.between(latestToken.getCreationDate(), LocalDateTime.now());
+        if (timeElapsed.getSeconds() < 300) {
+            long minutesLeft = 4 - timeElapsed.toMinutes();
+            long secondsLeft = 59 - (timeElapsed.getSeconds() % 60);
+            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft), false);
+        }
+
+        Token newToken = createConfirmationToken(user);
+        sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
     }
 
 
