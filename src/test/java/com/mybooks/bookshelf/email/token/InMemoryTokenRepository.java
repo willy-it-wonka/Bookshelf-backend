@@ -1,5 +1,6 @@
 package com.mybooks.bookshelf.email.token;
 
+import com.mybooks.bookshelf.user.User;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,10 +9,7 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 public class InMemoryTokenRepository implements TokenRepository {
@@ -33,6 +31,13 @@ public class InMemoryTokenRepository implements TokenRepository {
         return tokens.values().stream()
                 .filter(t -> t.getConfirmationToken().equals(token))
                 .findFirst();
+    }
+
+    @Override
+    public Optional<Token> findTop1ByTokenOwnerOrderByCreationDateDesc(User tokenOwner) {
+        return tokens.values().stream()
+                .filter(token -> token.getTokenOwner().equals(tokenOwner))
+                .max(Comparator.comparing(Token::getCreationDate));
     }
 
     @Override
