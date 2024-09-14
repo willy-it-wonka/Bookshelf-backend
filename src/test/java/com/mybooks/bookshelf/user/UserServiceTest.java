@@ -4,6 +4,7 @@ import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.LoginRequest;
 import com.mybooks.bookshelf.user.payload.LoginResponse;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -83,16 +86,37 @@ class UserServiceTest {
     }
 
     @Test
-    void whenUserExistsAndAsksForNewConfirmation_SendNewEmail() {
+    void whenEnoughTimePassed_SendNewConfirmationEmail() {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         String emailContent = "Mocked email content";
+
+        // Mock the last token creation time to be more than 5 minutes ago.
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), existingUser);
+        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
 
         userService.sendNewConfirmationEmail(existingUser.getId().toString());
 
-        verify(tokenService).saveToken(any(Token.class)); // Check if token is saved.
+        verify(tokenService).saveToken(any(Token.class)); // Check if new token is saved.
         verify(emailService).send(existingUser.getEmail(), emailContent); // Check if email is sent.
+    }
+
+    @Test
+    void whenRequestForNewEmailIsTooSoon_ThrowTokenException() {
+        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
+        userRepository.save(existingUser);
+        String userId = existingUser.getId().toString();
+
+        // Mock the last token creation time to be less than 5 minutes ago.
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), existingUser);
+        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
+
+        TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
+
+        assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
+        verify(tokenService, never()).saveToken(any(Token.class));
+        verify(emailService, never()).send(anyString(), anyString());
     }
 
     @Test

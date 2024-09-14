@@ -75,6 +75,30 @@ class TokenRepositoryIT {
     }
 
     @Test
+    void whenMultipleTokensExist_ReturnLatestToken() {
+        User user = token.getTokenOwner();
+        LocalDateTime olderTokenTime = LocalDateTime.of(2024, 5, 15, 10, 0);
+        Token olderToken = new Token("older-token", olderTokenTime, olderTokenTime.plusMinutes(30), user);
+        entityManager.persist(olderToken);
+        entityManager.persist(token);
+
+        Optional<Token> latestToken = tokenRepository.findTop1ByTokenOwnerOrderByCreationDateDesc(user);
+
+        assertThat(latestToken).isPresent();
+        assertEquals(token, latestToken.get());
+    }
+
+    @Test
+    void whenNoTokensExistForUser_ReturnEmpty() {
+        User user = token.getTokenOwner();
+        tokenRepository.deleteAll(); // Ensure no tokens for the user exist
+
+        Optional<Token> latestToken = tokenRepository.findTop1ByTokenOwnerOrderByCreationDateDesc(user);
+
+        assertThat(latestToken).isNotPresent();
+    }
+
+    @Test
     void whenValidToken_UpdateConfirmationDateAndReturnPositive() {
         entityManager.persist(token);
         LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);

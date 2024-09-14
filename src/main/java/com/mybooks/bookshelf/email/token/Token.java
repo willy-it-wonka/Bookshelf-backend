@@ -2,6 +2,7 @@ package com.mybooks.bookshelf.email.token;
 
 import com.mybooks.bookshelf.user.User;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "tokens")
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Token {
 
     @Id

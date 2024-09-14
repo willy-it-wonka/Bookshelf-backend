@@ -100,4 +100,33 @@ class TokenServiceTest {
         assertEquals("Email confirmation error: token expired.", e.getMessage());
     }
 
+    @Test
+    void whenUserHasToken_ReturnLatestToken() {
+        tokenRepository.save(token);
+
+        Token latestToken = tokenService.getLatestUserToken(user);
+
+        assertNotNull(latestToken);
+        assertEquals(token, latestToken);
+    }
+
+    @Test
+    void whenUserHasNoToken_ThrowTokenException() {
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.getLatestUserToken(user));
+        assertEquals("Email confirmation error: token not found.", e.getMessage());
+    }
+
+    @Test
+    void whenUserHasMultipleTokens_ReturnLatestToken() {
+        Token newerToken = new Token("new-token", testTime.plusMinutes(5), testTime.plusMinutes(35), user);
+        tokenRepository.save(token);
+        tokenRepository.save(newerToken);
+
+        Token latestToken = tokenService.getLatestUserToken(user);
+
+        assertNotNull(latestToken);
+        assertEquals(newerToken, latestToken);
+        assertEquals(newerToken.getCreationDate(), latestToken.getCreationDate());
+    }
+
 }
