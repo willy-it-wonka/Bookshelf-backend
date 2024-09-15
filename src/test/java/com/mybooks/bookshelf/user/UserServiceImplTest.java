@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -187,6 +188,41 @@ class UserServiceImplTest {
         userRepository.save(user);
 
         assertFalse(userService.isEnabled(user.getId().toString()));
+    }
+
+    @Test
+    void whenUserExistsAndIsNotEnabled_EnableUserAndReturnPositive() {
+        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        user.setEnabled(false);
+        userRepository.save(user);
+
+        int result = userService.enableUser(user.getEmail());
+
+        assertThat(result).isPositive();
+        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() ->
+                new AssertionError("User should be present in the InMemoryUserRepository."));
+        assertTrue(updatedUser.isEnabled());
+    }
+
+    @Test
+    void whenUserAlreadyEnabled_ThenDoNothingAndReturnZero() {
+        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        int result = userService.enableUser(user.getEmail());
+
+        assertEquals(0, result);
+        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() ->
+                new AssertionError("User should be present in the InMemoryUserRepository."));
+        assertTrue(updatedUser.isEnabled());
+    }
+
+    @Test
+    void whenUserDoesNotExist_ThenReturnZero() {
+        String email = "nonexistent@test.com";
+        int result = userService.enableUser(email);
+        assertEquals(0, result);
     }
 
     @Test

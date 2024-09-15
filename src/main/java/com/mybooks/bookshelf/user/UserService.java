@@ -18,6 +18,8 @@ public interface UserService {
 
     boolean isEnabled(String userId);
 
+    int enableUser(String email);
+
     void sendNewConfirmationEmail(String userId);
 
 }

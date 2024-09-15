@@ -114,6 +114,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public int enableUser(String email) {
+        return userRepository.updateEnabled(email);
+    }
+
+    @Override
     public void sendNewConfirmationEmail(String userId) {
         User user = loadUserById(Long.parseLong(userId));
         Token latestToken = tokenService.getLatestUserToken(user);

@@ -1,16 +1,21 @@
 package com.mybooks.bookshelf.email.token;
 
+import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.exception.TokenException;
+import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.InMemoryUserRepository;
 import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserRole;
+import com.mybooks.bookshelf.user.UserServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class TokenServiceTest {
 
@@ -25,7 +30,8 @@ class TokenServiceTest {
     void setUp() {
         tokenRepository = new InMemoryTokenRepository();
         userRepository = new InMemoryUserRepository();
-        tokenService = new TokenService(tokenRepository, userRepository);
+        UserServiceImpl userService = new UserServiceImpl(userRepository, mock(PasswordEncoder.class), tokenService, mock(EmailService.class), mock(JsonWebToken.class));
+        tokenService = new TokenService(tokenRepository, userService);
 
         user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         userRepository.save(user);

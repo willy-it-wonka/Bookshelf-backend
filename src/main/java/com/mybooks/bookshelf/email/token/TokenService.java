@@ -2,7 +2,7 @@ package com.mybooks.bookshelf.email.token;
 
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.user.User;
-import com.mybooks.bookshelf.user.UserRepository;
+import com.mybooks.bookshelf.user.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +20,11 @@ public class TokenService {
     private static final String TOKEN_CONFIRMED_MESSAGE = "Token confirmed.";
 
     private final TokenRepository tokenRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public TokenService(TokenRepository tokenRepository, UserRepository userRepository) {
+    public TokenService(TokenRepository tokenRepository, UserService userService) {
         this.tokenRepository = tokenRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public Token createConfirmationToken(User user) {
@@ -48,7 +48,7 @@ public class TokenService {
             throw new TokenException(CONFIRM_DATE_ERROR);
 
         // Update “enabled” in the “users” table of the database.
-        if (enableUser(token.getTokenOwner().getEmail()) == 0)
+        if (userService.enableUser(token.getTokenOwner().getEmail()) == 0)
             throw new TokenException(ENABLE_USER_ERROR);
 
         return TOKEN_CONFIRMED_MESSAGE;
@@ -67,10 +67,6 @@ public class TokenService {
     // int → returns 0 if no modifications; >0 if the database has been updated.
     private int setConfirmationDate(String token) {
         return tokenRepository.updateConfirmationDate(token, LocalDateTime.now());
-    }
-
-    private int enableUser(String email) {
-        return userRepository.updateEnabled(email);
     }
 
     private String generateUUID() {
