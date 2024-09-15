@@ -46,6 +46,7 @@ class UserServiceTest {
         userRepository.clear();
     }
 
+    //    REGISTRATION
     @Test
     void whenCorrectRegisterRequest_CreateUserAndSendEmail() {
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
@@ -85,40 +86,7 @@ class UserServiceTest {
         assertEquals("This email is already associated with some account.", e.getMessage());
     }
 
-    @Test
-    void whenEnoughTimePassed_SendNewConfirmationEmail() {
-        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
-        userRepository.save(existingUser);
-        String emailContent = "Mocked email content";
-
-        // Mock the last token creation time to be more than 5 minutes ago.
-        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), existingUser);
-        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
-        when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
-
-        userService.sendNewConfirmationEmail(existingUser.getId().toString());
-
-        verify(tokenService).saveToken(any(Token.class)); // Check if new token is saved.
-        verify(emailService).send(existingUser.getEmail(), emailContent); // Check if email is sent.
-    }
-
-    @Test
-    void whenRequestForNewEmailIsTooSoon_ThrowTokenException() {
-        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
-        userRepository.save(existingUser);
-        String userId = existingUser.getId().toString();
-
-        // Mock the last token creation time to be less than 5 minutes ago.
-        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), existingUser);
-        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
-
-        TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
-
-        assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
-        verify(tokenService, never()).saveToken(any(Token.class));
-        verify(emailService, never()).send(anyString(), anyString());
-    }
-
+    //    LOGIN
     @Test
     void whenUserExistsByUsername_ReturnUserDetails() {
         User existingUser = new User("Martin", "martin@gmail.com", "123", UserRole.USER);
@@ -198,6 +166,7 @@ class UserServiceTest {
         assertEquals("User not found.", loginResponse.message());
     }
 
+    //    ACCOUNT MANAGEMENT
     @Test
     void whenUserEnabled_ReturnTrue() {
         User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
@@ -214,6 +183,40 @@ class UserServiceTest {
         userRepository.save(user);
 
         assertFalse(userService.isEnabled(user.getId().toString()));
+    }
+
+    @Test
+    void whenEnoughTimePassed_SendNewConfirmationEmail() {
+        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
+        userRepository.save(existingUser);
+        String emailContent = "Mocked email content";
+
+        // Mock the last token creation time to be more than 5 minutes ago.
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), existingUser);
+        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
+        when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
+
+        userService.sendNewConfirmationEmail(existingUser.getId().toString());
+
+        verify(tokenService).saveToken(any(Token.class)); // Check if new token is saved.
+        verify(emailService).send(existingUser.getEmail(), emailContent); // Check if email is sent.
+    }
+
+    @Test
+    void whenRequestForNewEmailIsTooSoon_ThrowTokenException() {
+        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
+        userRepository.save(existingUser);
+        String userId = existingUser.getId().toString();
+
+        // Mock the last token creation time to be less than 5 minutes ago.
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), existingUser);
+        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
+
+        TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
+
+        assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
+        verify(tokenService, never()).saveToken(any(Token.class));
+        verify(emailService, never()).send(anyString(), anyString());
     }
 
 }

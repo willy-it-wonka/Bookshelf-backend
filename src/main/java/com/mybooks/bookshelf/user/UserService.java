@@ -47,10 +47,7 @@ public class UserService implements UserDetailsService {
     }
 
 
-    /*
-     *    REGISTRATION
-     */
-
+    //    REGISTRATION
     RegisterResponse createUser(RegisterRequest request) {
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = UserMapper.mapToEntity(request, encodedPassword);
@@ -90,27 +87,8 @@ public class UserService implements UserDetailsService {
         emailService.send(addressee, emailService.buildEmail(nick, link));
     }
 
-    void sendNewConfirmationEmail(String userId) {
-        User user = loadUserById(Long.parseLong(userId));
-        Token latestToken = tokenService.getLatestUserToken(user);
 
-        // If it has been 5 minutes since the last email.
-        Duration timeElapsed = Duration.between(latestToken.getCreationDate(), LocalDateTime.now());
-        if (timeElapsed.getSeconds() < 300) {
-            long minutesLeft = 4 - timeElapsed.toMinutes();
-            long secondsLeft = 59 - (timeElapsed.getSeconds() % 60);
-            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft), false);
-        }
-
-        Token newToken = createConfirmationToken(user);
-        sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
-    }
-
-
-    /*
-     *    LOGGING IN
-     */
-
+    //    LOGIN
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
@@ -135,9 +113,27 @@ public class UserService implements UserDetailsService {
         }
     }
 
+
+    //    ACCOUNT MANAGEMENT
     boolean isEnabled(String userId) {
         User user = loadUserById(Long.parseLong(userId));
         return user.isEnabled();
+    }
+
+    void sendNewConfirmationEmail(String userId) {
+        User user = loadUserById(Long.parseLong(userId));
+        Token latestToken = tokenService.getLatestUserToken(user);
+
+        // If it has been 5 minutes since the last email.
+        Duration timeElapsed = Duration.between(latestToken.getCreationDate(), LocalDateTime.now());
+        if (timeElapsed.getSeconds() < 300) {
+            long minutesLeft = 4 - timeElapsed.toMinutes();
+            long secondsLeft = 59 - (timeElapsed.getSeconds() % 60);
+            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft), false);
+        }
+
+        Token newToken = createConfirmationToken(user);
+        sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
     }
 
 }
