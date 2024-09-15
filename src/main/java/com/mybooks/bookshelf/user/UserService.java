@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -60,7 +59,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         // Create a token and save it in the DB.
-        Token token = createConfirmationToken(user);
+        Token token = tokenService.createConfirmationToken(user);
 
         // Send an email with an account activation token.
         sendConfirmationEmail(token, request.email(), request.nick());
@@ -70,16 +69,6 @@ public class UserService implements UserDetailsService {
 
     private boolean userExists(User user) {
         return userRepository.findByEmail(user.getEmail()).isPresent();
-    }
-
-    private String createUniversallyUniqueId() {
-        return UUID.randomUUID().toString();
-    }
-
-    private Token createConfirmationToken(User user) {
-        Token token = new Token(createUniversallyUniqueId(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
-        tokenService.saveToken(token);
-        return token;
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
@@ -132,7 +121,7 @@ public class UserService implements UserDetailsService {
             throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft), false);
         }
 
-        Token newToken = createConfirmationToken(user);
+        Token newToken = tokenService.createConfirmationToken(user);
         sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
     }
 

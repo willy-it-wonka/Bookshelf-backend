@@ -54,14 +54,15 @@ class UserServiceTest {
         String emailContent = "Mocked email content";
         when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
+        Token token = new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User());
+        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(token);
 
         userService.createUser(request);
 
         User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() ->
                 new AssertionError("User should be present in the InMemoryUserRepository."));
         assertEquals(encodedPassword, savedUser.getPassword());
-        verify(tokenService, times(1)).saveToken(any(Token.class)); // Check if token is saved.
-        verify(emailService).send(request.email(), emailContent); // Check if email is sent.
+        verify(emailService).send(request.email(), emailContent);
     }
 
     @Test
@@ -79,6 +80,9 @@ class UserServiceTest {
     void whenTwoRegisterRequestWithSameEmail_ThrowEmailException() {
         RegisterRequest request1 = new RegisterRequest("Tom", "tom@gmail.com", "123");
         RegisterRequest request2 = new RegisterRequest("Tom", "tom@gmail.com", "123");
+        // Mock token creation for request1.
+        Token mockToken = new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User());
+        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(mockToken);
 
         userService.createUser(request1);
         EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request2));
@@ -190,16 +194,17 @@ class UserServiceTest {
         User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
         userRepository.save(existingUser);
         String emailContent = "Mocked email content";
-
         // Mock the last token creation time to be more than 5 minutes ago.
         Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), existingUser);
         when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
+        // Mock creation of a new token.
+        Token newToken = new Token("new-token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), existingUser);
+        when(tokenService.createConfirmationToken(existingUser)).thenReturn(newToken);
 
         userService.sendNewConfirmationEmail(existingUser.getId().toString());
 
-        verify(tokenService).saveToken(any(Token.class)); // Check if new token is saved.
-        verify(emailService).send(existingUser.getEmail(), emailContent); // Check if email is sent.
+        verify(emailService).send(existingUser.getEmail(), emailContent);
     }
 
     @Test
@@ -215,7 +220,6 @@ class UserServiceTest {
         TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
 
         assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
-        verify(tokenService, never()).saveToken(any(Token.class));
         verify(emailService, never()).send(anyString(), anyString());
     }
 

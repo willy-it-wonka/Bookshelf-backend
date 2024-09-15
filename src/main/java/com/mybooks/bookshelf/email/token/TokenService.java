@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -26,8 +27,9 @@ public class TokenService {
         this.userRepository = userRepository;
     }
 
-    public void saveToken(Token token) {
-        tokenRepository.save(token);
+    public Token createConfirmationToken(User user) {
+        Token token = new Token(generateUUID(), LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        return tokenRepository.save(token);
     }
 
     @Transactional
@@ -69,6 +71,10 @@ public class TokenService {
 
     private int enableUser(String email) {
         return userRepository.updateEnabled(email);
+    }
+
+    private String generateUUID() {
+        return UUID.randomUUID().toString();
     }
 
 }

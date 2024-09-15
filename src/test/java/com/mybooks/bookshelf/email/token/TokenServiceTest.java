@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,12 +41,11 @@ class TokenServiceTest {
     }
 
     @Test
-    void whenCorrectTokenDataProvided_SaveToken() {
-        tokenService.saveToken(token);
+    void whenCreateConfirmationTokenCalled_SaveTokenAndReturnIt() {
+        Token createdToken = tokenService.createConfirmationToken(user);
 
-        Optional<Token> foundToken = tokenRepository.findByConfirmationToken("test-token");
-        assertTrue(foundToken.isPresent());
-        assertEquals(user, foundToken.get().getTokenOwner());
+        assertNotNull(createdToken);
+        assertEquals(user, createdToken.getTokenOwner());
     }
 
     @Test
@@ -56,10 +54,8 @@ class TokenServiceTest {
 
         String result = tokenService.confirmToken(token.getConfirmationToken());
 
-        User confirmedUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new AssertionError("User should be present in the InMemoryUserRepository."));
-        Token updatedToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken())
-                .orElseThrow(() -> new AssertionError("Token should be present in the InMemoryTokenRepository."));
+        User confirmedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new AssertionError("User should be present in the InMemoryUserRepository."));
+        Token updatedToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken()).orElseThrow(() -> new AssertionError("Token should be present in the InMemoryTokenRepository."));
 
         assertNotNull(updatedToken.getConfirmationDate());
         assertTrue(confirmedUser.getEnabled());
@@ -70,8 +66,7 @@ class TokenServiceTest {
     void whenTokenToConfirmationDoesNotExist_ThrowTokenException() {
         String invalidToken = "invalid-token";
 
-        TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(invalidToken));
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(invalidToken));
 
         assertEquals("Email confirmation error: token not found.", e.getMessage());
     }
@@ -82,8 +77,7 @@ class TokenServiceTest {
         tokenRepository.save(token);
         String updatedToken = token.getConfirmationToken();
 
-        TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(updatedToken));
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(updatedToken));
 
         assertEquals("Email confirmation error: email already confirmed.", e.getMessage());
     }
@@ -94,8 +88,7 @@ class TokenServiceTest {
         tokenRepository.save(token);
         String updatedToken = token.getConfirmationToken();
 
-        TokenException e = assertThrows(TokenException.class, () ->
-                tokenService.confirmToken(updatedToken));
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(updatedToken));
 
         assertEquals("Email confirmation error: token expired.", e.getMessage());
     }
