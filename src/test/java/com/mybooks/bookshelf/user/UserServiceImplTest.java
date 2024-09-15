@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class UserServiceTest {
+class UserServiceImplTest {
 
     private InMemoryUserRepository userRepository;
     private UserService userService;
@@ -38,7 +38,7 @@ class UserServiceTest {
         emailService = mock(EmailService.class);
         jsonWebToken = mock(JsonWebToken.class);
 
-        userService = new UserService(userRepository, passwordEncoder, tokenService, emailService, jsonWebToken);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService, emailService, jsonWebToken);
     }
 
     @AfterEach

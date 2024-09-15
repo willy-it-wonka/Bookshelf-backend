@@ -36,7 +36,7 @@ class UserControllerIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @MockBean
     private TokenService tokenService;
