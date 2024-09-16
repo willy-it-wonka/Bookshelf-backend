@@ -30,7 +30,7 @@ public class SecurityConfig {
     private static final String LOGOUT_MESSAGE = "Logged out.";
     private static final String CORS_PATH_PATTERN = "/**";
     private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
-    private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "DELETE");
+    private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE");
 
     private final JsonWebTokenFilter jsonWebTokenFilter;
 

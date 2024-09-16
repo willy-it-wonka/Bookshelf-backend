@@ -1,10 +1,7 @@
 package com.mybooks.bookshelf.user;
 
 import com.mybooks.bookshelf.email.token.TokenService;
-import com.mybooks.bookshelf.user.payload.LoginRequest;
-import com.mybooks.bookshelf.user.payload.LoginResponse;
-import com.mybooks.bookshelf.user.payload.RegisterRequest;
-import com.mybooks.bookshelf.user.payload.RegisterResponse;
+import com.mybooks.bookshelf.user.payload.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,6 +18,7 @@ public class UserController {
     private static final String USER_LOGIN_SUMMARY = "Login user";
     private static final String USER_ENABLED_STATUS_SUMMARY = "Check if user is enabled - if email is confirmed";
     private static final String NEW_CONFIRMATION_EMAIL_SUMMARY = "Send a new confirmation email";
+    private static final String NICK_CHANGE_SUMMARY = "Change user nick";
 
     private final UserService userService;
     private final TokenService tokenService;
@@ -59,6 +57,12 @@ public class UserController {
     public String sendNewConfirmationEmail(@PathVariable String id) {
         userService.sendNewConfirmationEmail(id);
         return EMAIL_SENT_MESSAGE;
+    }
+
+    @PatchMapping("/{id}/nick")
+    @Operation(summary = NICK_CHANGE_SUMMARY)
+    public ChangeResponse changeUserNick(@PathVariable String id, @RequestBody ChangeNickRequest request) {
+        return new ChangeResponse("TODO: Call userService");
     }
 
 }
