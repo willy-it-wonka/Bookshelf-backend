@@ -3,6 +3,7 @@ package com.mybooks.bookshelf.email.token;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,7 @@ public class TokenService {
     private final TokenRepository tokenRepository;
     private final UserService userService;
 
-    public TokenService(TokenRepository tokenRepository, UserService userService) {
+    public TokenService(TokenRepository tokenRepository, @Lazy UserService userService) {
         this.tokenRepository = tokenRepository;
         this.userService = userService;
     }
