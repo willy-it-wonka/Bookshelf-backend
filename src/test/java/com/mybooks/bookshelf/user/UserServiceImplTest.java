@@ -3,12 +3,11 @@ package com.mybooks.bookshelf.user;
 import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
+import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
-import com.mybooks.bookshelf.user.payload.LoginRequest;
-import com.mybooks.bookshelf.user.payload.LoginResponse;
-import com.mybooks.bookshelf.user.payload.RegisterRequest;
+import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +29,7 @@ class UserServiceImplTest {
     private TokenService tokenService;
     private EmailService emailService;
     private JsonWebToken jsonWebToken;
+    private User user;
 
     @BeforeEach
     void setUp() {
@@ -38,8 +38,9 @@ class UserServiceImplTest {
         tokenService = mock(TokenService.class);
         emailService = mock(EmailService.class);
         jsonWebToken = mock(JsonWebToken.class);
-
         userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService, emailService, jsonWebToken);
+
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
     }
 
     @AfterEach
@@ -68,9 +69,8 @@ class UserServiceImplTest {
 
     @Test
     void whenEmailAlreadyTaken_ThrowEmailException() {
-        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
-        userRepository.save(existingUser);
-        RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
+        userRepository.save(user);
+        RegisterRequest request = new RegisterRequest("Tom", "tom@test.com", "123");
 
         EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request));
 
@@ -94,13 +94,12 @@ class UserServiceImplTest {
     //    LOGIN
     @Test
     void whenUserExistsByUsername_ReturnUserDetails() {
-        User existingUser = new User("Martin", "martin@gmail.com", "123", UserRole.USER);
-        userRepository.save(existingUser);
+        userRepository.save(user);
 
-        UserDetails userDetails = userService.loadUserByUsername(existingUser.getEmail());
+        UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
 
-        assertEquals(existingUser.getEmail(), userDetails.getUsername());
-        assertEquals(existingUser, userDetails);
+        assertEquals(user.getEmail(), userDetails.getUsername());
+        assertEquals(user, userDetails);
     }
 
     @Test
@@ -115,13 +114,12 @@ class UserServiceImplTest {
 
     @Test
     void whenUserExistsById_ReturnUser() {
-        User existingUser = new User("Martin", "martin@gmail.com", "123", UserRole.USER);
-        userRepository.save(existingUser);
+        userRepository.save(user);
 
-        User user = userService.loadUserById(existingUser.getId());
+        User userFound = userService.loadUserById(user.getId());
 
-        assertEquals(existingUser.getEmail(), user.getEmail());
-        assertEquals(existingUser, user);
+        assertEquals(user.getEmail(), userFound.getEmail());
+        assertEquals(user, userFound);
     }
 
     @Test
@@ -136,11 +134,10 @@ class UserServiceImplTest {
 
     @Test
     void whenCorrectLoginRequest_ReturnSuccessfulLoginResponse() {
-        User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
         when(passwordEncoder.matches("123", user.getPassword())).thenReturn(true);
         when(jsonWebToken.generateToken(user)).thenReturn("JWT");
-        LoginRequest request = new LoginRequest("tom@gmail.com", "123");
+        LoginRequest request = new LoginRequest("tom@test.com", "123");
 
         LoginResponse loginResponse = userService.loginUser(request);
 
@@ -150,9 +147,8 @@ class UserServiceImplTest {
 
     @Test
     void whenIncorrectPassword_ReturnFailureLoginResponse() {
-        User user = new User("Tom", "tom@gmail.com", passwordEncoder.encode("123"), UserRole.USER);
         userRepository.save(user);
-        LoginRequest request = new LoginRequest("tom@gmail.com", "wrongPassword");
+        LoginRequest request = new LoginRequest("tom@test.com", "wrongPassword");
 
         LoginResponse loginResponse = userService.loginUser(request);
 
@@ -174,7 +170,6 @@ class UserServiceImplTest {
     //    ACCOUNT MANAGEMENT
     @Test
     void whenUserEnabled_ReturnTrue() {
-        User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
         user.setEnabled(true);
         userRepository.save(user);
 
@@ -183,7 +178,6 @@ class UserServiceImplTest {
 
     @Test
     void whenUserDisabled_ReturnFalse() {
-        User user = new User("Tom", "tom@example.com", "123", UserRole.USER);
         user.setEnabled(false);
         userRepository.save(user);
 
@@ -192,7 +186,6 @@ class UserServiceImplTest {
 
     @Test
     void whenUserExistsAndIsNotEnabled_EnableUserAndReturnPositive() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
         user.setEnabled(false);
         userRepository.save(user);
 
@@ -205,53 +198,49 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenUserAlreadyEnabled_ThenDoNothingAndReturnZero() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+    void whenUserAlreadyEnabled_DoNothingAndReturnZero() {
         user.setEnabled(true);
         userRepository.save(user);
 
         int result = userService.enableUser(user.getEmail());
 
-        assertEquals(0, result);
+        assertThat(result).isZero();
         User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() ->
                 new AssertionError("User should be present in the InMemoryUserRepository."));
         assertTrue(updatedUser.isEnabled());
     }
 
     @Test
-    void whenUserDoesNotExist_ThenReturnZero() {
+    void whenUserDoesNotExist_ReturnZero() {
         String email = "nonexistent@test.com";
         int result = userService.enableUser(email);
-        assertEquals(0, result);
+        assertThat(result).isZero();
     }
 
     @Test
     void whenEnoughTimePassed_SendNewConfirmationEmail() {
-        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
-        userRepository.save(existingUser);
+        userRepository.save(user);
         String emailContent = "Mocked email content";
         // Mock the last token creation time to be more than 5 minutes ago.
-        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), existingUser);
-        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), user);
+        when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
         when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
         // Mock creation of a new token.
-        Token newToken = new Token("new-token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), existingUser);
-        when(tokenService.createConfirmationToken(existingUser)).thenReturn(newToken);
+        Token newToken = new Token("new-token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        when(tokenService.createConfirmationToken(user)).thenReturn(newToken);
 
-        userService.sendNewConfirmationEmail(existingUser.getId().toString());
+        userService.sendNewConfirmationEmail(user.getId().toString());
 
-        verify(emailService).send(existingUser.getEmail(), emailContent);
+        verify(emailService).send(user.getEmail(), emailContent);
     }
 
     @Test
     void whenRequestForNewEmailIsTooSoon_ThrowTokenException() {
-        User existingUser = new User("Bob", "tom@gmail.com", "111", UserRole.USER);
-        userRepository.save(existingUser);
-        String userId = existingUser.getId().toString();
-
+        userRepository.save(user);
+        String userId = user.getId().toString();
         // Mock the last token creation time to be less than 5 minutes ago.
-        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), existingUser);
-        when(tokenService.getLatestUserToken(existingUser)).thenReturn(lastToken);
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), user);
+        when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
 
         TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
 
