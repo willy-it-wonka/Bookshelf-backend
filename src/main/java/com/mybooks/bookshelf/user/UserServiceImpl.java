@@ -3,13 +3,11 @@ package com.mybooks.bookshelf.user;
 import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
+import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
-import com.mybooks.bookshelf.user.payload.LoginRequest;
-import com.mybooks.bookshelf.user.payload.LoginResponse;
-import com.mybooks.bookshelf.user.payload.RegisterRequest;
-import com.mybooks.bookshelf.user.payload.RegisterResponse;
+import com.mybooks.bookshelf.user.payload.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +25,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
+    private static final String NICK_CHANGE_SUCCESS_MESSAGE = "The user's nick was successfully changed.";
+    private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -133,6 +133,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         Token newToken = tokenService.createConfirmationToken(user);
         sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
+    }
+
+    @Override
+    public ChangeResponse changeUserNick(String userId, ChangeNickRequest request) {
+        Long id = Long.parseLong(userId);
+        User user = loadUserById(id);
+        String encodedPassword = user.getPassword();
+
+        if (passwordEncoder.matches(request.password(), encodedPassword)) {
+            int count = userRepository.updateNick(id, request.nick());
+            if (count > 0)
+                return new ChangeResponse(NICK_CHANGE_SUCCESS_MESSAGE);
+            else
+                throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+        }
+        throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
     }
 
 }

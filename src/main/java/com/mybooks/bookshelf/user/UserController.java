@@ -62,7 +62,7 @@ public class UserController {
     @PatchMapping("/{id}/nick")
     @Operation(summary = NICK_CHANGE_SUMMARY)
     public ChangeResponse changeUserNick(@PathVariable String id, @RequestBody ChangeNickRequest request) {
-        return new ChangeResponse("TODO: Call userService");
+        return userService.changeUserNick(id, request);
     }
 
 }
