@@ -55,6 +55,14 @@ public class GlobalExceptionHandler {
         return e.getMessage();
     }
 
+    @ExceptionHandler(ChangeUserDetailsException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    public String handleChangeUserDetailsException(ChangeUserDetailsException e) {
+        log.error(e.getMessage(), e);
+        return e.getMessage();
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
