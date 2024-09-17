@@ -1,4 +1,4 @@
 package com.mybooks.bookshelf.user.payload;
 
-public record ChangeResponse(String message) {
+public record ChangeResponse(String response) {
 }

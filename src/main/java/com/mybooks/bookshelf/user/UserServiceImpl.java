@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
-    private static final String NICK_CHANGE_SUCCESS_MESSAGE = "The user's nick was successfully changed.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
 
     private final UserRepository userRepository;
@@ -97,12 +96,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             String encodedPassword = userDetails.getPassword();
 
             if (passwordEncoder.matches(request.password(), encodedPassword))
-                return new LoginResponse(jsonWebToken.generateToken((User) userDetails), true);
+                return new LoginResponse(generateJWT((User) userDetails), true);
             else
                 return new LoginResponse(INCORRECT_PASSWORD_MESSAGE, false);
         } catch (UsernameNotFoundException e) {
             return new LoginResponse(USER_NOT_FOUND_ERROR, false);
         }
+    }
+
+    private String generateJWT(User user) {
+        return jsonWebToken.generateToken(user);
     }
 
 
@@ -138,13 +141,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ChangeResponse changeUserNick(String userId, ChangeNickRequest request) {
         Long id = Long.parseLong(userId);
-        User user = loadUserById(id);
-        String encodedPassword = user.getPassword();
+        String encodedPassword = loadUserById(id).getPassword();
 
         if (passwordEncoder.matches(request.password(), encodedPassword)) {
             int count = userRepository.updateNick(id, request.nick());
             if (count > 0)
-                return new ChangeResponse(NICK_CHANGE_SUCCESS_MESSAGE);
+                // Returns a JWT because it contains the user's current nick.
+                return new ChangeResponse(generateJWT(loadUserById(id)));
             else
                 throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
         }
