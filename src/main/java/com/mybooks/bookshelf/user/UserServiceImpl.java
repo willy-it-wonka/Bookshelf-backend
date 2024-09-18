@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = UserMapper.mapToEntity(request, encodedPassword);
 
         // Check if the email address is taken.
-        if (userExists(user))
+        if (isEmailAlreadyTaken(user.getEmail()))
             throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
 
         // Save the user entity in the DB.
@@ -68,8 +68,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new RegisterResponse(user.getNick(), token.getConfirmationToken());
     }
 
-    private boolean userExists(User user) {
-        return userRepository.findByEmail(user.getEmail()).isPresent();
+    private boolean isEmailAlreadyTaken(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
@@ -157,6 +157,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public ChangeResponse changeUserEmail(String userId, ChangeEmailRequest request) {
+        if (isEmailAlreadyTaken(request.email()))
+            throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
+
         Long id = Long.parseLong(userId);
         String encodedPassword = loadUserById(id).getPassword();
 
