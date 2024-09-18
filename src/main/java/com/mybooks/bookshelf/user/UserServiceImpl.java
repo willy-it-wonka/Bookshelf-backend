@@ -142,17 +142,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ChangeResponse changeUserNick(String userId, ChangeNickRequest request) {
         Long id = Long.parseLong(userId);
-        String encodedPassword = loadUserById(id).getPassword();
 
-        if (passwordEncoder.matches(request.password(), encodedPassword)) {
-            int count = userRepository.updateNick(id, request.nick());
-            if (count > 0)
-                // Returns a JWT because it contains the user's current nick.
-                return new ChangeResponse(generateJWT(loadUserById(id)));
-            else
-                throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
-        }
-        throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
+        validatePassword(id, request.password());
+
+        if (userRepository.updateNick(id, request.nick()) == 0)
+            throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+
+        // Returns JWT because it contains the user's current nick displayed in the navbar.
+        return new ChangeResponse(generateJWT(loadUserById(id)));
     }
 
     @Override
@@ -161,16 +158,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
 
         Long id = Long.parseLong(userId);
-        String encodedPassword = loadUserById(id).getPassword();
 
-        if (passwordEncoder.matches(request.password(), encodedPassword)) {
-            int count = userRepository.updateEmailAndDisableUser(id, request.email());
-            if (count > 0)
-                return new ChangeResponse(EMAIL_CHANGE_SUCCESS_MESSAGE);
-            else
-                throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
-        }
-        throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
+        validatePassword(id, request.password());
+
+        if (userRepository.updateEmailAndDisableUser(id, request.email()) == 0)
+            throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+
+        return new ChangeResponse(EMAIL_CHANGE_SUCCESS_MESSAGE);
+    }
+
+    private void validatePassword(Long id, String providedPassword) {
+        String encodedPassword = loadUserById(id).getPassword();
+        if (!passwordEncoder.matches(providedPassword, encodedPassword))
+            throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
     }
 
 }
