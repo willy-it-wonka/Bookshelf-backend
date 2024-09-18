@@ -21,4 +21,6 @@ public interface UserService {
 
     ChangeResponse changeUserNick(String userId, ChangeNickRequest request);
 
+    ChangeResponse changeUserEmail(String userId, ChangeEmailRequest request);
+
 }

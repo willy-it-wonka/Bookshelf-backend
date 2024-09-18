@@ -19,6 +19,7 @@ public class UserController {
     private static final String USER_ENABLED_STATUS_SUMMARY = "Check if user is enabled - if email is confirmed";
     private static final String NEW_CONFIRMATION_EMAIL_SUMMARY = "Send a new confirmation email";
     private static final String NICK_CHANGE_SUMMARY = "Change user nick";
+    private static final String EMAIL_CHANGE_SUMMARY = "Change user email";
 
     private final UserService userService;
     private final TokenService tokenService;
@@ -63,6 +64,12 @@ public class UserController {
     @Operation(summary = NICK_CHANGE_SUMMARY)
     public ChangeResponse changeUserNick(@PathVariable String id, @RequestBody ChangeNickRequest request) {
         return userService.changeUserNick(id, request);
+    }
+
+    @PatchMapping("/{id}/email")
+    @Operation(summary = EMAIL_CHANGE_SUMMARY)
+    public ChangeResponse changeUserEmail(@PathVariable String id, @RequestBody ChangeEmailRequest request) {
+        return userService.changeUserEmail(id, request);
     }
 
 }

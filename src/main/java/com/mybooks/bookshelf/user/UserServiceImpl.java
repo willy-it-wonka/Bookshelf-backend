@@ -26,6 +26,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
+    private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -148,6 +149,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             if (count > 0)
                 // Returns a JWT because it contains the user's current nick.
                 return new ChangeResponse(generateJWT(loadUserById(id)));
+            else
+                throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+        }
+        throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
+    }
+
+    @Override
+    public ChangeResponse changeUserEmail(String userId, ChangeEmailRequest request) {
+        Long id = Long.parseLong(userId);
+        String encodedPassword = loadUserById(id).getPassword();
+
+        if (passwordEncoder.matches(request.password(), encodedPassword)) {
+            int count = userRepository.updateEmail(id, request.email());
+            if (count > 0)
+                return new ChangeResponse(EMAIL_CHANGE_SUCCESS_MESSAGE);
             else
                 throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
         }
