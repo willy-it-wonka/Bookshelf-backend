@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String encodedPassword = loadUserById(id).getPassword();
 
         if (passwordEncoder.matches(request.password(), encodedPassword)) {
-            int count = userRepository.updateEmail(id, request.email());
+            int count = userRepository.updateEmailAndDisableUser(id, request.email());
             if (count > 0)
                 return new ChangeResponse(EMAIL_CHANGE_SUCCESS_MESSAGE);
             else
