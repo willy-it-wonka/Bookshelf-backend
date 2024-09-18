@@ -248,4 +248,31 @@ class UserServiceImplTest {
         verify(emailService, never()).send(anyString(), anyString());
     }
 
+    @Test
+    void whenCorrectPassword_ChangeNickAndReturnJwt() {
+        userRepository.save(user);
+        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
+        when(passwordEncoder.matches("correctPassword", "123")).thenReturn(true);
+        when(jsonWebToken.generateToken(user)).thenReturn("newJwt");
+
+        ChangeResponse response = userService.changeUserNick(user.getId().toString(), request);
+
+        assertEquals("newJwt", response.response());
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        assertEquals("newNick", updatedUser.getNick());
+    }
+
+    @Test
+    void whenIncorrectPassword_ThrowChangeUserDetailsException() {
+        userRepository.save(user);
+        String userId = user.getId().toString();
+        ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
+        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
+
+        ChangeUserDetailsException e = assertThrows(ChangeUserDetailsException.class, () ->
+                userService.changeUserNick(userId, request));
+
+        assertEquals("Incorrect password.", e.getMessage());
+    }
+
 }

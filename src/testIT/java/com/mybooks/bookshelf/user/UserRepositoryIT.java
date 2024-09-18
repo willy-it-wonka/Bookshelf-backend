@@ -116,4 +116,23 @@ class UserRepositoryIT {
         assertThat(updatedCount).isZero();
     }
 
+    @Test
+    void whenUserExists_UpdateNickAndReturnPositive() {
+        entityManager.persist(user);
+
+        int updatedCount = userRepository.updateNick(user.getId(), "newNick");
+        entityManager.refresh(user);
+
+        assertThat(updatedCount).isPositive();
+        assertThat(user.getNick()).isEqualTo("newNick");
+    }
+
+    @Test
+    void whenUserDoesNotExist_NoUpdateAndReturnZero() {
+        Long nonExistentUserId = 999L;
+        int updatedCount = userRepository.updateNick(nonExistentUserId, "nick");
+
+        assertThat(updatedCount).isZero();
+    }
+
 }

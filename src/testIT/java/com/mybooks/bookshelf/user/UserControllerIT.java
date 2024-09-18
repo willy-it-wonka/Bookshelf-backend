@@ -2,12 +2,10 @@ package com.mybooks.bookshelf.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelf.email.token.TokenService;
+import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.TokenException;
-import com.mybooks.bookshelf.user.payload.LoginRequest;
-import com.mybooks.bookshelf.user.payload.LoginResponse;
-import com.mybooks.bookshelf.user.payload.RegisterRequest;
-import com.mybooks.bookshelf.user.payload.RegisterResponse;
+import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,23 +19,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false) // All http requests will be treated as authorized.
 class UserControllerIT {
 
+    private static final String USER_ID = "1";
+    private static final String NONEXISTENT_USER_ID = "999";
+
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @MockBean
     private UserServiceImpl userService;
-
     @MockBean
     private TokenService tokenService;
 
@@ -148,11 +145,10 @@ class UserControllerIT {
 
     @Test
     void whenCorrectUserId_ReturnUserEnabled() throws Exception {
-        String userId = "1";
         boolean isEnabled = true;
         when(userService.isEnabled(anyString())).thenReturn(isEnabled);
 
-        mockMvc.perform(get("/api/v1/users/{id}/enabled", userId)
+        mockMvc.perform(get("/api/v1/users/{id}/enabled", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(String.valueOf(isEnabled)));
@@ -160,10 +156,9 @@ class UserControllerIT {
 
     @Test
     void whenNonexistentUserId_ReturnUserNotEnabled() throws Exception {
-        String nonexistentUserId = "999";
-        when(userService.isEnabled(nonexistentUserId)).thenReturn(false);
+        when(userService.isEnabled(NONEXISTENT_USER_ID)).thenReturn(false);
 
-        mockMvc.perform(get("/api/v1/users/{id}/enabled", nonexistentUserId)
+        mockMvc.perform(get("/api/v1/users/{id}/enabled", NONEXISTENT_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("false"));
@@ -171,20 +166,60 @@ class UserControllerIT {
 
     @Test
     void whenCorrectUserId_SendNewConfirmationEmail() throws Exception {
-        String userId = "1";
-
-        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", userId))
+        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().string("A new email has been sent."));
     }
 
     @Test
     void whenNonexistentUserId_SendNewConfirmationEmailFails() throws Exception {
-        String nonexistentUserId = "999";
         String errorMessage = "User not found";
-        doThrow(new UsernameNotFoundException(errorMessage)).when(userService).sendNewConfirmationEmail(nonexistentUserId);
+        doThrow(new UsernameNotFoundException(errorMessage)).when(userService).sendNewConfirmationEmail(NONEXISTENT_USER_ID);
 
-        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", nonexistentUserId))
+        mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", NONEXISTENT_USER_ID))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(errorMessage));
+    }
+
+    @Test
+    void whenNickChangeRequest_UpdateNickAndReturnJwt() throws Exception {
+        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
+        ChangeResponse response = new ChangeResponse("jwt");
+
+        when(userService.changeUserNick(anyString(), any(ChangeNickRequest.class))).thenReturn(response);
+
+        mockMvc.perform(patch("/api/v1/users/{id}/nick", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andExpect(jsonPath("$.response").value("jwt"));
+    }
+
+    @Test
+    void whenIncorrectPassword_ThrowChangeUserDetailsException() throws Exception {
+        ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
+        String errorMessage = "Incorrect password.";
+
+        doThrow(new ChangeUserDetailsException(errorMessage)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/nick", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(errorMessage));
+    }
+
+    @Test
+    void whenNonExistentUser_NoUpdateNickAndThrowUsernameNotFoundException() throws Exception {
+        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
+        String errorMessage = "User not found.";
+
+        doThrow(new UsernameNotFoundException(errorMessage)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/nick", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(errorMessage));
     }
