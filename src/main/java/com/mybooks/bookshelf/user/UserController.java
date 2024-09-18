@@ -68,7 +68,7 @@ public class UserController {
 
     @PatchMapping("/{id}/email")
     @Operation(summary = EMAIL_CHANGE_SUMMARY)
-    public ChangeResponse changeUserEmail(@PathVariable String id, @RequestBody ChangeEmailRequest request) {
+    public ChangeResponse changeUserEmail(@PathVariable String id, @Valid @RequestBody ChangeEmailRequest request) {
         return userService.changeUserEmail(id, request);
     }
 
