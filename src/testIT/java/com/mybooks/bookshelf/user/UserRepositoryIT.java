@@ -21,7 +21,6 @@ class UserRepositoryIT {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private TestEntityManager entityManager;
 
@@ -118,19 +117,41 @@ class UserRepositoryIT {
 
     @Test
     void whenUserExists_UpdateNickAndReturnPositive() {
+        String newNick = "newNick";
         entityManager.persist(user);
 
-        int updatedCount = userRepository.updateNick(user.getId(), "newNick");
+        int updatedCount = userRepository.updateNick(user.getId(), newNick);
         entityManager.refresh(user);
 
         assertThat(updatedCount).isPositive();
-        assertThat(user.getNick()).isEqualTo("newNick");
+        assertEquals(user.getNick(), newNick);
     }
 
     @Test
-    void whenUserDoesNotExist_NoUpdateAndReturnZero() {
+    void whenUserDoesNotExist_NoUpdateNickAndReturnZero() {
         Long nonExistentUserId = 999L;
         int updatedCount = userRepository.updateNick(nonExistentUserId, "nick");
+
+        assertThat(updatedCount).isZero();
+    }
+
+    @Test
+    void whenUserExists_UpdateEmailAndDisableUserAndReturnPositive() {
+        String newEmail = "newEmail@test.com";
+        entityManager.persist(user);
+
+        int updatedCount = userRepository.updateEmailAndDisableUser(user.getId(), newEmail);
+        entityManager.refresh(user);
+
+        assertThat(updatedCount).isPositive();
+        assertEquals(user.getEmail(), newEmail);
+        assertThat(user.isEnabled()).isFalse();
+    }
+
+    @Test
+    void whenUserDoesNotExist_NoUpdateEmailAndReturnZero() {
+        Long nonExistentUserId = 999L;
+        int updatedCount = userRepository.updateEmailAndDisableUser(nonExistentUserId, "email@test.com");
 
         assertThat(updatedCount).isZero();
     }

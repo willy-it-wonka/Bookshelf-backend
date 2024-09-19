@@ -15,8 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -28,6 +27,11 @@ class UserControllerIT {
 
     private static final String USER_ID = "1";
     private static final String NONEXISTENT_USER_ID = "999";
+    private static final String CORRECT_PASSWORD = "correctPassword";
+    private static final String WRONG_PASSWORD = "wrongPassword";
+    private static final String EXISTING_EMAIL = "existing@test.com";
+    private static final String NEW_NICK = "newNick";
+    private static final String NEW_EMAIL = "newEmail@test.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -103,7 +107,7 @@ class UserControllerIT {
 
     @Test
     void whenCorrectLoginRequestProvided_LoginAndReturnJwt() throws Exception {
-        LoginRequest request = new LoginRequest("user@gmail.com", "123");
+        LoginRequest request = new LoginRequest(EXISTING_EMAIL, CORRECT_PASSWORD);
         LoginResponse response = new LoginResponse("JWT", true);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -117,7 +121,7 @@ class UserControllerIT {
 
     @Test
     void whenIncorrectLoginRequestProvided_ReturnErrorMessage() throws Exception {
-        LoginRequest request = new LoginRequest("user@gmail.com", "wrongPass");
+        LoginRequest request = new LoginRequest(EXISTING_EMAIL, WRONG_PASSWORD);
         LoginResponse response = new LoginResponse("Incorrect password.", false);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -131,7 +135,7 @@ class UserControllerIT {
 
     @Test
     void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
-        LoginRequest request = new LoginRequest("nonexistent@gmail.com", "123");
+        LoginRequest request = new LoginRequest("nonexistent@gmail.com", CORRECT_PASSWORD);
         LoginResponse response = new LoginResponse("User not found.", false);
         when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -172,7 +176,7 @@ class UserControllerIT {
     }
 
     @Test
-    void whenNonexistentUserId_SendNewConfirmationEmailFails() throws Exception {
+    void whenNonexistentUserIdRequestForNewConfirmationEmail_ReturnErrorMessage() throws Exception {
         String errorMessage = "User not found";
         doThrow(new UsernameNotFoundException(errorMessage)).when(userService).sendNewConfirmationEmail(NONEXISTENT_USER_ID);
 
@@ -183,7 +187,7 @@ class UserControllerIT {
 
     @Test
     void whenNickChangeRequest_UpdateNickAndReturnJwt() throws Exception {
-        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
+        ChangeNickRequest request = new ChangeNickRequest(NEW_NICK, CORRECT_PASSWORD);
         ChangeResponse response = new ChangeResponse("jwt");
 
         when(userService.changeUserNick(anyString(), any(ChangeNickRequest.class))).thenReturn(response);
@@ -197,8 +201,8 @@ class UserControllerIT {
     }
 
     @Test
-    void whenIncorrectPassword_ThrowChangeUserDetailsException() throws Exception {
-        ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
+    void whenNickChangeRequestWithIncorrectPassword_ReturnErrorMessage() throws Exception {
+        ChangeNickRequest request = new ChangeNickRequest(NEW_NICK, WRONG_PASSWORD);
         String errorMessage = "Incorrect password.";
 
         doThrow(new ChangeUserDetailsException(errorMessage)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
@@ -211,8 +215,8 @@ class UserControllerIT {
     }
 
     @Test
-    void whenNonExistentUser_NoUpdateNickAndThrowUsernameNotFoundException() throws Exception {
-        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
+    void whenChangeNickRequestForNonExistentUserId_ReturnErrorMessage() throws Exception {
+        ChangeNickRequest request = new ChangeNickRequest(NEW_NICK, CORRECT_PASSWORD);
         String errorMessage = "User not found.";
 
         doThrow(new UsernameNotFoundException(errorMessage)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
@@ -222,6 +226,60 @@ class UserControllerIT {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(errorMessage));
+    }
+
+    @Test
+    void whenChangeEmailRequest_ChangeEmailAndReturnSuccessMessage() throws Exception {
+        ChangeEmailRequest request = new ChangeEmailRequest(NEW_EMAIL, CORRECT_PASSWORD);
+        ChangeResponse response = new ChangeResponse("Your email has been successfully changed.");
+
+        when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class))).thenReturn(response);
+
+        mockMvc.perform(patch("/api/v1/users/{id}/email", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andExpect(jsonPath("$.response").value("Your email has been successfully changed."));
+    }
+
+    @Test
+    void whenChangeEmailRequestWithIncorrectPassword_ReturnErrorMessage() throws Exception {
+        ChangeEmailRequest request = new ChangeEmailRequest(NEW_EMAIL, WRONG_PASSWORD);
+        when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class)))
+                .thenThrow(new ChangeUserDetailsException("Incorrect password."));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/email", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Incorrect password."));
+    }
+
+    @Test
+    void whenChangeEmailRequestWithEmailAlreadyTaken_ReturnErrorMessage() throws Exception {
+        ChangeEmailRequest request = new ChangeEmailRequest(EXISTING_EMAIL, CORRECT_PASSWORD);
+        when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class)))
+                .thenThrow(new EmailException("is already associated with some account"));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/email", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("This email is already associated with some account."));
+    }
+
+    @Test
+    void whenChangeEmailRequestForNonexistentUserId_ReturnErrorMessage() throws Exception {
+        ChangeEmailRequest request = new ChangeEmailRequest(NEW_EMAIL, CORRECT_PASSWORD);
+        when(userService.changeUserEmail(eq(NONEXISTENT_USER_ID), any(ChangeEmailRequest.class)))
+                .thenThrow(new UsernameNotFoundException("User not found."));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/email", NONEXISTENT_USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User not found."));
     }
 
 }

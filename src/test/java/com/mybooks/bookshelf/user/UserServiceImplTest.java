@@ -249,7 +249,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenCorrectPassword_ChangeNickAndReturnJwt() {
+    void whenChangeNickRequest_ChangeNickAndReturnJwt() {
         userRepository.save(user);
         ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
         when(passwordEncoder.matches("correctPassword", "123")).thenReturn(true);
@@ -263,7 +263,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenIncorrectPassword_ThrowChangeUserDetailsException() {
+    void whenChangeNickRequestWithIncorrectPassword_ThrowChangeUserDetailsException() {
         userRepository.save(user);
         String userId = user.getId().toString();
         ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
@@ -273,6 +273,44 @@ class UserServiceImplTest {
                 userService.changeUserNick(userId, request));
 
         assertEquals("Incorrect password.", e.getMessage());
+    }
+
+    @Test
+    void whenEmailIsAlreadyTaken_ThrowEmailException() {
+        userRepository.save(user);
+        String userId = user.getId().toString();
+        String existingEmail = "existing@test.com";
+        userRepository.save(new User("Alice", existingEmail, "encodedPassword", UserRole.USER));
+        ChangeEmailRequest request = new ChangeEmailRequest(existingEmail, "correctPassword");
+
+        EmailException exception = assertThrows(EmailException.class, () ->
+                userService.changeUserEmail(userId, request));
+
+        assertEquals("This email is already associated with some account.", exception.getMessage());
+    }
+
+    @Test
+    void whenChangeEmailRequestWithIncorrectPassword_ThrowChangeUserDetailsException() {
+        userRepository.save(user);
+        String userId = user.getId().toString();
+        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", "wrongPassword");
+        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
+
+        ChangeUserDetailsException exception = assertThrows(ChangeUserDetailsException.class, () ->
+                userService.changeUserEmail(userId, request));
+
+        assertEquals("Incorrect password.", exception.getMessage());
+    }
+
+    @Test
+    void whenChangeEmailRequest_UpdateEmailAndReturnSuccessMessage() {
+        userRepository.save(user);
+        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", "correctPassword");
+        when(passwordEncoder.matches("correctPassword", "123")).thenReturn(true);
+
+        ChangeResponse response = userService.changeUserEmail(user.getId().toString(), request);
+
+        assertEquals("Your email has been successfully changed.", response.response());
     }
 
 }

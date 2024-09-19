@@ -61,6 +61,17 @@ public class InMemoryUserRepository implements UserRepository {
         return 0;
     }
 
+    @Override
+    public int updateEmailAndDisableUser(Long id, String email) {
+        User user = users.get(id);
+        if (user != null) {
+            user.setEmail(email);
+            user.setEnabled(false);
+            return 1;
+        }
+        return 0;
+    }
+
     public void clear() {
         users.clear();
         mapKey = 1;
