@@ -72,6 +72,16 @@ public class InMemoryUserRepository implements UserRepository {
         return 0;
     }
 
+    @Override
+    public int updatePassword(Long id, String password) {
+        User user = users.get(id);
+        if (user != null) {
+            user.setPassword(password);
+            return 1;
+        }
+        return 0;
+    }
+
     public void clear() {
         users.clear();
         mapKey = 1;

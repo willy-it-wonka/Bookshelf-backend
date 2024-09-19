@@ -177,7 +177,7 @@ class UserControllerIT {
 
     @Test
     void whenNonexistentUserIdRequestForNewConfirmationEmail_ReturnErrorMessage() throws Exception {
-        String errorMessage = "User not found";
+        String errorMessage = "User not found.";
         doThrow(new UsernameNotFoundException(errorMessage)).when(userService).sendNewConfirmationEmail(NONEXISTENT_USER_ID);
 
         mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", NONEXISTENT_USER_ID))
@@ -280,6 +280,49 @@ class UserControllerIT {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User not found."));
+    }
+
+    @Test
+    void whenChangePasswordRequest_ChangePasswordAndReturnSuccessMessage() throws Exception {
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", CORRECT_PASSWORD);
+        ChangeResponse response = new ChangeResponse("Your password has been successfully changed.");
+
+        when(userService.changeUserPassword(eq(USER_ID), any(ChangePasswordRequest.class))).thenReturn(response);
+
+        mockMvc.perform(patch("/api/v1/users/{id}/password", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andExpect(jsonPath("$.response").value("Your password has been successfully changed."));
+    }
+
+    @Test
+    void whenChangePasswordRequestWithIncorrectCurrentPassword_ReturnErrorMessage() throws Exception {
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", WRONG_PASSWORD);
+        String errorMessage = "Incorrect password.";
+
+        doThrow(new ChangeUserDetailsException(errorMessage)).when(userService).changeUserPassword(anyString(), any(ChangePasswordRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/password", USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(errorMessage));
+    }
+
+    @Test
+    void whenChangePasswordRequestForNonexistentUserId_ReturnErrorMessage() throws Exception {
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", CORRECT_PASSWORD);
+        String errorMessage = "User not found.";
+
+        doThrow(new UsernameNotFoundException(errorMessage)).when(userService).changeUserPassword(eq(NONEXISTENT_USER_ID), any(ChangePasswordRequest.class));
+
+        mockMvc.perform(patch("/api/v1/users/{id}/password", NONEXISTENT_USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(errorMessage));
     }
 
 }

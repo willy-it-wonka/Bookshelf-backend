@@ -156,4 +156,24 @@ class UserRepositoryIT {
         assertThat(updatedCount).isZero();
     }
 
+    @Test
+    void whenUserExists_UpdatePasswordAndReturnPositive() {
+        String newPassword = "newPassword";
+        entityManager.persist(user);
+
+        int updatedCount = userRepository.updatePassword(user.getId(), newPassword);
+        entityManager.refresh(user);
+
+        assertThat(updatedCount).isPositive();
+        assertEquals(user.getPassword(), newPassword);
+    }
+
+    @Test
+    void whenUserDoesNotExist_NoUpdatePasswordAndReturnZero() {
+        Long nonExistentUserId = 999L;
+        int updatedCount = userRepository.updatePassword(nonExistentUserId, "newPassword");
+
+        assertThat(updatedCount).isZero();
+    }
+
 }

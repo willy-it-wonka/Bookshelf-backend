@@ -311,6 +311,35 @@ class UserServiceImplTest {
         ChangeResponse response = userService.changeUserEmail(user.getId().toString(), request);
 
         assertEquals("Your email has been successfully changed.", response.response());
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        assertEquals("new@test.com", updatedUser.getEmail());
+    }
+
+    @Test
+    void whenChangePasswordRequest_UpdateAndReturnSuccessMessage() {
+        userRepository.save(user);
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", "correctPassword");
+        when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedNewPassword");
+
+        ChangeResponse response = userService.changeUserPassword(user.getId().toString(), request);
+
+        assertEquals("Your password has been successfully changed.", response.response());
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        assertEquals("encodedNewPassword", updatedUser.getPassword());
+    }
+
+    @Test
+    void whenChangePasswordRequestWithIncorrectCurrentPassword_ThrowChangeUserDetailsException() {
+        userRepository.save(user);
+        String userId = user.getId().toString();
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", "wrongPassword");
+        when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(false);
+
+        ChangeUserDetailsException e = assertThrows(ChangeUserDetailsException.class, () ->
+                userService.changeUserPassword(userId, request));
+
+        assertEquals("Incorrect password.", e.getMessage());
     }
 
 }
