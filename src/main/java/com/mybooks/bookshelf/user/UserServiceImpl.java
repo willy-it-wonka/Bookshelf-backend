@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    private static final String EMAIL_ALREADY_EXISTS_ERROR = "is already associated with some account";
+    private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         // Check if the email address is taken.
         if (isEmailAlreadyTaken(user.getEmail()))
-            throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
+            throw new EmailException(EMAIL_ALREADY_TAKEN_ERROR);
 
         // Save the user entity in the DB.
         userRepository.save(user);
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ChangeResponse changeUserEmail(String userId, ChangeEmailRequest request) {
         if (isEmailAlreadyTaken(request.email()))
-            throw new EmailException(EMAIL_ALREADY_EXISTS_ERROR);
+            throw new EmailException(EMAIL_ALREADY_TAKEN_ERROR);
 
         Long id = Long.parseLong(userId);
 

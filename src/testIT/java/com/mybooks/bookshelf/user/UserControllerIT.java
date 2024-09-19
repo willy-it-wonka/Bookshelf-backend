@@ -60,7 +60,7 @@ class UserControllerIT {
     @Test
     void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
         RegisterRequest request = new RegisterRequest("user", "user@gmail.com", "123");
-        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("is already associated with some account"));
+        when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException("This email is already associated with some account."));
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,7 +260,7 @@ class UserControllerIT {
     void whenChangeEmailRequestWithEmailAlreadyTaken_ReturnErrorMessage() throws Exception {
         ChangeEmailRequest request = new ChangeEmailRequest(EXISTING_EMAIL, CORRECT_PASSWORD);
         when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class)))
-                .thenThrow(new EmailException("is already associated with some account"));
+                .thenThrow(new EmailException("This email is already associated with some account."));
 
         mockMvc.perform(patch("/api/v1/users/{id}/email", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
