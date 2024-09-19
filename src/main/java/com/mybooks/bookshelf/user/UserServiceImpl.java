@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
+    private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -165,6 +166,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
 
         return new ChangeResponse(EMAIL_CHANGE_SUCCESS_MESSAGE);
+    }
+
+    @Override
+    public ChangeResponse changeUserPassword(String userId, ChangePasswordRequest request) {
+        Long id = Long.parseLong(userId);
+
+        validatePassword(id, request.currentPassword());
+
+        String encodedNewPassword = passwordEncoder.encode(request.newPassword());
+        if (userRepository.updatePassword(id, encodedNewPassword) == 0)
+            throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+
+        return new ChangeResponse(PASSWORD_CHANGE_SUCCESS_MESSAGE);
     }
 
     private void validatePassword(Long id, String providedPassword) {

@@ -23,4 +23,6 @@ public interface UserService {
 
     ChangeResponse changeUserEmail(String userId, ChangeEmailRequest request);
 
+    ChangeResponse changeUserPassword(String userId, ChangePasswordRequest request);
+
 }

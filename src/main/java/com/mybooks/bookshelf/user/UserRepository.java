@@ -28,4 +28,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.email = :email, u.enabled = FALSE WHERE u.id = :id")
     int updateEmailAndDisableUser(Long id, String email);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
+    int updatePassword(Long id, String password);
+
 }

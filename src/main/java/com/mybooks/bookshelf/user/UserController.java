@@ -20,6 +20,7 @@ public class UserController {
     private static final String NEW_CONFIRMATION_EMAIL_SUMMARY = "Send a new confirmation email";
     private static final String NICK_CHANGE_SUMMARY = "Change user nick";
     private static final String EMAIL_CHANGE_SUMMARY = "Change user email";
+    private static final String PASSWORD_CHANGE_SUMMARY = "Change user password";
 
     private final UserService userService;
     private final TokenService tokenService;
@@ -70,6 +71,12 @@ public class UserController {
     @Operation(summary = EMAIL_CHANGE_SUMMARY)
     public ChangeResponse changeUserEmail(@PathVariable String id, @Valid @RequestBody ChangeEmailRequest request) {
         return userService.changeUserEmail(id, request);
+    }
+
+    @PatchMapping("/{id}/password")
+    @Operation(summary = PASSWORD_CHANGE_SUMMARY)
+    public ChangeResponse changeUserPassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
+        return userService.changeUserPassword(id, request);
     }
 
 }
