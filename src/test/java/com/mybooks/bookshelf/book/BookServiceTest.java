@@ -21,10 +21,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookServiceTest {
 
+    public static final Long BOOK_ID = 1L;
+    public static final Long NONEXISTENT_BOOK_ID = 999L;
+    public static final String BOOK_NOT_FOUND_ERROR = "Book with ID: 999 doesn't exist.";
+    public static final String AUTHORIZATION_ERROR = "You don't have authorization.";
+
     private InMemoryBookRepository bookRepository;
     private InMemoryNoteRepository noteRepository;
     private BookService bookService;
     private User user;
+    private Book book;
 
     @BeforeEach
     void setUp() {
@@ -33,10 +39,11 @@ class BookServiceTest {
         NoteService noteService = new NoteService(noteRepository);
         bookService = new BookService(bookRepository, noteService);
 
-        user = new User("Tom", "tom@example.com", "123", UserRole.USER);
-        user.setId(1L);
-        bookRepository.save(new Book("Title 1", "Author 1", BookStatus.WAITING, "link", user));
-        bookRepository.save(new Book("Title 2", "Author 2", BookStatus.READ, "link", user));
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        user.setId(BOOK_ID);
+        book = new Book("Title 1", "Author 1", BookStatus.WAITING, "link 1", user);
+        bookRepository.save(book);
+        bookRepository.save(new Book("Title 2", "Author 2", BookStatus.READ, "link 2", user));
     }
 
     @AfterEach
@@ -45,68 +52,60 @@ class BookServiceTest {
     }
 
     @Test
-    void whenBooksExist_ReturnListOfUserBooks() {
+    void whenBooksExist_ReturnListOfAllUserBooks() {
         List<Book> books = bookService.getAllUserBooks(user);
         assertEquals(2, books.size());
     }
 
     @Test
     void whenNoBooks_ReturnEmptyList() {
-        User sadUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
+        User sadUser = new User("Bob", "bob@test.com", "123", UserRole.USER);
         List<Book> books = bookService.getAllUserBooks(sadUser);
         assertTrue(books.isEmpty());
     }
 
     @Test
     void whenBookWithGivenIdExists_ReturnBook() {
-        Book expectedBook = new Book("Title 1", "Author 1", BookStatus.WAITING, "link", user);
-        expectedBook.setId(1L);
-
-        Book foundBook = bookService.getUserBookById(expectedBook.getId(), user);
+        Book foundBook = bookService.getUserBookById(BOOK_ID, user);
 
         assertNotNull(foundBook);
-        assertEquals(expectedBook, foundBook);
+        assertEquals(book, foundBook);
     }
 
     @Test
-    void whenBookWithGivenIdDoesNotExist_ThrowResourceNotFoundException() {
-        Long idOfNonExistentBook = 999L;
+    void whenBookWithGivenIdDoesNotExist_ThrowBookNotFoundException() {
         BookNotFoundException e = assertThrows(BookNotFoundException.class, () ->
-                bookService.getUserBookById(idOfNonExistentBook, user));
-        assertEquals("Book with ID: 999 doesn't exist.", e.getMessage());
+                bookService.getUserBookById(NONEXISTENT_BOOK_ID, user));
+        assertEquals(BOOK_NOT_FOUND_ERROR, e.getMessage());
     }
 
     @Test
     void whenUserIsNotOwnerOfBookWithGivenId_ThrowUnauthorizedAccessException() {
-        Long idOfUserFirstBook = 1L; // See setUp()
-        User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
-        anotherUser.setId(2L);
-
+        User anotherUser = new User("Bob", "bob@test.com", "123", UserRole.USER);
         UnauthorizedAccessException e = assertThrows(UnauthorizedAccessException.class, () ->
-                bookService.getUserBookById(idOfUserFirstBook, anotherUser));
-
-        assertEquals("You don't have authorization.", e.getMessage());
+                bookService.getUserBookById(BOOK_ID, anotherUser));
+        assertEquals(AUTHORIZATION_ERROR, e.getMessage());
     }
 
     @Test
-    void whenValidBookStatus_ReturnListOfMatchingBooks() {
-        List<Book> booksRead = bookService.getUserBooksByStatus(BookStatus.READ, user);
+    void whenBooksExistByStatus_ReturnListOfBooks() {
+        List<Book> books = bookService.getUserBooksByStatus(BookStatus.READ, user);
 
-        assertEquals(1, booksRead.size());
-        assertTrue(booksRead.stream().allMatch(book -> book.getStatus() == BookStatus.READ));
+        assertEquals(1, books.size());
+        assertTrue(books.stream().allMatch(b -> b.getStatus() == BookStatus.READ));
     }
 
     @Test
     void whenNoBooksFoundByStatus_ReturnEmptyList() {
-        List<Book> booksReading = bookService.getUserBooksByStatus(BookStatus.READING, user);
-        assertTrue(booksReading.isEmpty());
+        List<Book> books = bookService.getUserBooksByStatus(BookStatus.READING, user);
+        assertTrue(books.isEmpty());
     }
 
     @Test
     void whenCreateBookRequestWithCategories_ReturnSavedBook() {
         Set<BookCategory> categories = new HashSet<>();
         categories.add(BookCategory.IT);
-        CreateBookRequest request = new CreateBookRequest("Title 3", "Author 3", BookStatus.WAITING, "link", categories);
+        CreateBookRequest request = new CreateBookRequest("Title 3", "Author 3", BookStatus.WAITING, "link 3", categories);
 
         Book savedBook = bookService.createBook(request, user);
 
@@ -114,13 +113,13 @@ class BookServiceTest {
         assertEquals("Title 3", savedBook.getTitle());
         assertEquals("Author 3", savedBook.getAuthor());
         assertEquals(BookStatus.WAITING, savedBook.getStatus());
-        assertEquals("link", savedBook.getLinkToCover());
+        assertEquals("link 3", savedBook.getLinkToCover());
         assertEquals(categories, savedBook.getCategories());
     }
 
     @Test
     void whenCreateBookRequestWithEmptyCategories_ReturnSavedBook() {
-        CreateBookRequest request = new CreateBookRequest("Title 4", "Author 4", BookStatus.WAITING, "link", new HashSet<>());
+        CreateBookRequest request = new CreateBookRequest("Title 4", "Author 4", BookStatus.WAITING, "link 4", new HashSet<>());
 
         Book savedBook = bookService.createBook(request, user);
 
@@ -128,62 +127,58 @@ class BookServiceTest {
         assertEquals("Title 4", savedBook.getTitle());
         assertEquals("Author 4", savedBook.getAuthor());
         assertEquals(BookStatus.WAITING, savedBook.getStatus());
-        assertEquals("link", savedBook.getLinkToCover());
+        assertEquals("link 4", savedBook.getLinkToCover());
         assertTrue(savedBook.getCategories().isEmpty());
     }
 
     @Test
     void whenUpdateBookRequest_ReturnUpdatedBook() {
-        Set<BookCategory> categories = new HashSet<>();
-        categories.add(BookCategory.IT);
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "newLink", categories);
+        UpdateBookRequest request = new UpdateBookRequest("newTile", "Author 1", BookStatus.WAITING, "link 1", new HashSet<>());
 
-        Book updatedBook = bookService.updateBook(1L, request, user);
+        Book updatedBook = bookService.updateBook(BOOK_ID, request, user);
 
-        assertEquals("Title 11", updatedBook.getTitle());
-        assertEquals("Author 11", updatedBook.getAuthor());
-        assertEquals(BookStatus.READ, updatedBook.getStatus());
-        assertEquals("newLink", updatedBook.getLinkToCover());
-        assertEquals(categories, updatedBook.getCategories());
+        assertEquals(request.title(), updatedBook.getTitle());
+        assertEquals(book.getAuthor(), updatedBook.getAuthor());
+        assertEquals(book.getStatus(), updatedBook.getStatus());
+        assertEquals(book.getLinkToCover(), updatedBook.getLinkToCover());
+        assertTrue(updatedBook.getCategories().isEmpty());
         assertEquals(user, updatedBook.getBookOwner());
     }
 
     @Test
     void whenTriesUpdateBookThatUserIsNotOwner_ThrowUnauthorizedAccessException() {
-        User anotherUser = new User("Bob", "bob@example.com", "111", UserRole.USER);
+        User anotherUser = new User("Bob", "bob@test.com", "123", UserRole.USER);
         anotherUser.setId(2L);
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link", new HashSet<>());
+        UpdateBookRequest request = new UpdateBookRequest("Title", "Author", BookStatus.READ, "link", new HashSet<>());
+
+        UnauthorizedAccessException e = assertThrows(UnauthorizedAccessException.class, () ->
+                bookService.updateBook(BOOK_ID, request, anotherUser));
 
         assertNotEquals(user, anotherUser);
-        assertThrows(UnauthorizedAccessException.class, () -> bookService.updateBook(1L, request, anotherUser));
+        assertEquals(AUTHORIZATION_ERROR, e.getMessage());
     }
 
     @Test
     void whenTriesUpdateBookThatDoesNotExist_ThrowBookNotFoundException() {
-        UpdateBookRequest request = new UpdateBookRequest("Title 11", "Author 11", BookStatus.READ, "link", new HashSet<>());
-        assertThrows(BookNotFoundException.class, () -> bookService.updateBook(999L, request, user));
+        UpdateBookRequest request = new UpdateBookRequest("Title", "Author", BookStatus.READ, "link", new HashSet<>());
+        BookNotFoundException e = assertThrows(BookNotFoundException.class, () ->
+                bookService.updateBook(NONEXISTENT_BOOK_ID, request, user));
+        assertEquals(BOOK_NOT_FOUND_ERROR, e.getMessage());
     }
 
     @Test
     void whenBookHasNoNotes_RemoveBook() {
-        Long bookId = 1L;
-        assertTrue(bookRepository.findById(bookId).isPresent(), "Book should exist before deletion.");
-
-        bookService.deleteBookById(bookId);
-
-        assertFalse(bookRepository.findById(bookId).isPresent());
+        assertTrue(bookRepository.findById(BOOK_ID).isPresent());
+        bookService.deleteBookById(BOOK_ID);
+        assertFalse(bookRepository.findById(BOOK_ID).isPresent());
     }
 
     @Test
     void whenBookHasNotes_RemoveBookAndNotes() {
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", user);
-        book.setId(10L);
-        bookRepository.save(book);
         Note note = new Note("Note content", book);
         noteRepository.save(note);
-
-        assertTrue(bookRepository.findById(book.getId()).isPresent(), "Book should exist before deletion.");
-        assertTrue(noteRepository.findByBookId(note.getBook().getId()).isPresent(), "Note should exist before deletion.");
+        assertTrue(bookRepository.findById(book.getId()).isPresent());
+        assertTrue(noteRepository.findByBookId(note.getBook().getId()).isPresent());
 
         bookService.deleteBookById(book.getId());
 

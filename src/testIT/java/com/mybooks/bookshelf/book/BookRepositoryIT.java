@@ -23,7 +23,6 @@ class BookRepositoryIT {
 
     @Autowired
     private BookRepository bookRepository;
-
     @Autowired
     private TestEntityManager entityManager;
 
@@ -39,7 +38,7 @@ class BookRepositoryIT {
 
     @BeforeEach
     void setUpBeforeEach() {
-        user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
         entityManager.persist(user);
         book = new Book("Title", "Author", BookStatus.WAITING, "link", user);
     }
@@ -64,9 +63,9 @@ class BookRepositoryIT {
     }
 
     @Test
-    void whenValidDeletion_RemoveBookFromDB() {
+    void whenDeleteBookById_RemoveBook() {
         entityManager.persist(book);
-        bookRepository.delete(book);
+        bookRepository.deleteById(book.getId());
         assertThat(entityManager.find(Book.class, book.getId())).isNull();
     }
 
@@ -83,33 +82,30 @@ class BookRepositoryIT {
     }
 
     @Test
-    void whenBooksFoundByOwner_ReturnOwnerBooks() {
-        Book book1 = new Book("Title1", "Author1", BookStatus.WAITING, "link", user);
-        Book book2 = new Book("Title2", "Author2", BookStatus.WAITING, "link", user);
-        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, "link", user);
-        bookRepository.saveAll(List.of(book, book1, book2, book3));
+    void whenBooksFoundByOwner_ReturnListOfAllUserBooks() {
+        Book book2 = new Book("Title 2", "Author 2", BookStatus.WAITING, "link 2", user);
+        Book book3 = new Book("Title 3", "Author 3", BookStatus.WAITING, "link 3", user);
+        bookRepository.saveAll(List.of(book, book2, book3));
 
-        List<Book> booksByOwner = bookRepository.findByBookOwner(user);
+        List<Book> books = bookRepository.findByBookOwner(user);
 
-        assertThat(booksByOwner).containsExactlyInAnyOrder(book, book1, book2, book3);
+        assertThat(books).containsExactlyInAnyOrder(book, book2, book3);
     }
 
     @Test
-    void whenBooksFoundByStatusAndOwner_ReturnOwnerBooksByStatus() {
-        Book book1 = new Book("Title1", "Author1", BookStatus.READ, "link", user);
-        Book book2 = new Book("Title2", "Author2", BookStatus.READ, "link", user);
-        Book book3 = new Book("Title3", "Author3", BookStatus.WAITING, "link", user);
-        Book book4 = new Book("Title4", "Author4", BookStatus.WAITING, "link", user);
-        bookRepository.saveAll(List.of(book, book1, book2, book3, book4));
+    void whenBooksFoundByStatusAndOwner_ReturnListOfBooks() {
+        Book book2 = new Book("Title 2", "Author 2", BookStatus.WAITING, "link", user);
+        Book book3 = new Book("Title 3", "Author 3", BookStatus.READ, "link", user);
+        Book book4 = new Book("Title 4", "Author 4", BookStatus.READ, "link", user);
+        bookRepository.saveAll(List.of(book, book2, book3, book4));
 
         List<Book> books = bookRepository.findByStatusAndBookOwner(BookStatus.READ, user);
 
-        assertThat(books).containsExactlyInAnyOrder(book1, book2);
+        assertThat(books).containsExactlyInAnyOrder(book3, book4);
     }
 
     @Test
-    void whenAreNoBooksWithGivenStatus_ReturnEmptyList() {
-        entityManager.persist(book);
+    void whenNoBooksWithGivenStatus_ReturnEmptyList() {
         List<Book> books = bookRepository.findByStatusAndBookOwner(BookStatus.READ, user);
         assertThat(books).isEmpty();
     }

@@ -4,6 +4,7 @@ import com.mybooks.bookshelf.book.payload.BookResponse;
 import com.mybooks.bookshelf.book.payload.CreateBookRequest;
 import com.mybooks.bookshelf.user.User;
 import com.mybooks.bookshelf.user.UserRole;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -14,12 +15,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookMapperTest {
 
-    @Test
-    void whenBookProvided_ReturnBookResponse() {
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", new User());
+    private User user;
+    private Book book;
+
+    @BeforeEach
+    void setUp() {
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        user.setId(1L);
+        book = new Book("Title", "Author", BookStatus.READ, "link", user);
         book.setId(1L);
         book.setCreatedDate(LocalDateTime.now());
         book.setLastModifiedDate(LocalDateTime.now());
+    }
+
+    @Test
+    void whenBookWithCategoriesProvided_ReturnBookResponse() {
         book.setCategories(new HashSet<>(Set.of(BookCategory.IT)));
 
         BookResponse response = BookMapper.mapToBookResponse(book);
@@ -37,11 +47,6 @@ class BookMapperTest {
 
     @Test
     void whenBookWithEmptyCategoriesProvided_ReturnBookResponse() {
-        Book book = new Book("Title", "Author", BookStatus.READ, "link", new User());
-        book.setId(1L);
-        book.setCreatedDate(LocalDateTime.now());
-        book.setLastModifiedDate(LocalDateTime.now());
-
         BookResponse response = BookMapper.mapToBookResponse(book);
 
         assertNotNull(response);
@@ -57,38 +62,34 @@ class BookMapperTest {
     }
 
     @Test
-    void whenCreateBookRequest_ReturnBook() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
-        user.setId(1L);
+    void whenCreateBookRequestWithCategories_ReturnBook() {
         Set<BookCategory> categories = new HashSet<>(Set.of(BookCategory.IT, BookCategory.HISTORY));
         CreateBookRequest request = new CreateBookRequest("Title", "Author", BookStatus.READ, "link", categories);
 
-        Book book = BookMapper.mapToEntity(request, user);
+        Book mappedBook = BookMapper.mapToEntity(request, user);
 
-        assertNotNull(book);
-        assertEquals(request.title(), book.getTitle());
-        assertEquals(request.author(), book.getAuthor());
-        assertEquals(request.status(), book.getStatus());
-        assertEquals(request.linkToCover(), book.getLinkToCover());
-        assertEquals(user, book.getBookOwner());
-        assertEquals(request.categories(), book.getCategories());
+        assertNotNull(mappedBook);
+        assertEquals(request.title(), mappedBook.getTitle());
+        assertEquals(request.author(), mappedBook.getAuthor());
+        assertEquals(request.status(), mappedBook.getStatus());
+        assertEquals(request.linkToCover(), mappedBook.getLinkToCover());
+        assertEquals(request.categories(), mappedBook.getCategories());
+        assertEquals(user, mappedBook.getBookOwner());
     }
 
     @Test
     void whenCreateBookRequestWithEmptyCategories_ReturnBookWithEmptyCategories() {
-        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
-        user.setId(1L);
         CreateBookRequest request = new CreateBookRequest("Title", "Author", BookStatus.READ, "link", new HashSet<>());
 
-        Book book = BookMapper.mapToEntity(request, user);
+        Book mappedBook = BookMapper.mapToEntity(request, user);
 
-        assertNotNull(book);
-        assertEquals(request.title(), book.getTitle());
-        assertEquals(request.author(), book.getAuthor());
-        assertEquals(request.status(), book.getStatus());
-        assertEquals(request.linkToCover(), book.getLinkToCover());
-        assertEquals(user, book.getBookOwner());
-        assertTrue(book.getCategories().isEmpty());
+        assertNotNull(mappedBook);
+        assertEquals(request.title(), mappedBook.getTitle());
+        assertEquals(request.author(), mappedBook.getAuthor());
+        assertEquals(request.status(), mappedBook.getStatus());
+        assertEquals(request.linkToCover(), mappedBook.getLinkToCover());
+        assertTrue(mappedBook.getCategories().isEmpty());
+        assertEquals(user, mappedBook.getBookOwner());
     }
 
 }
