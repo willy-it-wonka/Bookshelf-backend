@@ -27,7 +27,7 @@ public class InMemoryNoteRepository implements NoteRepository {
 
     @Override
     @NonNull
-    public Optional<Note> findById(Long id) {
+    public Optional<Note> findById(@NonNull Long id) {
         return Optional.ofNullable(notes.get(id));
     }
 

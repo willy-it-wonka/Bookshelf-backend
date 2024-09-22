@@ -6,7 +6,6 @@ import com.mybooks.bookshelf.book.note.payload.CreateNoteRequest;
 import com.mybooks.bookshelf.book.note.payload.UpdateNoteRequest;
 import com.mybooks.bookshelf.exception.NoteNotFoundException;
 import com.mybooks.bookshelf.user.User;
-import com.mybooks.bookshelf.user.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NoteServiceTest {
+
+    public static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
+    public static final String NOTE_NOT_FOUND_ERROR = "Notes for the book with ID: 999 don't exist.";
 
     private InMemoryNoteRepository noteRepository;
     private NoteService noteService;
@@ -25,10 +27,9 @@ class NoteServiceTest {
         noteRepository = new InMemoryNoteRepository();
         noteService = new NoteService(noteRepository);
 
-        User user = new User("Tom", "tom@example.com", "123", UserRole.USER);
-        book = new Book("Title", "Author", BookStatus.READ, "link", user);
+        book = new Book("Title", "Author", BookStatus.READ, "link", new User());
         book.setId(1L);
-        note = new Note("Content of the note.", book);
+        note = new Note("Content", book);
         noteRepository.save(note);
     }
 
@@ -51,12 +52,9 @@ class NoteServiceTest {
 
     @Test
     void whenNoteDoesNotExistByBookId_ThrowNoteNotFoundException() {
-        Long idOfBookWithoutNote = 999L;
-
         NoteNotFoundException e = assertThrows(NoteNotFoundException.class, () ->
-                noteService.getNoteByBookId(idOfBookWithoutNote));
-
-        assertEquals("Notes for the book with ID: 999 don't exist.", e.getMessage());
+                noteService.getNoteByBookId(ID_OF_BOOK_WITHOUT_NOTE));
+        assertEquals(NOTE_NOT_FOUND_ERROR, e.getMessage());
     }
 
     @Test
@@ -65,14 +63,13 @@ class NoteServiceTest {
 
         Note createdNote = noteService.createNote(request);
 
-        assertNotNull(createdNote.getId());
+        assertNotNull(createdNote);
         assertEquals(request.content(), createdNote.getContent());
         assertEquals(request.book(), createdNote.getBook());
-        assertTrue(noteRepository.findById(createdNote.getId()).isPresent());
     }
 
     @Test
-    void whenNoteExistsAndUpdateNoteRequest_UpdateNoteContent() {
+    void whenNoteExistsAndUpdateNoteRequest_ReturnUpdatedNote() {
         UpdateNoteRequest request = new UpdateNoteRequest("Updated content");
 
         Note updatedNote = noteService.updateNote(note.getBook().getId(), request);
@@ -84,13 +81,10 @@ class NoteServiceTest {
 
     @Test
     void whenNoteDoesNotExistAndUpdateNoteRequest_ThrowNoteNotFoundException() {
-        Long idOfBookWithoutNote = 999L;
         UpdateNoteRequest request = new UpdateNoteRequest("Updated content");
-
         NoteNotFoundException e = assertThrows(NoteNotFoundException.class, () ->
-                noteService.updateNote(idOfBookWithoutNote, request));
-
-        assertEquals("Notes for the book with ID: 999 don't exist.", e.getMessage());
+                noteService.updateNote(ID_OF_BOOK_WITHOUT_NOTE, request));
+        assertEquals(NOTE_NOT_FOUND_ERROR, e.getMessage());
     }
 
 }

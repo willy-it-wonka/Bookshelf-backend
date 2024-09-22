@@ -17,19 +17,23 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class NoteRepositoryIT {
 
+    public static final Long BOOK_ID = 1L;
+    public static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
+
     @Autowired
     private NoteRepository noteRepository;
-
     @Autowired
     private TestEntityManager entityManager;
 
-    private Note note;
     private Book book;
+    private Note note;
 
     @BeforeAll
     public static void setUpBeforeAll() {
@@ -40,12 +44,12 @@ class NoteRepositoryIT {
 
     @BeforeEach
     void setUpBeforeEach() {
-        User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
+        User user = new User("Tom", "tom@test.com", "123", UserRole.USER);
         entityManager.persist(user);
         book = new Book("Title", "Author", BookStatus.WAITING, "link", user);
         entityManager.persist(book);
 
-        note = new Note("Content of the note.", book);
+        note = new Note("Content", book);
     }
 
     @AfterEach
@@ -61,26 +65,27 @@ class NoteRepositoryIT {
         Optional<Note> foundNote = noteRepository.findByBookId(book.getId());
 
         assertThat(foundNote).isPresent();
-        assertThat(foundNote.get().getContent()).isEqualTo(note.getContent());
+        assertEquals(foundNote.get().getContent(), note.getContent());
     }
 
     @Test
     void whenNoteNotFoundByBookId_ThrowException() {
-        Optional<Note> noteNotFound = noteRepository.findByBookId(999L);
+        Optional<Note> noteNotFound = noteRepository.findByBookId(ID_OF_BOOK_WITHOUT_NOTE);
         assertThat(noteNotFound).isNotPresent();
     }
 
     @Test
     void whenDeleteByBookId_RemoveNote() {
         entityManager.persist(note);
-        noteRepository.deleteByBookId(book.getId());
-        assertThat(noteRepository.findByBookId(book.getId())).isNotPresent();
+        noteRepository.deleteByBookId(BOOK_ID);
+        assertThat(noteRepository.findByBookId(BOOK_ID)).isNotPresent();
     }
 
     @Test
-    void whenCorrectNoteDataProvided_SaveNote() {
+    void whenCorrectNoteDataProvided_ReturnSavedNote() {
         Note savedNote = noteRepository.save(note);
-        assertThat(entityManager.find(Note.class, savedNote.getId())).isEqualTo(note);
+        assertNotNull(savedNote);
+        assertEquals(entityManager.find(Note.class, savedNote.getId()), note);
     }
 
 }
