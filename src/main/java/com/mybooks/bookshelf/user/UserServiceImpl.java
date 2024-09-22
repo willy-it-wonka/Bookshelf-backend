@@ -5,6 +5,7 @@ import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.IncorrectPasswordException;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.*;
@@ -184,7 +185,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void validatePassword(Long id, String providedPassword) {
         String encodedPassword = loadUserById(id).getPassword();
         if (!passwordEncoder.matches(providedPassword, encodedPassword))
-            throw new ChangeUserDetailsException(INCORRECT_PASSWORD_MESSAGE);
+            throw new IncorrectPasswordException();
     }
 
 }

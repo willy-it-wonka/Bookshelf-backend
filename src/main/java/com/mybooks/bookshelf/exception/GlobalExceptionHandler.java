@@ -71,6 +71,14 @@ public class GlobalExceptionHandler {
         return e.getMessage();
     }
 
+    @ExceptionHandler(IncorrectPasswordException.class)
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    public String handleIncorrectPasswordException(IncorrectPasswordException e) {
+        log.error(e.getMessage(), e);
+        return e.getMessage();
+    }
+
     @ExceptionHandler(UnauthorizedAccessException.class)
     @ResponseStatus(FORBIDDEN)
     @ResponseBody

@@ -2,8 +2,8 @@ package com.mybooks.bookshelf.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelf.email.token.TokenService;
-import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.IncorrectPasswordException;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.Test;
@@ -205,7 +205,7 @@ class UserControllerIT {
         ChangeNickRequest request = new ChangeNickRequest(NEW_NICK, WRONG_PASSWORD);
         String errorMessage = "Incorrect password.";
 
-        doThrow(new ChangeUserDetailsException(errorMessage)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
+        doThrow(new IncorrectPasswordException()).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
 
         mockMvc.perform(patch("/api/v1/users/{id}/nick", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -246,8 +246,7 @@ class UserControllerIT {
     @Test
     void whenChangeEmailRequestWithIncorrectPassword_ReturnErrorMessage() throws Exception {
         ChangeEmailRequest request = new ChangeEmailRequest(NEW_EMAIL, WRONG_PASSWORD);
-        when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class)))
-                .thenThrow(new ChangeUserDetailsException("Incorrect password."));
+        when(userService.changeUserEmail(eq(USER_ID), any(ChangeEmailRequest.class))).thenThrow(new IncorrectPasswordException());
 
         mockMvc.perform(patch("/api/v1/users/{id}/email", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -302,7 +301,7 @@ class UserControllerIT {
         ChangePasswordRequest request = new ChangePasswordRequest("newPassword", WRONG_PASSWORD);
         String errorMessage = "Incorrect password.";
 
-        doThrow(new ChangeUserDetailsException(errorMessage)).when(userService).changeUserPassword(anyString(), any(ChangePasswordRequest.class));
+        doThrow(new IncorrectPasswordException()).when(userService).changeUserPassword(anyString(), any(ChangePasswordRequest.class));
 
         mockMvc.perform(patch("/api/v1/users/{id}/password", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -3,8 +3,8 @@ package com.mybooks.bookshelf.user;
 import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
-import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
 import com.mybooks.bookshelf.exception.EmailException;
+import com.mybooks.bookshelf.exception.IncorrectPasswordException;
 import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.*;
@@ -263,13 +263,13 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenChangeNickRequestWithIncorrectPassword_ThrowChangeUserDetailsException() {
+    void whenChangeNickRequestWithIncorrectPassword_ThrowIncorrectPasswordException() {
         userRepository.save(user);
         String userId = user.getId().toString();
         ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
-        ChangeUserDetailsException e = assertThrows(ChangeUserDetailsException.class, () ->
+        IncorrectPasswordException e = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserNick(userId, request));
 
         assertEquals("Incorrect password.", e.getMessage());
@@ -290,13 +290,13 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenChangeEmailRequestWithIncorrectPassword_ThrowChangeUserDetailsException() {
+    void whenChangeEmailRequestWithIncorrectPassword_ThrowIncorrectPasswordException() {
         userRepository.save(user);
         String userId = user.getId().toString();
         ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", "wrongPassword");
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
-        ChangeUserDetailsException exception = assertThrows(ChangeUserDetailsException.class, () ->
+        IncorrectPasswordException exception = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserEmail(userId, request));
 
         assertEquals("Incorrect password.", exception.getMessage());
@@ -330,13 +330,13 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenChangePasswordRequestWithIncorrectCurrentPassword_ThrowChangeUserDetailsException() {
+    void whenChangePasswordRequestWithIncorrectCurrentPassword_ThrowIncorrectPasswordException() {
         userRepository.save(user);
         String userId = user.getId().toString();
         ChangePasswordRequest request = new ChangePasswordRequest("newPassword", "wrongPassword");
         when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(false);
 
-        ChangeUserDetailsException e = assertThrows(ChangeUserDetailsException.class, () ->
+        IncorrectPasswordException e = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserPassword(userId, request));
 
         assertEquals("Incorrect password.", e.getMessage());
