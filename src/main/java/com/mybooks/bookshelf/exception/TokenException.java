@@ -2,12 +2,14 @@ package com.mybooks.bookshelf.exception;
 
 public class TokenException extends RuntimeException {
 
+    public static final String ERROR_MESSAGE = "Email confirmation error: %s";
+
     public TokenException(String message) {
-        super(String.format("Email confirmation error: %s", message));
+        super(String.format(ERROR_MESSAGE, message));
     }
 
     public TokenException(String message, boolean includePrefix) {
-        super(includePrefix ? String.format("Email confirmation error: %s", message) : message);
+        super(includePrefix ? String.format(ERROR_MESSAGE, message) : message);
     }
 
 }
