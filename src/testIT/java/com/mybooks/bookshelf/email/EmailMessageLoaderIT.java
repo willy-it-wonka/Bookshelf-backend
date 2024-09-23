@@ -18,23 +18,17 @@ class EmailMessageLoaderIT {
         String location = "templates/message.html";
         String expectedContentStart = "<!DOCTYPE html>";
 
-        // Check if the file exists.
         assertTrue(new ClassPathResource(location).exists());
 
-        // Load the content.
         String content = emailMessageLoader.loadMessage(location);
 
-        // Check if content starts with expected HTML doctype declaration.
         assertTrue(content.startsWith(expectedContentStart));
     }
 
     @Test
     void whenIncorrectPath_ThrowIllegalStateException() {
-        String invalidLocation = "templates/wrong.html";
-
         IllegalStateException e = assertThrows(IllegalStateException.class, () ->
-                emailMessageLoader.loadMessage(invalidLocation));
-
+                emailMessageLoader.loadMessage("templates/wrong.html"));
         assertEquals("Failed to load email message template.", e.getMessage());
     }
 

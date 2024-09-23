@@ -14,6 +14,11 @@ import static org.mockito.Mockito.*;
 
 class EmailServiceTest {
 
+    public static final String ADDRESSEE = "tom@test.com";
+    public static final String MESSAGE = "Message content";
+    public static final String USER_NAME = "John";
+    public static final String CONFIRMATION_ENDPOINT = "http://test.com/api/v1/users/confirmation?token=";
+
     private JavaMailSender javaMailSender;
     private JavaMailSenderImpl fromProperties;
     private EmailMessageLoader emailMessageLoader;
@@ -29,62 +34,47 @@ class EmailServiceTest {
 
     @Test
     void whenCorrectEmailDataProvided_SendEmail() throws MessagingException {
-        String addressee = "test@gmail.com";
-        String message = "Message content.";
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(fromProperties.getUsername()).thenReturn("noreply@gmail.com");
 
-        emailService.send(addressee, message);
+        emailService.send(ADDRESSEE, MESSAGE);
 
-        verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(addressee));
+        verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(ADDRESSEE));
         verify(mimeMessage).setSubject("Confirm your email", "utf-8");
-        verify(mimeMessage).setContent(message, "text/html;charset=utf-8");
+        verify(mimeMessage).setContent(MESSAGE, "text/html;charset=utf-8");
         verify(mimeMessage).setFrom(new InternetAddress("noreply@gmail.com"));
         verify(javaMailSender).send(mimeMessage);
     }
 
     @Test
     void whenEmailSendingFails_ThrowIllegalStateException() {
-        String addressee = "test@gmail.com";
-        String message = "Message content.";
         when(javaMailSender.createMimeMessage()).thenThrow(new IllegalStateException());
-
-        assertThrows(IllegalStateException.class, () ->
-                emailService.send(addressee, message));
+        assertThrows(IllegalStateException.class, () -> emailService.send(ADDRESSEE, MESSAGE));
     }
 
     @Test
     void whenMessageIsNull_ThrowIllegalArgumentException() {
-        String addressee = "test@gmail.com";
-
-        assertThrows(IllegalArgumentException.class, () ->
-                emailService.send(addressee, null));
+        assertThrows(IllegalArgumentException.class, () -> emailService.send(ADDRESSEE, null));
     }
 
     @Test
     void whenCorrectPlaceholdersProvided_ReturnEmailWithReplacedValues() {
-        String name = "John";
-        String link = "http://test.com/confirm?token=";
         String templateContent = "Hi {name}, please visit {link} to activate your account.";
         when(emailMessageLoader.loadMessage("templates/message.html")).thenReturn(templateContent);
 
-        String result = emailService.buildEmail(name, link);
+        String result = emailService.buildEmail(USER_NAME, CONFIRMATION_ENDPOINT);
 
-        assertTrue(result.contains(name));
-        assertTrue(result.contains(link));
+        assertTrue(result.contains(USER_NAME));
+        assertTrue(result.contains(CONFIRMATION_ENDPOINT));
         assertFalse(result.contains("{name}")); // Check lack of placeholder.
         assertFalse(result.contains("{link}"));
     }
 
     @Test
     void whenTemplateNotFound_ThrowIllegalStateException() {
-        String name = "John";
-        String link = "http://test.com/confirm?token=";
-        when(emailMessageLoader.loadMessage(anyString())).thenThrow(new IllegalStateException("Template not found"));
-
-        assertThrows(IllegalStateException.class, () ->
-                emailService.buildEmail(name, link));
+        when(emailMessageLoader.loadMessage(anyString())).thenThrow(new IllegalStateException("Failed to load email message template."));
+        assertThrows(IllegalStateException.class, () -> emailService.buildEmail(USER_NAME, CONFIRMATION_ENDPOINT));
     }
 
 }

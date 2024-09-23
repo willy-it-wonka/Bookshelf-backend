@@ -24,11 +24,12 @@ class TokenRepositoryIT {
 
     @Autowired
     private TokenRepository tokenRepository;
-
     @Autowired
     private TestEntityManager entityManager;
 
     private Token token;
+    private User user;
+    private LocalDateTime confirmationDate;
 
     @BeforeAll
     public static void setUpBeforeAll() {
@@ -39,10 +40,14 @@ class TokenRepositoryIT {
 
     @BeforeEach
     void setUpBeforeEach() {
-        User user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
         entityManager.persist(user);
+
         LocalDateTime testTime = LocalDateTime.of(2024, 5, 16, 12, 0);
         token = new Token("f127e33b-1781-4435-bb0d-a0dff0564ba4", testTime, testTime.plusMinutes(30), user);
+        entityManager.persist(token);
+
+        confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
     }
 
     @AfterEach
@@ -53,14 +58,16 @@ class TokenRepositoryIT {
 
     @Test
     void whenCorrectTokenDataProvided_SaveToken() {
+        tokenRepository.deleteAll();
+        entityManager.clear();
+
         Token savedToken = tokenRepository.save(token);
-        assertThat(entityManager.find(Token.class, savedToken.getId())).isEqualTo(token);
+
+        assertEquals(entityManager.find(Token.class, savedToken.getId()), token);
     }
 
     @Test
     void whenTokenFound_ReturnToken() {
-        entityManager.persist(token);
-
         Optional<Token> foundToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken());
 
         assertThat(foundToken).isPresent();
@@ -69,18 +76,15 @@ class TokenRepositoryIT {
 
     @Test
     void whenTokenDoesNotExist_ReturnEmpty() {
-        entityManager.persist(token);
-        Optional<Token> notFoundToken = tokenRepository.findByConfirmationToken("wrong-token");
-        assertThat(notFoundToken).isNotPresent();
+        Optional<Token> tokenNotFound = tokenRepository.findByConfirmationToken("wrong-token");
+        assertThat(tokenNotFound).isNotPresent();
     }
 
     @Test
     void whenMultipleTokensExist_ReturnLatestToken() {
-        User user = token.getTokenOwner();
-        LocalDateTime olderTokenTime = LocalDateTime.of(2024, 5, 15, 10, 0);
-        Token olderToken = new Token("older-token", olderTokenTime, olderTokenTime.plusMinutes(30), user);
+        LocalDateTime olderTime = LocalDateTime.of(2024, 5, 15, 10, 0);
+        Token olderToken = new Token("older-token", olderTime, olderTime.plusMinutes(30), user);
         entityManager.persist(olderToken);
-        entityManager.persist(token);
 
         Optional<Token> latestToken = tokenRepository.findTop1ByTokenOwnerOrderByCreationDateDesc(user);
 
@@ -90,35 +94,26 @@ class TokenRepositoryIT {
 
     @Test
     void whenNoTokensExistForUser_ReturnEmpty() {
-        User user = token.getTokenOwner();
-        tokenRepository.deleteAll(); // Ensure no tokens for the user exist
-
+        tokenRepository.deleteAll();
         Optional<Token> latestToken = tokenRepository.findTop1ByTokenOwnerOrderByCreationDateDesc(user);
-
         assertThat(latestToken).isNotPresent();
     }
 
     @Test
     void whenValidToken_UpdateConfirmationDateAndReturnPositive() {
-        entityManager.persist(token);
-        LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
-
-        int updatedResp = tokenRepository.updateConfirmationDate(token.getConfirmationToken(), confirmationDate);
+        int response = tokenRepository.updateConfirmationDate(token.getConfirmationToken(), confirmationDate);
         entityManager.refresh(token);
 
-        assertThat(updatedResp).isPositive();
-        assertThat(token.getConfirmationDate()).isEqualTo(confirmationDate);
+        assertThat(response).isPositive();
+        assertEquals(token.getConfirmationDate(), confirmationDate);
     }
 
     @Test
     void whenInvalidToken_NoUpdateAndReturnZero() {
-        entityManager.persist(token);
-        LocalDateTime confirmationDate = LocalDateTime.of(2024, 5, 16, 12, 10);
-
-        int updatedResp = tokenRepository.updateConfirmationDate("wrong-token", confirmationDate);
+        int response = tokenRepository.updateConfirmationDate("wrong-token", confirmationDate);
         entityManager.refresh(token);
 
-        assertThat(updatedResp).isZero();
+        assertThat(response).isZero();
     }
 
 }
