@@ -13,11 +13,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryIT {
+
+    private static final Long NONEXISTENT_USER_ID = 999L;
+    private static final String NEW_NICK = "newNick";
+    private static final String NEW_EMAIL = "newEmail@test.com";
+    private static final String NEW_PASSWORD = "newPassword";
+    private static final String WRONG_EMAIL = "wrong@email.com";
 
     @Autowired
     private UserRepository userRepository;
@@ -35,7 +41,8 @@ class UserRepositoryIT {
 
     @BeforeEach
     void setUpBeforeEach() {
-        user = new User("Tom", "tom@gmail.com", "123", UserRole.USER);
+        user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        entityManager.persist(user);
     }
 
     @AfterEach
@@ -47,132 +54,108 @@ class UserRepositoryIT {
     @Test
     void whenCorrectUserDataProvided_SaveUser() {
         User savedUser = userRepository.save(user);
-        assertThat(entityManager.find(User.class, savedUser.getId())).isEqualTo(user);
+        assertEquals(entityManager.find(User.class, savedUser.getId()), user);
     }
 
     @Test
     void whenEmailExists_ReturnUser() {
-        entityManager.persist(user);
-
         Optional<User> foundUser = userRepository.findByEmail(user.getEmail());
 
         assertThat(foundUser).isPresent();
-        assertEquals(foundUser.get(), user);
+        assertEquals(user, foundUser.get());
     }
 
     @Test
     void whenEmailDoesNotExist_ReturnEmpty() {
-        entityManager.persist(user);
-        Optional<User> notFoundUser = userRepository.findByEmail("wrong@gmail.com");
+        Optional<User> notFoundUser = userRepository.findByEmail(WRONG_EMAIL);
         assertThat(notFoundUser).isNotPresent();
     }
 
     @Test
     void whenIdExists_ReturnUser() {
-        entityManager.persist(user);
-
         Optional<User> foundUser = userRepository.findById(user.getId());
 
         assertThat(foundUser).isPresent();
-        assertEquals(foundUser.get(), user);
+        assertEquals(user, foundUser.get());
     }
 
     @Test
     void whenIdDoesNotExist_ReturnEmpty() {
-        entityManager.persist(user);
-        Optional<User> notFoundUser = userRepository.findById(999L);
+        Optional<User> notFoundUser = userRepository.findById(NONEXISTENT_USER_ID);
         assertThat(notFoundUser).isNotPresent();
     }
 
     @Test
     void whenEmailExists_UpdateEnabledAndReturnPositive() {
         user.setEnabled(false);
-        entityManager.persist(user);
 
         int updatedCount = userRepository.updateEnabled(user.getEmail());
         entityManager.refresh(user);
 
         assertThat(updatedCount).isPositive();
-        assertThat(user.isEnabled()).isTrue();
+        assertTrue(user.isEnabled());
     }
 
     @Test
     void whenEmailExistsAndISActivated_NoUpdateAndReturnZero() {
         user.setEnabled(true);
-        entityManager.persist(user);
 
         int updatedCount = userRepository.updateEnabled(user.getEmail());
         entityManager.refresh(user);
 
         assertThat(updatedCount).isZero();
-        assertThat(user.isEnabled()).isTrue();
+        assertTrue(user.isEnabled());
     }
 
     @Test
     void whenEmailDoesNotExist_NoUpdateAndReturnZero() {
-        String nonExistentEmail = "nonexistent@test.com";
-        int updatedCount = userRepository.updateEnabled(nonExistentEmail);
+        int updatedCount = userRepository.updateEnabled(WRONG_EMAIL);
         assertThat(updatedCount).isZero();
     }
 
     @Test
     void whenUserExists_UpdateNickAndReturnPositive() {
-        String newNick = "newNick";
-        entityManager.persist(user);
-
-        int updatedCount = userRepository.updateNick(user.getId(), newNick);
+        int updatedCount = userRepository.updateNick(user.getId(), NEW_NICK);
         entityManager.refresh(user);
 
         assertThat(updatedCount).isPositive();
-        assertEquals(user.getNick(), newNick);
+        assertEquals(NEW_NICK, user.getNick());
     }
 
     @Test
     void whenUserDoesNotExist_NoUpdateNickAndReturnZero() {
-        Long nonExistentUserId = 999L;
-        int updatedCount = userRepository.updateNick(nonExistentUserId, "nick");
-
+        int updatedCount = userRepository.updateNick(NONEXISTENT_USER_ID, NEW_NICK);
         assertThat(updatedCount).isZero();
     }
 
     @Test
     void whenUserExists_UpdateEmailAndDisableUserAndReturnPositive() {
-        String newEmail = "newEmail@test.com";
-        entityManager.persist(user);
-
-        int updatedCount = userRepository.updateEmailAndDisableUser(user.getId(), newEmail);
+        int updatedCount = userRepository.updateEmailAndDisableUser(user.getId(), NEW_EMAIL);
         entityManager.refresh(user);
 
         assertThat(updatedCount).isPositive();
-        assertEquals(user.getEmail(), newEmail);
-        assertThat(user.isEnabled()).isFalse();
+        assertEquals(NEW_EMAIL, user.getEmail());
+        assertFalse(user.isEnabled());
     }
 
     @Test
     void whenUserDoesNotExist_NoUpdateEmailAndReturnZero() {
-        Long nonExistentUserId = 999L;
-        int updatedCount = userRepository.updateEmailAndDisableUser(nonExistentUserId, "email@test.com");
-
+        int updatedCount = userRepository.updateEmailAndDisableUser(NONEXISTENT_USER_ID, NEW_EMAIL);
         assertThat(updatedCount).isZero();
     }
 
     @Test
     void whenUserExists_UpdatePasswordAndReturnPositive() {
-        String newPassword = "newPassword";
-        entityManager.persist(user);
-
-        int updatedCount = userRepository.updatePassword(user.getId(), newPassword);
+        int updatedCount = userRepository.updatePassword(user.getId(), NEW_PASSWORD);
         entityManager.refresh(user);
 
         assertThat(updatedCount).isPositive();
-        assertEquals(user.getPassword(), newPassword);
+        assertEquals(NEW_PASSWORD, user.getPassword());
     }
 
     @Test
     void whenUserDoesNotExist_NoUpdatePasswordAndReturnZero() {
-        Long nonExistentUserId = 999L;
-        int updatedCount = userRepository.updatePassword(nonExistentUserId, "newPassword");
-
+        int updatedCount = userRepository.updatePassword(NONEXISTENT_USER_ID, NEW_PASSWORD);
         assertThat(updatedCount).isZero();
     }
 

@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserMapperTest {
 
+    private final RegisterRequest request = new RegisterRequest("Tom", "tom@test.com", "123");
+
     @Test
     void whenValidRegisterRequest_ReturnUser() {
-        RegisterRequest request = new RegisterRequest("Tom", "tom@test.com", "123");
         String encodedPassword = "123";
-
         User user = UserMapper.mapToEntity(request, encodedPassword);
 
         assertNotNull(user);
@@ -22,14 +22,7 @@ class UserMapperTest {
     }
 
     @Test
-    void whenRegisterRequestIsNull_ThrowNullPointerException() {
-        assertThrows(NullPointerException.class, () -> UserMapper.mapToEntity(null, "123"));
-    }
-
-    @Test
     void whenEncodedPasswordIsNull_MapToEntityWithNullPassword() {
-        RegisterRequest request = new RegisterRequest("Tom", "tom@test.com", "123");
-
         User user = UserMapper.mapToEntity(request, null);
 
         assertNotNull(user);

@@ -23,6 +23,16 @@ import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
+    private static final String CORRECT_PASSWORD = "correctPassword";
+    private static final String WRONG_PASSWORD = "wrongPassword";
+    private static final String ENCODED_PASSWORD = "encodedPassword";
+    private static final String WRONG_EMAIL = "wrong@email.com";
+    private static final String EMAIL_CONTENT = "Mocked email content";
+    private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
+    private static final String USER_NOT_FOUND_ERROR = "User not found.";
+    private static final String INCORRECT_PASSWORD_ERROR = "Incorrect password.";
+    private static final String ASSERTION_ERROR = "User should be present in the InMemoryUserRepository.";
+
     private InMemoryUserRepository userRepository;
     private UserService userService;
     private PasswordEncoder passwordEncoder;
@@ -41,6 +51,7 @@ class UserServiceImplTest {
         userService = new UserServiceImpl(userRepository, passwordEncoder, tokenService, emailService, jsonWebToken);
 
         user = new User("Tom", "tom@test.com", "123", UserRole.USER);
+        userRepository.save(user);
     }
 
     @AfterEach
@@ -50,52 +61,42 @@ class UserServiceImplTest {
 
     //    REGISTRATION
     @Test
-    void whenCorrectRegisterRequest_CreateUserAndSendEmail() {
+    void whenRegisterRequest_CreateUserAndSendEmail() {
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
-        String encodedPassword = "encodedPassword";
-        String emailContent = "Mocked email content";
-        when(passwordEncoder.encode(request.password())).thenReturn(encodedPassword);
-        when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
-        Token token = new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User());
-        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(token);
+        when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
+        when(emailService.buildEmail(anyString(), anyString())).thenReturn(EMAIL_CONTENT);
+        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User()));
 
         userService.createUser(request);
 
-        User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() ->
-                new AssertionError("User should be present in the InMemoryUserRepository."));
-        assertEquals(encodedPassword, savedUser.getPassword());
-        verify(emailService).send(request.email(), emailContent);
+        User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() -> new AssertionError(ASSERTION_ERROR));
+        assertEquals(ENCODED_PASSWORD, savedUser.getPassword());
+        verify(emailService).send(request.email(), EMAIL_CONTENT);
     }
 
     @Test
     void whenEmailAlreadyTaken_ThrowEmailException() {
-        userRepository.save(user);
         RegisterRequest request = new RegisterRequest("Tom", "tom@test.com", "123");
-
         EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request));
-
-        assertEquals("This email is already associated with some account.", e.getMessage());
+        assertEquals(EMAIL_ALREADY_TAKEN_ERROR, e.getMessage());
     }
 
     @Test
-    void whenTwoRegisterRequestWithSameEmail_ThrowEmailException() {
+    void whenTwoRegisterRequestWithSameEmail_CreateUserAndForSecondRequestThrowEmailException() {
         RegisterRequest request1 = new RegisterRequest("Tom", "tom@gmail.com", "123");
         RegisterRequest request2 = new RegisterRequest("Tom", "tom@gmail.com", "123");
-        // Mock token creation for request1.
-        Token mockToken = new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User());
-        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(mockToken);
+        when(tokenService.createConfirmationToken(any(User.class))).thenReturn(new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User()));
 
         userService.createUser(request1);
         EmailException e = assertThrows(EmailException.class, () -> userService.createUser(request2));
 
-        assertEquals("This email is already associated with some account.", e.getMessage());
+        assertNotNull(userRepository.findByEmail(request1.email()));
+        assertEquals(EMAIL_ALREADY_TAKEN_ERROR, e.getMessage());
     }
 
     //    LOGIN
     @Test
     void whenUserExistsByUsername_ReturnUserDetails() {
-        userRepository.save(user);
-
         UserDetails userDetails = userService.loadUserByUsername(user.getEmail());
 
         assertEquals(user.getEmail(), userDetails.getUsername());
@@ -104,139 +105,115 @@ class UserServiceImplTest {
 
     @Test
     void whenUserDoesNotExistByUsername_ThrowUsernameNotFoundException() {
-        String nonExistentEmail = "wrong@email.com";
-
         UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
-                userService.loadUserByUsername(nonExistentEmail));
-
-        assertEquals("User not found.", e.getMessage());
+                userService.loadUserByUsername(WRONG_EMAIL));
+        assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
 
     @Test
     void whenUserExistsById_ReturnUser() {
-        userRepository.save(user);
-
-        User userFound = userService.loadUserById(user.getId());
-
-        assertEquals(user.getEmail(), userFound.getEmail());
-        assertEquals(user, userFound);
+        User foundUser = userService.loadUserById(user.getId());
+        assertEquals(user, foundUser);
     }
 
     @Test
     void whenUserDoesNotExistById_ThrowUsernameNotFoundException() {
         Long nonExistentUserId = 999L;
-
         UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
                 userService.loadUserById(nonExistentUserId));
-
-        assertEquals("User not found.", e.getMessage());
+        assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
 
     @Test
-    void whenCorrectLoginRequest_ReturnSuccessfulLoginResponse() {
-        userRepository.save(user);
+    void whenLoginRequest_ReturnSuccessfulLoginResponse() {
         when(passwordEncoder.matches("123", user.getPassword())).thenReturn(true);
         when(jsonWebToken.generateToken(user)).thenReturn("JWT");
         LoginRequest request = new LoginRequest("tom@test.com", "123");
 
         LoginResponse loginResponse = userService.loginUser(request);
 
-        assertTrue(loginResponse.status());
         assertEquals("JWT", loginResponse.message());
+        assertTrue(loginResponse.status());
     }
 
     @Test
     void whenIncorrectPassword_ReturnFailureLoginResponse() {
-        userRepository.save(user);
-        LoginRequest request = new LoginRequest("tom@test.com", "wrongPassword");
+        LoginRequest request = new LoginRequest("tom@test.com", WRONG_PASSWORD);
 
         LoginResponse loginResponse = userService.loginUser(request);
 
         assertFalse(loginResponse.status());
-        assertEquals("Incorrect password.", loginResponse.message());
+        assertEquals(INCORRECT_PASSWORD_ERROR, loginResponse.message());
     }
 
     @Test
     void whenUserDoesNotExist_ReturnFailureLoginResponse() {
-        LoginRequest request = new LoginRequest("non@gmail.com", "123");
-        // Don't save user in InMemoryUserRepository.
+        LoginRequest request = new LoginRequest(WRONG_EMAIL, CORRECT_PASSWORD);
 
         LoginResponse loginResponse = userService.loginUser(request);
 
         assertFalse(loginResponse.status());
-        assertEquals("User not found.", loginResponse.message());
+        assertEquals(USER_NOT_FOUND_ERROR, loginResponse.message());
     }
 
     //    ACCOUNT MANAGEMENT
     @Test
     void whenUserEnabled_ReturnTrue() {
         user.setEnabled(true);
-        userRepository.save(user);
-
         assertTrue(userService.isEnabled(user.getId().toString()));
     }
 
     @Test
     void whenUserDisabled_ReturnFalse() {
         user.setEnabled(false);
-        userRepository.save(user);
-
         assertFalse(userService.isEnabled(user.getId().toString()));
     }
 
     @Test
     void whenUserExistsAndIsNotEnabled_EnableUserAndReturnPositive() {
         user.setEnabled(false);
-        userRepository.save(user);
 
         int result = userService.enableUser(user.getEmail());
 
         assertThat(result).isPositive();
-        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() ->
-                new AssertionError("User should be present in the InMemoryUserRepository."));
+        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new AssertionError(ASSERTION_ERROR));
         assertTrue(updatedUser.isEnabled());
     }
 
     @Test
     void whenUserAlreadyEnabled_DoNothingAndReturnZero() {
         user.setEnabled(true);
-        userRepository.save(user);
 
         int result = userService.enableUser(user.getEmail());
 
         assertThat(result).isZero();
-        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() ->
-                new AssertionError("User should be present in the InMemoryUserRepository."));
+        User updatedUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new AssertionError(ASSERTION_ERROR));
         assertTrue(updatedUser.isEnabled());
     }
 
     @Test
     void whenUserDoesNotExist_ReturnZero() {
-        String email = "nonexistent@test.com";
-        int result = userService.enableUser(email);
+        int result = userService.enableUser(WRONG_EMAIL);
         assertThat(result).isZero();
     }
 
     @Test
     void whenEnoughTimePassed_SendNewConfirmationEmail() {
-        userRepository.save(user);
-        String emailContent = "Mocked email content";
         // Mock the last token creation time to be more than 5 minutes ago.
         Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), user);
         when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
-        when(emailService.buildEmail(anyString(), anyString())).thenReturn(emailContent);
+        when(emailService.buildEmail(anyString(), anyString())).thenReturn(EMAIL_CONTENT);
         // Mock creation of a new token.
-        Token newToken = new Token("new-token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        Token newToken = new Token("newToken", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
         when(tokenService.createConfirmationToken(user)).thenReturn(newToken);
 
         userService.sendNewConfirmationEmail(user.getId().toString());
 
-        verify(emailService).send(user.getEmail(), emailContent);
+        verify(emailService).send(user.getEmail(), EMAIL_CONTENT);
     }
 
     @Test
     void whenRequestForNewEmailIsTooSoon_ThrowTokenException() {
-        userRepository.save(user);
         String userId = user.getId().toString();
         // Mock the last token creation time to be less than 5 minutes ago.
         Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), user);
@@ -250,96 +227,88 @@ class UserServiceImplTest {
 
     @Test
     void whenChangeNickRequest_ChangeNickAndReturnJwt() {
-        userRepository.save(user);
-        ChangeNickRequest request = new ChangeNickRequest("newNick", "correctPassword");
-        when(passwordEncoder.matches("correctPassword", "123")).thenReturn(true);
+        ChangeNickRequest request = new ChangeNickRequest("newNick", CORRECT_PASSWORD);
+        when(passwordEncoder.matches(CORRECT_PASSWORD, "123")).thenReturn(true);
         when(jsonWebToken.generateToken(user)).thenReturn("newJwt");
 
         ChangeResponse response = userService.changeUserNick(user.getId().toString(), request);
 
         assertEquals("newJwt", response.response());
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError(USER_NOT_FOUND_ERROR));
         assertEquals("newNick", updatedUser.getNick());
     }
 
     @Test
     void whenChangeNickRequestWithIncorrectPassword_ThrowIncorrectPasswordException() {
-        userRepository.save(user);
         String userId = user.getId().toString();
-        ChangeNickRequest request = new ChangeNickRequest("newNick", "wrongPassword");
-        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
+        ChangeNickRequest request = new ChangeNickRequest("newNick", WRONG_PASSWORD);
+        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         IncorrectPasswordException e = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserNick(userId, request));
 
-        assertEquals("Incorrect password.", e.getMessage());
+        assertEquals(INCORRECT_PASSWORD_ERROR, e.getMessage());
     }
 
     @Test
     void whenEmailIsAlreadyTaken_ThrowEmailException() {
-        userRepository.save(user);
         String userId = user.getId().toString();
         String existingEmail = "existing@test.com";
-        userRepository.save(new User("Alice", existingEmail, "encodedPassword", UserRole.USER));
-        ChangeEmailRequest request = new ChangeEmailRequest(existingEmail, "correctPassword");
+        userRepository.save(new User("Alice", existingEmail, ENCODED_PASSWORD, UserRole.USER));
+        ChangeEmailRequest request = new ChangeEmailRequest(existingEmail, CORRECT_PASSWORD);
 
-        EmailException exception = assertThrows(EmailException.class, () ->
-                userService.changeUserEmail(userId, request));
+        EmailException exception = assertThrows(EmailException.class, () -> userService.changeUserEmail(userId, request));
 
-        assertEquals("This email is already associated with some account.", exception.getMessage());
+        assertEquals(EMAIL_ALREADY_TAKEN_ERROR, exception.getMessage());
     }
 
     @Test
     void whenChangeEmailRequestWithIncorrectPassword_ThrowIncorrectPasswordException() {
-        userRepository.save(user);
         String userId = user.getId().toString();
-        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", "wrongPassword");
-        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
+        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", WRONG_PASSWORD);
+        when(passwordEncoder.matches(WRONG_PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
         IncorrectPasswordException exception = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserEmail(userId, request));
 
-        assertEquals("Incorrect password.", exception.getMessage());
+        assertEquals(INCORRECT_PASSWORD_ERROR, exception.getMessage());
     }
 
     @Test
     void whenChangeEmailRequest_UpdateEmailAndReturnSuccessMessage() {
-        userRepository.save(user);
-        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", "correctPassword");
-        when(passwordEncoder.matches("correctPassword", "123")).thenReturn(true);
+        ChangeEmailRequest request = new ChangeEmailRequest("new@test.com", CORRECT_PASSWORD);
+        when(passwordEncoder.matches(CORRECT_PASSWORD, "123")).thenReturn(true);
 
         ChangeResponse response = userService.changeUserEmail(user.getId().toString(), request);
 
         assertEquals("Your email has been successfully changed.", response.response());
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError(USER_NOT_FOUND_ERROR));
         assertEquals("new@test.com", updatedUser.getEmail());
     }
 
     @Test
     void whenChangePasswordRequest_UpdateAndReturnSuccessMessage() {
-        userRepository.save(user);
-        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", "correctPassword");
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", CORRECT_PASSWORD);
         when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedNewPassword");
 
         ChangeResponse response = userService.changeUserPassword(user.getId().toString(), request);
 
         assertEquals("Your password has been successfully changed.", response.response());
-        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError("User not found"));
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError(USER_NOT_FOUND_ERROR));
         assertEquals("encodedNewPassword", updatedUser.getPassword());
     }
 
     @Test
     void whenChangePasswordRequestWithIncorrectCurrentPassword_ThrowIncorrectPasswordException() {
-        userRepository.save(user);
         String userId = user.getId().toString();
-        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", "wrongPassword");
+        ChangePasswordRequest request = new ChangePasswordRequest("newPassword", WRONG_PASSWORD);
         when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(false);
 
         IncorrectPasswordException e = assertThrows(IncorrectPasswordException.class, () ->
                 userService.changeUserPassword(userId, request));
 
-        assertEquals("Incorrect password.", e.getMessage());
+        assertEquals(INCORRECT_PASSWORD_ERROR, e.getMessage());
     }
 
 }
