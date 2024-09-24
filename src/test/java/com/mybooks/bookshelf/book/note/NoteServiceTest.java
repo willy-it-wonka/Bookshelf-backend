@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NoteServiceTest {
 
-    public static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
-    public static final String NOTE_NOT_FOUND_ERROR = "Notes for the book with ID: 999 don't exist.";
+    private static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
+    private static final String NOTE_NOT_FOUND_ERROR = "Notes for the book with ID: 999 don't exist.";
 
     private InMemoryNoteRepository noteRepository;
     private NoteService noteService;

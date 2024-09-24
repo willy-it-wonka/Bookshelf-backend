@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BookControllerIT {
 
-    public static final Long BOOK_ID = 1L;
+    private static final Long BOOK_ID = 1L;
 
     @Autowired
     private MockMvc mockMvc;

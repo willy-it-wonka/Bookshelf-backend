@@ -14,10 +14,10 @@ import static org.mockito.Mockito.*;
 
 class EmailServiceTest {
 
-    public static final String ADDRESSEE = "tom@test.com";
-    public static final String MESSAGE = "Message content";
-    public static final String USER_NAME = "John";
-    public static final String CONFIRMATION_ENDPOINT = "http://test.com/api/v1/users/confirmation?token=";
+    private static final String ADDRESSEE = "tom@test.com";
+    private static final String MESSAGE = "Message content";
+    private static final String USER_NAME = "John";
+    private static final String CONFIRMATION_ENDPOINT = "http://test.com/api/v1/users/confirmation?token=";
 
     private JavaMailSender javaMailSender;
     private JavaMailSenderImpl fromProperties;

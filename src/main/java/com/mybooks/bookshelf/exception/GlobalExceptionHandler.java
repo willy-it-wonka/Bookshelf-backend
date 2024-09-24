@@ -21,7 +21,7 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public static final String UNKNOWN_VALIDATION_ERROR = "Unknown email validation error.";
+    private static final String UNKNOWN_VALIDATION_ERROR = "Unknown email validation error.";
 
     @ExceptionHandler(EmailException.class)
     @ResponseStatus(BAD_REQUEST)

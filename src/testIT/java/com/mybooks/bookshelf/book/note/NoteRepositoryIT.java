@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class NoteRepositoryIT {
 
-    public static final Long BOOK_ID = 1L;
-    public static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
+    private static final Long BOOK_ID = 1L;
+    private static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
 
     @Autowired
     private NoteRepository noteRepository;

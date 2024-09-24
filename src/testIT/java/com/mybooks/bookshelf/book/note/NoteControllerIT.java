@@ -26,10 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class NoteControllerIT {
 
-    public static final Long BOOK_ID = 1L;
-    public static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
-    public static final String NOTE_CONTENT = "Content";
-    public static final String UPDATED_CONTENT = "Updated content";
+    private static final Long BOOK_ID = 1L;
+    private static final Long ID_OF_BOOK_WITHOUT_NOTE = 999L;
+    private static final String NOTE_CONTENT = "Content";
+    private static final String UPDATED_CONTENT = "Updated content";
 
     @Autowired
     private MockMvc mockMvc;

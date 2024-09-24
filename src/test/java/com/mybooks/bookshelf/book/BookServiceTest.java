@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookServiceTest {
 
-    public static final Long BOOK_ID = 1L;
-    public static final Long NONEXISTENT_BOOK_ID = 999L;
-    public static final String BOOK_NOT_FOUND_ERROR = "Book with ID: 999 doesn't exist.";
-    public static final String AUTHORIZATION_ERROR = "You don't have authorization.";
+    private static final Long BOOK_ID = 1L;
+    private static final Long NONEXISTENT_BOOK_ID = 999L;
+    private static final String BOOK_NOT_FOUND_ERROR = "Book with ID: 999 doesn't exist.";
+    private static final String AUTHORIZATION_ERROR = "You don't have authorization.";
 
     private InMemoryBookRepository bookRepository;
     private InMemoryNoteRepository noteRepository;
