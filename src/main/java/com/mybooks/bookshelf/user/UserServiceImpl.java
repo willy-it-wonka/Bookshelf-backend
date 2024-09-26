@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
-    private static final String INCORRECT_PASSWORD_MESSAGE = "Incorrect password.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
     private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
@@ -93,18 +92,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public LoginResponse loginUser(LoginRequest request) {
-        try {
-            UserDetails userDetails = loadUserByUsername(request.email());
+        UserDetails userDetails = loadUserByUsername(request.email());
+        String encodedPassword = userDetails.getPassword();
 
-            String encodedPassword = userDetails.getPassword();
+        if (!passwordEncoder.matches(request.password(), encodedPassword))
+            throw new IncorrectPasswordException();
 
-            if (passwordEncoder.matches(request.password(), encodedPassword))
-                return new LoginResponse(generateJWT((User) userDetails), true);
-            else
-                return new LoginResponse(INCORRECT_PASSWORD_MESSAGE, false);
-        } catch (UsernameNotFoundException e) {
-            return new LoginResponse(USER_NOT_FOUND_ERROR, false);
-        }
+        return new LoginResponse(generateJWT((User) userDetails), true);
     }
 
     private String generateJWT(User user) {

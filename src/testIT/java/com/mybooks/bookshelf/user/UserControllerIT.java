@@ -126,29 +126,25 @@ class UserControllerIT {
     @Test
     void whenLoginRequestWithIncorrectPassword_ReturnErrorMessage() throws Exception {
         LoginRequest request = new LoginRequest(EXISTING_EMAIL, WRONG_PASSWORD);
-        LoginResponse response = new LoginResponse(INCORRECT_PASSWORD_ERROR, false);
-        when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
+        doThrow(new IncorrectPasswordException()).when(userService).loginUser(request);
 
         mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(false))
-                .andExpect(jsonPath("$.message").value(INCORRECT_PASSWORD_ERROR));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(INCORRECT_PASSWORD_ERROR));
     }
 
     @Test
     void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
         LoginRequest request = new LoginRequest("nonexistent@test.com", CORRECT_PASSWORD);
-        LoginResponse response = new LoginResponse(USER_NOT_FOUND_ERROR, false);
-        when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
+        doThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR)).when(userService).loginUser(request);
 
         mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value(false))
-                .andExpect(jsonPath("$.message").value(USER_NOT_FOUND_ERROR));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(USER_NOT_FOUND_ERROR));
     }
 
     @Test

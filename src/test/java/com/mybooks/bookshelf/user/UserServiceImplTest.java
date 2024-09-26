@@ -137,23 +137,17 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenIncorrectPassword_ReturnFailureLoginResponse() {
+    void whenIncorrectPassword_ThrowIncorrectPasswordException() {
         LoginRequest request = new LoginRequest("tom@test.com", WRONG_PASSWORD);
-
-        LoginResponse loginResponse = userService.loginUser(request);
-
-        assertFalse(loginResponse.status());
-        assertEquals(INCORRECT_PASSWORD_ERROR, loginResponse.message());
+        IncorrectPasswordException e = assertThrows(IncorrectPasswordException.class, () -> userService.loginUser(request));
+        assertEquals(INCORRECT_PASSWORD_ERROR, e.getMessage());
     }
 
     @Test
-    void whenUserDoesNotExist_ReturnFailureLoginResponse() {
+    void whenUserDoesNotExist_ThrowUsernameNotFoundException() {
         LoginRequest request = new LoginRequest(WRONG_EMAIL, CORRECT_PASSWORD);
-
-        LoginResponse loginResponse = userService.loginUser(request);
-
-        assertFalse(loginResponse.status());
-        assertEquals(USER_NOT_FOUND_ERROR, loginResponse.message());
+        UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () -> userService.loginUser(request));
+        assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
 
     //    ACCOUNT MANAGEMENT
