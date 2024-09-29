@@ -3,16 +3,12 @@ package com.mybooks.bookshelf.user;
 import com.mybooks.bookshelf.email.EmailService;
 import com.mybooks.bookshelf.email.token.Token;
 import com.mybooks.bookshelf.email.token.TokenService;
-import com.mybooks.bookshelf.exception.ChangeUserDetailsException;
-import com.mybooks.bookshelf.exception.EmailException;
-import com.mybooks.bookshelf.exception.IncorrectPasswordException;
-import com.mybooks.bookshelf.exception.TokenException;
+import com.mybooks.bookshelf.exception.*;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +20,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
-    private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
     private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
@@ -81,13 +76,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     //    LOGIN
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
+    public UserDetails loadUserByUsername(String email) throws UserNotFoundException {
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
-    public User loadUserById(Long id) throws UsernameNotFoundException {
-        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
+    public User loadUserById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
     @Override

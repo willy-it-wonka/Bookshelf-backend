@@ -6,13 +6,13 @@ import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.IncorrectPasswordException;
 import com.mybooks.bookshelf.exception.TokenException;
+import com.mybooks.bookshelf.exception.UserNotFoundException;
 import com.mybooks.bookshelf.security.JsonWebToken;
 import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -104,8 +104,8 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenUserDoesNotExistByUsername_ThrowUsernameNotFoundException() {
-        UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
+    void whenUserDoesNotExistByUsername_ThrowUserNotFoundException() {
+        UserNotFoundException e = assertThrows(UserNotFoundException.class, () ->
                 userService.loadUserByUsername(WRONG_EMAIL));
         assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
@@ -117,9 +117,9 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenUserDoesNotExistById_ThrowUsernameNotFoundException() {
+    void whenUserDoesNotExistById_ThrowUserNotFoundException() {
         Long nonExistentUserId = 999L;
-        UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () ->
+        UserNotFoundException e = assertThrows(UserNotFoundException.class, () ->
                 userService.loadUserById(nonExistentUserId));
         assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
@@ -144,9 +144,9 @@ class UserServiceImplTest {
     }
 
     @Test
-    void whenUserDoesNotExist_ThrowUsernameNotFoundException() {
+    void whenUserDoesNotExist_ThrowUserNotFoundException() {
         LoginRequest request = new LoginRequest(WRONG_EMAIL, CORRECT_PASSWORD);
-        UsernameNotFoundException e = assertThrows(UsernameNotFoundException.class, () -> userService.loginUser(request));
+        UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userService.loginUser(request));
         assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
     }
 

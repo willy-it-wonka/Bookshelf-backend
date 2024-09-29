@@ -5,6 +5,7 @@ import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.IncorrectPasswordException;
 import com.mybooks.bookshelf.exception.TokenException;
+import com.mybooks.bookshelf.exception.UserNotFoundException;
 import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -138,7 +138,7 @@ class UserControllerIT {
     @Test
     void whenTriesLoginNonExistentUser_ReturnErrorMessage() throws Exception {
         LoginRequest request = new LoginRequest("nonexistent@test.com", CORRECT_PASSWORD);
-        doThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR)).when(userService).loginUser(request);
+        doThrow(new UserNotFoundException()).when(userService).loginUser(request);
 
         mockMvc.perform(post("/api/v1/users/session")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -176,7 +176,7 @@ class UserControllerIT {
 
     @Test
     void whenNonexistentUserIdRequestForNewConfirmationEmail_ReturnErrorMessage() throws Exception {
-        doThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR)).when(userService).sendNewConfirmationEmail(NONEXISTENT_USER_ID);
+        doThrow(new UserNotFoundException()).when(userService).sendNewConfirmationEmail(NONEXISTENT_USER_ID);
 
         mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", NONEXISTENT_USER_ID))
                 .andExpect(status().isBadRequest())
@@ -212,7 +212,7 @@ class UserControllerIT {
     @Test
     void whenChangeNickRequestForNonExistentUserId_ReturnErrorMessage() throws Exception {
         ChangeNickRequest request = new ChangeNickRequest(NEW_NICK, CORRECT_PASSWORD);
-        doThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR)).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
+        doThrow(new UserNotFoundException()).when(userService).changeUserNick(anyString(), any(ChangeNickRequest.class));
 
         mockMvc.perform(patch("/api/v1/users/{id}/nick", USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -265,7 +265,7 @@ class UserControllerIT {
     void whenChangeEmailRequestForNonexistentUserId_ReturnErrorMessage() throws Exception {
         ChangeEmailRequest request = new ChangeEmailRequest(NEW_EMAIL, CORRECT_PASSWORD);
         when(userService.changeUserEmail(eq(NONEXISTENT_USER_ID), any(ChangeEmailRequest.class)))
-                .thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR));
+                .thenThrow(new UserNotFoundException());
 
         mockMvc.perform(patch("/api/v1/users/{id}/email", NONEXISTENT_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -304,7 +304,7 @@ class UserControllerIT {
     @Test
     void whenChangePasswordRequestForNonexistentUserId_ReturnErrorMessage() throws Exception {
         ChangePasswordRequest request = new ChangePasswordRequest("newPassword", CORRECT_PASSWORD);
-        doThrow(new UsernameNotFoundException(USER_NOT_FOUND_ERROR)).when(userService).changeUserPassword(eq(NONEXISTENT_USER_ID), any(ChangePasswordRequest.class));
+        doThrow(new UserNotFoundException()).when(userService).changeUserPassword(eq(NONEXISTENT_USER_ID), any(ChangePasswordRequest.class));
 
         mockMvc.perform(patch("/api/v1/users/{id}/password", NONEXISTENT_USER_ID)
                         .contentType(MediaType.APPLICATION_JSON)
