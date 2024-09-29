@@ -48,20 +48,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = UserMapper.mapToEntity(request, encodedPassword);
 
-        // Check if the email address is taken.
-        if (isEmailAlreadyTaken(user.getEmail()))
-            throw new EmailException(EMAIL_ALREADY_TAKEN_ERROR);
+        saveUserToDatabase(user);
 
-        // Save the user entity in the DB.
-        userRepository.save(user);
-
-        // Create a token and save it in the DB.
         Token token = tokenService.createConfirmationToken(user);
-
-        // Send an email with an account activation token.
         sendConfirmationEmail(token, request.email(), request.nick());
 
         return new RegisterResponse(user.getNick(), token.getConfirmationToken());
+    }
+
+    private void saveUserToDatabase(User user) {
+        if (isEmailAlreadyTaken(user.getEmail()))
+            throw new EmailException(EMAIL_ALREADY_TAKEN_ERROR);
+        userRepository.save(user);
     }
 
     private boolean isEmailAlreadyTaken(String email) {
