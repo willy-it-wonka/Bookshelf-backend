@@ -21,7 +21,7 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"createdDate", "lastModifiedDate"})
+@EqualsAndHashCode(exclude = {"createdDate", "lastModifiedDate", "bookOwner", "note"})
 public class Book {
 
     @Id

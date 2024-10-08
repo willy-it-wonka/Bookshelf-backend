@@ -20,7 +20,7 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"tokens", "books"})
 public class User implements UserDetails {
 
     @Id

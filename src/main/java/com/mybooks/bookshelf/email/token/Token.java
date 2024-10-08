@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "tokens")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"tokenOwner"})
 public class Token {
 
     @Id

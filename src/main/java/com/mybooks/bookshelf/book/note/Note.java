@@ -11,7 +11,7 @@ import lombok.Setter;
 @Table(name = "notes")
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = {"book"})
 public class Note {
 
     @Id
