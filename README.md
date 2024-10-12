@@ -1,7 +1,7 @@
 ## Links
-Front-end: [repository](https://github.com/willy-it-wonka/Bookshelf-frontend)\
-Demo: [AWS](https://d39oa1kkhfrmo.cloudfront.net)\
-Example data for the database: [repository](https://github.com/willy-it-wonka/Bookshelf-database)
+**Front-end:**&nbsp;&nbsp; [repository](https://github.com/willy-it-wonka/Bookshelf-frontend)\
+**Demo hosted on AWS:**&nbsp;&nbsp; RDS + Elastic Beanstalk + S3 → [CloudFront](https://d39oa1kkhfrmo.cloudfront.net)\
+**Example data for the database:**&nbsp;&nbsp; [repository](https://github.com/willy-it-wonka/Bookshelf-database)
 </br></br>
 
 ## Tech stack
