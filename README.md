@@ -25,12 +25,16 @@
 
 ## Installation
 1. Clone the repository. [Instruction](https://www.jetbrains.com/help/idea/set-up-a-git-repository.html#clone-repo).
-2. In the appliction.properties configure the database and the SMTP ([outlook](https://support.microsoft.com/en-gb/office/pop-imap-and-smtp-settings-for-outlook-com-d088b986-291d-42b8-9564-9c414e2aa040), [gmail](https://www.getmailbird.com/setup/access-gmail-com-via-imap-smtp) or google it: "local SMTP" e.g. [MailDev](https://github.com/maildev/maildev), [Mailpit](https://github.com/axllent/mailpit)).\
-   For gmail: [how to create an app password](https://itsupport.umd.edu/itsupport?id=kb_article_view&sysparm_article=KB0015112).
-4. Go to BookshelfApplication and run it.
+2. In the `appliction.properties` configure the database and the SMTP ([outlook](https://support.microsoft.com/en-gb/office/pop-imap-and-smtp-settings-for-outlook-com-d088b986-291d-42b8-9564-9c414e2aa040), [gmail](https://www.getmailbird.com/setup/access-gmail-com-via-imap-smtp) or google it: "local SMTP" e.g. [MailDev](https://github.com/maildev/maildev), [Mailpit](https://github.com/axllent/mailpit)).\
+   For gmail: [instruction](https://itsupport.umd.edu/itsupport?id=kb_article_view&sysparm_article=KB0015112) how to create an app password.
+4. Go to `BookshelfApplication` and run it.\
+   Or at the command prompt, go to the root directory of the project and write:
+   ```
+   mvn spring-boot:run
+   ```
 5. Now you can send http requests using [Postman](https://www.postman.com) or run the [front-end](https://github.com/willy-it-wonka/Bookshelf-frontend) of this application.
 6. REST API Documentation:
-   ``` bash
+   ```
    http://localhost:8080/swagger-ui/index.html
    ```
 </br>
