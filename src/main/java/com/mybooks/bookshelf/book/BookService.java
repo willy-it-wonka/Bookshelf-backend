@@ -1,10 +1,8 @@
 package com.mybooks.bookshelf.book;
 
-import com.mybooks.bookshelf.book.note.NoteService;
 import com.mybooks.bookshelf.book.payload.CreateBookRequest;
 import com.mybooks.bookshelf.book.payload.UpdateBookRequest;
 import com.mybooks.bookshelf.exception.BookNotFoundException;
-import com.mybooks.bookshelf.exception.NoteNotFoundException;
 import com.mybooks.bookshelf.exception.UnauthorizedAccessException;
 import com.mybooks.bookshelf.user.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +15,9 @@ import java.util.List;
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final NoteService noteService;
 
-    public BookService(BookRepository bookRepository, NoteService noteService) {
+    public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.noteService = noteService;
     }
 
     @Transactional(readOnly = true)
@@ -55,15 +51,7 @@ public class BookService {
         return bookRepository.save(bookToUpdate);
     }
 
-    @Transactional
-    public void deleteBookById(Long id) {
-        // First, delete the notes for this book.
-        try {
-            noteService.deleteNoteByBookId(id);
-        } catch (NoteNotFoundException ignored) {
-            // If the notes do not exist, do not interrupt the application.
-        }
-
+    void deleteBookById(Long id) {
         bookRepository.deleteById(id);
     }
 

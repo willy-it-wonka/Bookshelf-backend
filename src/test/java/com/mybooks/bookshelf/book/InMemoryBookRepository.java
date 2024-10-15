@@ -1,5 +1,6 @@
 package com.mybooks.bookshelf.book;
 
+import com.mybooks.bookshelf.book.note.InMemoryNoteRepository;
 import com.mybooks.bookshelf.user.User;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,12 @@ import java.util.function.Function;
 public class InMemoryBookRepository implements BookRepository {
 
     private final Map<Long, Book> books = new HashMap<>();
+    private final InMemoryNoteRepository noteRepository;
     private long mapKey = 1; // Also to simulate book.id
+
+    public InMemoryBookRepository(InMemoryNoteRepository noteRepository) {
+        this.noteRepository = noteRepository;
+    }
 
     @Override
     @NonNull
@@ -36,6 +42,7 @@ public class InMemoryBookRepository implements BookRepository {
 
     @Override
     public void deleteById(@NonNull Long id) {
+        noteRepository.deleteByBookId(id);
         books.remove(id);
     }
 

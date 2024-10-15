@@ -54,7 +54,7 @@ public class Book {
     @JsonBackReference
     private User bookOwner;
 
-    @OneToOne(mappedBy = "book")
+    @OneToOne(mappedBy = "book", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference
     private Note note;
 

@@ -2,7 +2,6 @@ package com.mybooks.bookshelf.book;
 
 import com.mybooks.bookshelf.book.note.InMemoryNoteRepository;
 import com.mybooks.bookshelf.book.note.Note;
-import com.mybooks.bookshelf.book.note.NoteService;
 import com.mybooks.bookshelf.book.payload.CreateBookRequest;
 import com.mybooks.bookshelf.book.payload.UpdateBookRequest;
 import com.mybooks.bookshelf.exception.BookNotFoundException;
@@ -34,10 +33,9 @@ class BookServiceTest {
 
     @BeforeEach
     void setUp() {
-        bookRepository = new InMemoryBookRepository();
         noteRepository = new InMemoryNoteRepository();
-        NoteService noteService = new NoteService(noteRepository);
-        bookService = new BookService(bookRepository, noteService);
+        bookRepository = new InMemoryBookRepository(noteRepository);
+        bookService = new BookService(bookRepository);
 
         user = new User("Tom", "tom@test.com", "123", UserRole.USER);
         user.setId(BOOK_ID);
