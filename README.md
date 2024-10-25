@@ -19,7 +19,7 @@
 <img src="https://user-images.githubusercontent.com/25181517/192109061-e138ca71-337c-4019-8d42-4792fdaa7128.png" width="45px" height="auto" alt="postman">&nbsp;&nbsp;
 <img src="https://user-images.githubusercontent.com/25181517/186711335-a3729606-5a78-4496-9a36-06efcc74f800.png" width="45px" height="auto" alt="swagger">&nbsp;&nbsp;
 <img src="https://user-images.githubusercontent.com/25181517/192108372-f71d70ac-7ae6-4c0d-8395-51d8870c2ef0.png" width="55px" height="auto" alt="git">&nbsp;&nbsp;
-<img src="https://user-images.githubusercontent.com/25181517/117207330-263ba280-adf4-11eb-9b97-0ac5b40bc3be.png" width="60px" height="auto" alt="git">&nbsp;&nbsp;
+<img src="https://user-images.githubusercontent.com/25181517/117207330-263ba280-adf4-11eb-9b97-0ac5b40bc3be.png" width="60px" height="auto" alt="docker">&nbsp;&nbsp;
 <img src="https://user-images.githubusercontent.com/25181517/183896132-54262f2e-6d98-41e3-8888-e40ab5a17326.png" width="55px" height="auto" alt="aws">
 </br></br>
 
@@ -37,7 +37,15 @@
    ```
    http://localhost:8080/swagger-ui/index.html
    ```
-</br>
+
+## Launching with Docker
+1. Open Docker.\
+   In cmd/terminal go to the root directory of the project and execute the following command:
+   ```
+   docker-compose up --build
+   ```
+2. Now you can send http requests using [Postman](https://www.postman.com) or run the [front-end](https://github.com/willy-it-wonka/Bookshelf-frontend?tab=readme-ov-file#launching-with-docker) of this application.
+</br></br>
 
 ## Description
 Your virtual library.\
