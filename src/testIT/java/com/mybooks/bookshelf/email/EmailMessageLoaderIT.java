@@ -15,7 +15,7 @@ class EmailMessageLoaderIT {
 
     @Test
     void whenCorrectPath_LoadMessage() {
-        String location = "templates/message.html";
+        String location = "templates/confirmation-email.html";
         String expectedContentStart = "<!DOCTYPE html>";
 
         assertTrue(new ClassPathResource(location).exists());

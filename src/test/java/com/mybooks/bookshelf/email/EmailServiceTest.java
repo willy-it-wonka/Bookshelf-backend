@@ -61,7 +61,7 @@ class EmailServiceTest {
     @Test
     void whenCorrectPlaceholdersProvided_ReturnEmailWithReplacedValues() {
         String templateContent = "Hi {name}, please visit {link} to activate your account.";
-        when(emailMessageLoader.loadMessage("templates/message.html")).thenReturn(templateContent);
+        when(emailMessageLoader.loadMessage("templates/confirmation-email.html")).thenReturn(templateContent);
 
         String result = emailService.buildEmail(USER_NAME, CONFIRMATION_ENDPOINT);
 

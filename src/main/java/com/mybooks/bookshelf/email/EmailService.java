@@ -20,7 +20,7 @@ public class EmailService {
     private static final String EMAIL_SUBJECT = "Confirm your email";
     private static final String SENDING_EMAIL_ERROR = "An error occurred when sending the confirmation email:";
     private static final String ERROR_MESSAGE = "There was a problem while sending confirmation email. Contact the administration. You can log in and use the application.";
-    private static final String TEMPLATE_MESSAGE_PATH = "templates/message.html";
+    private static final String TEMPLATE_MESSAGE_PATH = "templates/confirmation-email.html";
     private static final String NAME_PLACEHOLDER = "{name}";
     private static final String LINK_PLACEHOLDER = "{link}";
 
