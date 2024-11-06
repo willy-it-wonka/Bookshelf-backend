@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ public class InMemoryNoteRepository implements NoteRepository {
     }
 
     @Override
+    @Transactional
     public void deleteByBookId(@NonNull Long bookId) {
         notes.values().removeIf(note -> note.getBook().getId().equals(bookId));
     }

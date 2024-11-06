@@ -51,7 +51,8 @@ public class BookService {
         return bookRepository.save(bookToUpdate);
     }
 
-    void deleteBookById(Long id) {
+    @Transactional
+    public void deleteBookById(Long id) {
         bookRepository.deleteById(id);
     }
 
