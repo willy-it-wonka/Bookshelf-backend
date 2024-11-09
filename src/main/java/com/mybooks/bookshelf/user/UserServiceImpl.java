@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (timeElapsed.getSeconds() < 300) {
             long minutesLeft = 4 - timeElapsed.toMinutes();
             long secondsLeft = 59 - (timeElapsed.getSeconds() % 60);
-            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft), false);
+            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft));
         }
     }
 

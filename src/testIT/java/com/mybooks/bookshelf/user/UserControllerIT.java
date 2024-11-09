@@ -99,14 +99,14 @@ class UserControllerIT {
     @Test
     void whenTokenIsExpired_ReturnErrorMessage() throws Exception {
         String expiredToken = "expired-token";
-        String response = "Email confirmation error: token expired.";
-        when(tokenService.confirmToken(anyString())).thenThrow(new TokenException("token expired."));
+        String message = "Token expired.";
+        when(tokenService.confirmToken(anyString())).thenThrow(new TokenException(message));
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", expiredToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(response));
+                .andExpect(content().string(message));
     }
 
     @Test

@@ -13,11 +13,11 @@ import java.util.UUID;
 @Service
 public class TokenService {
 
-    private static final String TOKEN_NOT_FOUND_ERROR = "token not found.";
-    private static final String EMAIL_ALREADY_CONFIRMED_ERROR = "email already confirmed.";
-    private static final String TOKEN_EXPIRED_ERROR = "token expired.";
-    private static final String CONFIRM_DATE_ERROR = "failed to update confirmation_date in the database.";
-    private static final String ENABLE_USER_ERROR = "failed to activate email (update enabled in the database).";
+    private static final String TOKEN_NOT_FOUND_ERROR = "Token not found.";
+    private static final String EMAIL_ALREADY_CONFIRMED_ERROR = "Email already confirmed.";
+    private static final String TOKEN_EXPIRED_ERROR = "Token expired.";
+    private static final String CONFIRM_DATE_ERROR = "Failed to update confirmation_date in the database.";
+    private static final String ENABLE_USER_ERROR = "Failed to activate email (update enabled in the database).";
     private static final String TOKEN_CONFIRMED_MESSAGE = "Token confirmed.";
 
     private final TokenRepository tokenRepository;

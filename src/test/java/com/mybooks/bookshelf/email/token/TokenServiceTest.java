@@ -70,7 +70,7 @@ class TokenServiceTest {
     @Test
     void whenTokenToConfirmationDoesNotExist_ThrowTokenException() {
         TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken("invalid-token"));
-        assertEquals("Email confirmation error: token not found.", e.getMessage());
+        assertEquals("Token not found.", e.getMessage());
     }
 
     @Test
@@ -80,7 +80,7 @@ class TokenServiceTest {
 
         TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(confirmationToken));
 
-        assertEquals("Email confirmation error: email already confirmed.", e.getMessage());
+        assertEquals("Email already confirmed.", e.getMessage());
     }
 
     @Test
@@ -90,7 +90,7 @@ class TokenServiceTest {
 
         TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(confirmationToken));
 
-        assertEquals("Email confirmation error: token expired.", e.getMessage());
+        assertEquals("Token expired.", e.getMessage());
     }
 
     @Test
@@ -105,7 +105,7 @@ class TokenServiceTest {
     void whenUserHasNoToken_ThrowTokenException() {
         tokenRepository.clear();
         TokenException e = assertThrows(TokenException.class, () -> tokenService.getLatestUserToken(user));
-        assertEquals("Email confirmation error: token not found.", e.getMessage());
+        assertEquals("Token not found.", e.getMessage());
     }
 
     @Test
