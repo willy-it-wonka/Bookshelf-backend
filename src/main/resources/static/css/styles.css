@@ -1,0 +1,25 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  text-align: center;
+  padding: 50px;
+}
+
+.background {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.background-success {
+  background-color: rgb(210, 250, 220);
+}
+
+h1 {
+  margin-bottom: 50px;
+}
+
+.h1-success {
+  color: green;
+}
