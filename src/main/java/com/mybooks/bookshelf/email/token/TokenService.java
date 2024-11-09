@@ -6,6 +6,7 @@ import com.mybooks.bookshelf.user.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,7 +19,6 @@ public class TokenService {
     private static final String TOKEN_EXPIRED_ERROR = "Token expired.";
     private static final String CONFIRM_DATE_ERROR = "Failed to update confirmation_date in the database.";
     private static final String ENABLE_USER_ERROR = "Failed to activate email (update enabled in the database).";
-    private static final String TOKEN_CONFIRMED_MESSAGE = "Token confirmed.";
 
     private final TokenRepository tokenRepository;
     private final UserService userService;
@@ -34,25 +34,28 @@ public class TokenService {
     }
 
     @Transactional
-    public String confirmToken(String confirmationToken) {
-        Token token = getToken(confirmationToken);
+    public RedirectView confirmToken(String confirmationToken) {
+        try {
+            Token token = getToken(confirmationToken);
 
-        if (token.getConfirmationDate() != null)
-            throw new TokenException(EMAIL_ALREADY_CONFIRMED_ERROR);
+            if (token.getConfirmationDate() != null)
+                throw new TokenException(EMAIL_ALREADY_CONFIRMED_ERROR);
 
-        LocalDateTime expirationDate = token.getExpirationDate();
-        if (expirationDate.isBefore(LocalDateTime.now()))
-            throw new TokenException(TOKEN_EXPIRED_ERROR);
+            if (token.getExpirationDate().isBefore(LocalDateTime.now()))
+                throw new TokenException(TOKEN_EXPIRED_ERROR);
 
-        // Update “confirmation_date” in the “tokens” table of the database.
-        if (setConfirmationDate(confirmationToken) == 0)
-            throw new TokenException(CONFIRM_DATE_ERROR);
+            // Update “confirmation_date” in the “tokens” table of the database.
+            if (setConfirmationDate(confirmationToken) == 0)
+                throw new TokenException(CONFIRM_DATE_ERROR);
 
-        // Update “enabled” in the “users” table of the database.
-        if (userService.enableUser(token.getTokenOwner().getEmail()) == 0)
-            throw new TokenException(ENABLE_USER_ERROR);
+            // Update “enabled” in the “users” table of the database.
+            if (userService.enableUser(token.getTokenOwner().getEmail()) == 0)
+                throw new TokenException(ENABLE_USER_ERROR);
 
-        return TOKEN_CONFIRMED_MESSAGE;
+            return new RedirectView("/confirmation-success.html");
+        } catch (TokenException e) {
+            return new RedirectView("/confirmation-error.html?error=" + e.getMessage());
+        }
     }
 
     public Token getLatestUserToken(User user) {

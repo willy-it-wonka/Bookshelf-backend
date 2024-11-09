@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -38,7 +39,7 @@ public class UserController {
 
     @GetMapping("/confirmation")
     @Operation(summary = TOKEN_CONFIRMATION_SUMMARY)
-    public String confirmToken(@RequestParam("token") String token) {
+    public RedirectView confirmToken(@RequestParam("token") String token) {
         return tokenService.confirmToken(token);
     }
 
