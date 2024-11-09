@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title></title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email confirmation error</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="background background-error">
+      <h1 class="h1-error">EMAIL CONFIRMATION ERROR:</h1>
+      <p id="error-message">...</p>
 
-</head>
-<body>
+      <script>
+        function getQueryParam(param) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(param);
+        }
 
-</body>
+        const errorMessage = getQueryParam("error");
+        if (errorMessage) {
+          document.getElementById("error-message").textContent = errorMessage;
+        }
+      </script>
+    </div>
+  </body>
 </html>

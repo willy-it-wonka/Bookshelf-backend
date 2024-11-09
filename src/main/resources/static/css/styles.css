@@ -16,10 +16,18 @@ body {
   background-color: rgb(210, 250, 220);
 }
 
+.background-error {
+  background-color: rgb(250, 230, 230);
+}
+
 h1 {
   margin-bottom: 50px;
 }
 
 .h1-success {
   color: green;
+}
+
+.h1-error {
+  color: rgb(190, 0, 0);
 }

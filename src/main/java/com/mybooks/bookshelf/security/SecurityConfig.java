@@ -48,10 +48,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(POST, "/api/v1/users").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/session").permitAll()
                         .requestMatchers(GET, "/api/v1/users/confirmation**").permitAll()
                         .requestMatchers(GET, "/confirmation-success.html").permitAll()
                         .requestMatchers(GET, "/confirmation-error.html").permitAll()
-                        .requestMatchers(POST, "/api/v1/users/session").permitAll()
+                        .requestMatchers(GET, "/css/styles.css").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
