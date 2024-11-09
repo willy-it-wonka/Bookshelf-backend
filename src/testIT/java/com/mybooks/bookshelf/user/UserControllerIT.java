@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybooks.bookshelf.email.token.TokenService;
 import com.mybooks.bookshelf.exception.EmailException;
 import com.mybooks.bookshelf.exception.IncorrectPasswordException;
-import com.mybooks.bookshelf.exception.TokenException;
 import com.mybooks.bookshelf.exception.UserNotFoundException;
 import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.view.RedirectView;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
@@ -86,27 +86,28 @@ class UserControllerIT {
     @Test
     void whenTokenIsValid_ReturnConfirmationMessage() throws Exception {
         String validToken = "token";
-        String response = "Token confirmed.";
+        RedirectView response = new RedirectView("/confirmation-success.html");
         when(tokenService.confirmToken(anyString())).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", validToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(response));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/confirmation-success.html"));
     }
 
     @Test
     void whenTokenIsExpired_ReturnErrorMessage() throws Exception {
         String expiredToken = "expired-token";
-        String message = "Token expired.";
-        when(tokenService.confirmToken(anyString())).thenThrow(new TokenException(message));
+        String errorMessage = "Token expired.";
+        RedirectView response = new RedirectView("/confirmation-error.html?error=" + errorMessage);
+        when(tokenService.confirmToken(anyString())).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", expiredToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(message));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/confirmation-error.html?error=" + errorMessage));
     }
 
     @Test

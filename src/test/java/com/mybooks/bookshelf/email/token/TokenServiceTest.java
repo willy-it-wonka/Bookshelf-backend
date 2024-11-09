@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDateTime;
 
@@ -57,40 +58,41 @@ class TokenServiceTest {
 
     @Test
     void whenTokenExists_ConfirmToken() {
-        String result = tokenService.confirmToken(token.getConfirmationToken());
+        RedirectView result = tokenService.confirmToken(token.getConfirmationToken());
+        String resultUrl = result.getUrl();
 
         User enabledUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new AssertionError("User should be present in the InMemoryUserRepository."));
         Token confirmedToken = tokenRepository.findByConfirmationToken(token.getConfirmationToken()).orElseThrow(() -> new AssertionError("Token should be present in the InMemoryTokenRepository."));
 
         assertNotNull(confirmedToken.getConfirmationDate());
         assertTrue(enabledUser.getEnabled());
-        assertEquals("Token confirmed.", result);
+        assertEquals("/confirmation-success.html", resultUrl);
     }
 
     @Test
-    void whenTokenToConfirmationDoesNotExist_ThrowTokenException() {
-        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken("invalid-token"));
-        assertEquals("Token not found.", e.getMessage());
+    void whenTokenToConfirmationDoesNotExist_RedirectViewToErrorTemplate() {
+        RedirectView result = tokenService.confirmToken("invalid-token");
+        assertEquals("/confirmation-error.html?error=Token not found.", result.getUrl());
     }
 
     @Test
-    void whenTokenAlreadyConfirmed_ThrowTokenException() {
+    void whenTokenAlreadyConfirmed_RedirectViewToErrorTemplate() {
         token.setConfirmationDate(testTime.minusMinutes(5));
         String confirmationToken = token.getConfirmationToken();
 
-        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(confirmationToken));
+        RedirectView result = tokenService.confirmToken(confirmationToken);
 
-        assertEquals("Email already confirmed.", e.getMessage());
+        assertEquals("/confirmation-error.html?error=Email already confirmed.", result.getUrl());
     }
 
     @Test
-    void whenTokenExpired_ThrowTokenException() {
+    void whenTokenExpired_RedirectViewToErrorTemplate() {
         token.setExpirationDate(testTime.minusMinutes(60));
         String confirmationToken = token.getConfirmationToken();
 
-        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmToken(confirmationToken));
+        RedirectView result = tokenService.confirmToken(confirmationToken);
 
-        assertEquals("Token expired.", e.getMessage());
+        assertEquals("/confirmation-error.html?error=Token expired.", result.getUrl());
     }
 
     @Test
