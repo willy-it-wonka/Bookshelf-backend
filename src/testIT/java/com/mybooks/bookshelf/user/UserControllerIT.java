@@ -47,7 +47,7 @@ class UserControllerIT {
 
     @Test
     void whenCorrectRegisterRequest_CreateUserAndRegisterResponse() throws Exception {
-        RegisterRequest request = new RegisterRequest("user", "user@test.com", "123");
+        RegisterRequest request = new RegisterRequest("user", "user@test.com", "123456");
         RegisterResponse response = new RegisterResponse("nick", "token");
         when(userService.createUser(any(RegisterRequest.class))).thenReturn(response);
 
@@ -62,7 +62,7 @@ class UserControllerIT {
 
     @Test
     void whenEmailAlreadyExists_ReturnBadRequest() throws Exception {
-        RegisterRequest request = new RegisterRequest("user", "user@test.com", "123");
+        RegisterRequest request = new RegisterRequest("user", "user@test.com", "123456");
         when(userService.createUser(any(RegisterRequest.class))).thenThrow(new EmailException(EMAIL_ALREADY_TAKEN_ERROR));
 
         mockMvc.perform(post("/api/v1/users")
@@ -74,13 +74,24 @@ class UserControllerIT {
 
     @Test
     void whenEmailIsInvalid_ReturnBadRequest() throws Exception {
-        RegisterRequest request = new RegisterRequest("user", "invalid-email", "123");
+        RegisterRequest request = new RegisterRequest("user", "invalid-email", "123456");
 
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid email format."));
+    }
+
+    @Test
+    void whenPasswordTooShort_ReturnBadRequest() throws Exception {
+        RegisterRequest request = new RegisterRequest("user", "user@test.com", "123");
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Password must be at least 6 characters long."));
     }
 
     @Test
