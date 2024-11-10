@@ -64,7 +64,7 @@ public class UserController {
 
     @PatchMapping("/{id}/nick")
     @Operation(summary = NICK_CHANGE_SUMMARY)
-    public ChangeResponse changeUserNick(@PathVariable String id, @RequestBody ChangeNickRequest request) {
+    public ChangeResponse changeUserNick(@PathVariable String id, @Valid @RequestBody ChangeNickRequest request) {
         return userService.changeUserNick(id, request);
     }
 
@@ -76,7 +76,7 @@ public class UserController {
 
     @PatchMapping("/{id}/password")
     @Operation(summary = PASSWORD_CHANGE_SUMMARY)
-    public ChangeResponse changeUserPassword(@PathVariable String id, @RequestBody ChangePasswordRequest request) {
+    public ChangeResponse changeUserPassword(@PathVariable String id, @Valid @RequestBody ChangePasswordRequest request) {
         return userService.changeUserPassword(id, request);
     }
 
