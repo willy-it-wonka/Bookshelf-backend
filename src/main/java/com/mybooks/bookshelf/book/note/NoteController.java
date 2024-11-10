@@ -5,6 +5,7 @@ import com.mybooks.bookshelf.book.note.payload.NoteResponse;
 import com.mybooks.bookshelf.book.note.payload.UpdateNoteRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,14 +33,14 @@ public class NoteController {
 
     @PostMapping
     @Operation(summary = NOTE_CREATION_SUMMARY)
-    public NoteResponse createNote(@RequestBody CreateNoteRequest request) {
+    public NoteResponse createNote(@Valid @RequestBody CreateNoteRequest request) {
         Note note = noteService.createNote(request);
         return NoteMapper.mapToNoteResponse(note);
     }
 
     @PutMapping("/{bookId}")
     @Operation(summary = NOTE_UPDATE_SUMMARY)
-    public NoteResponse updateNote(@PathVariable Long bookId, @RequestBody UpdateNoteRequest request) {
+    public NoteResponse updateNote(@PathVariable Long bookId, @Valid @RequestBody UpdateNoteRequest request) {
         Note note = noteService.updateNote(bookId, request);
         return NoteMapper.mapToNoteResponse(note);
     }

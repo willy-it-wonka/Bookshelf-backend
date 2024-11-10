@@ -5,6 +5,7 @@ import com.mybooks.bookshelf.book.payload.CreateBookRequest;
 import com.mybooks.bookshelf.book.payload.UpdateBookRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -56,14 +57,14 @@ public class BookController {
 
     @PostMapping
     @Operation(summary = BOOK_CREATION_SUMMARY)
-    public BookResponse createBook(@RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public BookResponse createBook(@Valid @RequestBody CreateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookService.createBook(request, userDetails);
         return BookMapper.mapToBookResponse(book);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = BOOK_UPDATE_SUMMARY)
-    public BookResponse updateBook(@PathVariable Long id, @RequestBody UpdateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public BookResponse updateBook(@PathVariable Long id, @Valid @RequestBody UpdateBookRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookService.updateBook(id, request, userDetails);
         return BookMapper.mapToBookResponse(book);
     }
