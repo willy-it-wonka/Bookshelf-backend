@@ -1,7 +1,6 @@
 package com.mybooks.bookshelf.exception;
 
 import jakarta.mail.AuthenticationFailedException;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.angus.mail.smtp.SMTPSendFailedException;
 import org.springframework.mail.MailSendException;
 import org.springframework.validation.FieldError;
@@ -17,7 +16,6 @@ import java.util.Optional;
 import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
 
     private static final String UNKNOWN_VALIDATION_ERROR = "Unknown email validation error.";
@@ -26,7 +24,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleEmailException(EmailException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -34,7 +31,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleTokenException(TokenException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -42,7 +38,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public String handleBookNotFoundException(BookNotFoundException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -50,7 +45,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(NOT_FOUND)
     @ResponseBody
     public String handleNoteNotFoundException(NoteNotFoundException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -58,7 +52,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleChangeUserDetailsException(ChangeUserDetailsException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -66,7 +59,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleUserNotFoundException(UserNotFoundException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -74,7 +66,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleIncorrectPasswordException(IncorrectPasswordException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -82,7 +73,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(FORBIDDEN)
     @ResponseBody
     public String handleUnauthorizedAccessException(UnauthorizedAccessException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -90,7 +80,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleIllegalStateException(IllegalStateException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -98,7 +87,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -106,7 +94,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public String handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error(e.getMessage(), e);
         return Optional.ofNullable(e.getBindingResult().getFieldError())
                 .map(FieldError::getDefaultMessage)
                 .orElse(UNKNOWN_VALIDATION_ERROR);
@@ -116,7 +103,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(SERVICE_UNAVAILABLE)
     @ResponseBody
     public String handleMailSendException(MailSendException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -124,7 +110,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(SERVICE_UNAVAILABLE)
     @ResponseBody
     public String handleSMTPSendFailedException(SMTPSendFailedException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
@@ -132,7 +117,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(UNAUTHORIZED)
     @ResponseBody
     public String handleAuthenticationFailedException(AuthenticationFailedException e) {
-        log.error(e.getMessage(), e);
         return e.getMessage();
     }
 
