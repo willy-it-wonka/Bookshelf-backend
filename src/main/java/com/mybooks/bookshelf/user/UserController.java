@@ -22,6 +22,8 @@ public class UserController {
     private static final String NICK_CHANGE_SUMMARY = "Change user nick";
     private static final String EMAIL_CHANGE_SUMMARY = "Change user email";
     private static final String PASSWORD_CHANGE_SUMMARY = "Change user password";
+    private static final String PASSWORD_RESET_INIT_SUMMARY = "Send an email to initiate forgotten password reset";
+    private static final String PASSWORD_RESET_SUMMARY = "Reset forgotten password";
 
     private final UserService userService;
     private final TokenService tokenService;
@@ -33,7 +35,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = USER_REGISTRATION_SUMMARY)
-    public RegisterResponse createUser(@Valid @RequestBody RegisterRequest request) {
+    public RegisterResponse createUser(@RequestBody @Valid RegisterRequest request) {
         return userService.createUser(request);
     }
 
@@ -64,20 +66,32 @@ public class UserController {
 
     @PatchMapping("/{id}/nick")
     @Operation(summary = NICK_CHANGE_SUMMARY)
-    public ChangeResponse changeUserNick(@PathVariable String id, @Valid @RequestBody ChangeNickRequest request) {
+    public ChangeResponse changeUserNick(@PathVariable String id, @RequestBody @Valid ChangeNickRequest request) {
         return userService.changeUserNick(id, request);
     }
 
     @PatchMapping("/{id}/email")
     @Operation(summary = EMAIL_CHANGE_SUMMARY)
-    public ChangeResponse changeUserEmail(@PathVariable String id, @Valid @RequestBody ChangeEmailRequest request) {
+    public ChangeResponse changeUserEmail(@PathVariable String id, @RequestBody @Valid ChangeEmailRequest request) {
         return userService.changeUserEmail(id, request);
     }
 
     @PatchMapping("/{id}/password")
     @Operation(summary = PASSWORD_CHANGE_SUMMARY)
-    public ChangeResponse changeUserPassword(@PathVariable String id, @Valid @RequestBody ChangePasswordRequest request) {
+    public ChangeResponse changeUserPassword(@PathVariable String id, @RequestBody @Valid ChangePasswordRequest request) {
         return userService.changeUserPassword(id, request);
+    }
+
+    @PostMapping("/forgotten-password")
+    @Operation(summary = PASSWORD_RESET_INIT_SUMMARY)
+    public String initiateForgottenPasswordReset(@RequestBody @Valid InitiateResetPasswordRequest request) {
+        return userService.initiateForgottenPasswordReset(request);
+    }
+
+    @PostMapping("/password-reset")
+    @Operation(summary = PASSWORD_RESET_SUMMARY)
+    public String resetForgottenPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        return userService.resetForgottenPassword(request);
     }
 
 }
