@@ -32,6 +32,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Value("${email.confirmation.endpoint}")
     private String emailConfirmationEndpoint;
+    @Value("${email.confirmation.path}")
+    private String emailConfirmationPath;
+    @Value("${password.reset.endpoint}")
+    private String passwordResetEndpoint;
+    @Value("${password.reset.path}")
+    private String passwordResetPath;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService, JsonWebToken jsonWebToken) {
         this.userRepository = userRepository;
@@ -160,6 +166,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
 
         return new ChangeResponse(PASSWORD_CHANGE_SUCCESS_MESSAGE);
+    }
+
+    @Override
+    public String initiateForgottenPasswordReset(InitiateResetPasswordRequest request) {
+        return null;
+    }
+
+    @Override
+    public String resetForgottenPassword(ResetPasswordRequest request) {
+        return null;
     }
 
     private void validateEmailResendTime(Token latestToken) {

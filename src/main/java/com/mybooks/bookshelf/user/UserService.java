@@ -25,4 +25,8 @@ public interface UserService {
 
     ChangeResponse changeUserPassword(String userId, ChangePasswordRequest request);
 
+    String initiateForgottenPasswordReset(InitiateResetPasswordRequest request);
+
+    String resetForgottenPassword(ResetPasswordRequest request);
+
 }
