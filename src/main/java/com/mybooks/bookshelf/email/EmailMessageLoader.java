@@ -15,7 +15,6 @@ public class EmailMessageLoader {
 
     public String loadMessage(String location) {
         try {
-            // ClassPathResource used to load files from resources.
             Resource resource = new ClassPathResource(location);
             // First get content of file, then convert to String using IOUtils from Apache Commons IO.
             return IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);

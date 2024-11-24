@@ -18,6 +18,7 @@ class EmailServiceTest {
     private static final String MESSAGE = "Message content";
     private static final String USER_NAME = "John";
     private static final String CONFIRMATION_ENDPOINT = "http://test.com/api/v1/users/confirmation?token=";
+    private static final String CONFIRMATION_TEMPLATE_PATH = "templates/confirmation-email.html";
 
     private JavaMailSender javaMailSender;
     private JavaMailSenderImpl fromProperties;
@@ -38,7 +39,7 @@ class EmailServiceTest {
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(fromProperties.getUsername()).thenReturn("noreply@gmail.com");
 
-        emailService.send(ADDRESSEE, MESSAGE);
+        emailService.sendConfirmationEmail(ADDRESSEE, MESSAGE);
 
         verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(ADDRESSEE));
         verify(mimeMessage).setSubject("Confirm your email", "utf-8");
@@ -50,12 +51,12 @@ class EmailServiceTest {
     @Test
     void whenEmailSendingFails_ThrowIllegalStateException() {
         when(javaMailSender.createMimeMessage()).thenThrow(new IllegalStateException());
-        assertThrows(IllegalStateException.class, () -> emailService.send(ADDRESSEE, MESSAGE));
+        assertThrows(IllegalStateException.class, () -> emailService.sendConfirmationEmail(ADDRESSEE, MESSAGE));
     }
 
     @Test
     void whenMessageIsNull_ThrowIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> emailService.send(ADDRESSEE, null));
+        assertThrows(IllegalArgumentException.class, () -> emailService.sendConfirmationEmail(ADDRESSEE, null));
     }
 
     @Test
@@ -63,7 +64,7 @@ class EmailServiceTest {
         String templateContent = "Hi {name}, please visit {link} to activate your account.";
         when(emailMessageLoader.loadMessage("templates/confirmation-email.html")).thenReturn(templateContent);
 
-        String result = emailService.buildEmail(USER_NAME, CONFIRMATION_ENDPOINT);
+        String result = emailService.buildEmail(CONFIRMATION_TEMPLATE_PATH, USER_NAME, CONFIRMATION_ENDPOINT);
 
         assertTrue(result.contains(USER_NAME));
         assertTrue(result.contains(CONFIRMATION_ENDPOINT));
@@ -74,7 +75,7 @@ class EmailServiceTest {
     @Test
     void whenTemplateNotFound_ThrowIllegalStateException() {
         when(emailMessageLoader.loadMessage(anyString())).thenThrow(new IllegalStateException("Failed to load email message template."));
-        assertThrows(IllegalStateException.class, () -> emailService.buildEmail(USER_NAME, CONFIRMATION_ENDPOINT));
+        assertThrows(IllegalStateException.class, () -> emailService.buildEmail(CONFIRMATION_TEMPLATE_PATH, USER_NAME, CONFIRMATION_ENDPOINT));
     }
 
 }

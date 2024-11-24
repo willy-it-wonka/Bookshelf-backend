@@ -12,6 +12,7 @@ import com.mybooks.bookshelf.user.payload.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -41,6 +42,9 @@ class UserServiceImplTest {
     private JsonWebToken jsonWebToken;
     private User user;
 
+    @Value("${email.confirmation.path}")
+    private String emailConfirmationPath;
+
     @BeforeEach
     void setUp() {
         userRepository = new InMemoryUserRepository();
@@ -64,14 +68,14 @@ class UserServiceImplTest {
     void whenRegisterRequest_CreateUserAndSendEmail() {
         RegisterRequest request = new RegisterRequest("Tom", "tom@gmail.com", "123");
         when(passwordEncoder.encode(request.password())).thenReturn(ENCODED_PASSWORD);
-        when(emailService.buildEmail(anyString(), anyString())).thenReturn(EMAIL_CONTENT);
+        when(emailService.buildEmail(eq(emailConfirmationPath), anyString(), anyString())).thenReturn(EMAIL_CONTENT);
         when(tokenService.createConfirmationToken(any(User.class))).thenReturn(new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), new User()));
 
         userService.createUser(request);
 
         User savedUser = userRepository.findByEmail(request.email()).orElseThrow(() -> new AssertionError(ASSERTION_ERROR));
         assertEquals(ENCODED_PASSWORD, savedUser.getPassword());
-        verify(emailService).send(request.email(), EMAIL_CONTENT);
+        verify(emailService).sendConfirmationEmail(request.email(), EMAIL_CONTENT);
     }
 
     @Test
@@ -196,14 +200,14 @@ class UserServiceImplTest {
         // Mock the last token creation time to be more than 5 minutes ago.
         Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(6), LocalDateTime.now().plusMinutes(30), user);
         when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
-        when(emailService.buildEmail(anyString(), anyString())).thenReturn(EMAIL_CONTENT);
+        when(emailService.buildEmail(eq(emailConfirmationPath), anyString(), anyString())).thenReturn(EMAIL_CONTENT);
         // Mock creation of a new token.
         Token newToken = new Token("newToken", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
         when(tokenService.createConfirmationToken(user)).thenReturn(newToken);
 
         userService.sendNewConfirmationEmail(user.getId().toString());
 
-        verify(emailService).send(user.getEmail(), EMAIL_CONTENT);
+        verify(emailService).sendConfirmationEmail(user.getEmail(), EMAIL_CONTENT);
     }
 
     @Test
@@ -216,7 +220,7 @@ class UserServiceImplTest {
         TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
 
         assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
-        verify(emailService, never()).send(anyString(), anyString());
+        verify(emailService, never()).sendConfirmationEmail(anyString(), anyString());
     }
 
     @Test

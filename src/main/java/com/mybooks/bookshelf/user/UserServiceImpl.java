@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private void sendConfirmationEmail(Token token, String addressee, String nick) {
         String link = emailConfirmationEndpoint + token.getConfirmationToken();
-        emailService.send(addressee, emailService.buildEmail(nick, link));
+        emailService.sendConfirmationEmail(addressee, emailService.buildEmail(emailConfirmationPath, nick, link));
     }
 
 

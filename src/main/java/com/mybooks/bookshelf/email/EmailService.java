@@ -18,9 +18,8 @@ public class EmailService {
 
     private static final String ENCODING = "utf-8";
     private static final String EMAIL_SUBJECT = "Confirm your email";
-    private static final String SENDING_EMAIL_ERROR = "An error occurred when sending the confirmation email:";
+    private static final String SENDING_EMAIL_ERROR = "An error occurred when sending an email:";
     private static final String ERROR_MESSAGE = "There was a problem while sending confirmation email. Contact the administration. You can log in and use the application.";
-    private static final String TEMPLATE_MESSAGE_PATH = "templates/confirmation-email.html";
     private static final String NAME_PLACEHOLDER = "{name}";
     private static final String LINK_PLACEHOLDER = "{link}";
 
@@ -34,9 +33,8 @@ public class EmailService {
         this.emailMessageLoader = emailMessageLoader;
     }
 
-    // Send confirmation mail.
     @Async
-    public void send(String addressee, String message) {
+    public void sendConfirmationEmail(String addressee, String message) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
@@ -51,8 +49,8 @@ public class EmailService {
         }
     }
 
-    public String buildEmail(String name, String link) {
-        String htmlContent = emailMessageLoader.loadMessage(TEMPLATE_MESSAGE_PATH);
+    public String buildEmail(String templateMessagePath, String name, String link) {
+        String htmlContent = emailMessageLoader.loadMessage(templateMessagePath);
         return htmlContent.replace(NAME_PLACEHOLDER, name).replace(LINK_PLACEHOLDER, link);
     }
 
