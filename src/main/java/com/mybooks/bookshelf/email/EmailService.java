@@ -37,39 +37,32 @@ public class EmailService {
 
     @Async
     public void sendConfirmationEmail(String addressee, String message) {
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
-            mimeMessageHelper.setText(message, true);
-            mimeMessageHelper.setTo(addressee);
-            mimeMessageHelper.setSubject(CONFIRMATION_EMAIL_SUBJECT);
-            mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException | MailSendException e) {
-            log.error(SENDING_EMAIL_ERROR, e);
-            throw new IllegalStateException(CONFIRMATION_EMAIL_ERROR);
-        }
+        sendEmail(addressee, CONFIRMATION_EMAIL_SUBJECT, message, CONFIRMATION_EMAIL_ERROR);
     }
 
     @Async
     public void sendPasswordResetEmail(String addressee, String message) {
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
-            mimeMessageHelper.setText(message, true);
-            mimeMessageHelper.setTo(addressee);
-            mimeMessageHelper.setSubject(FORGOTTEN_PASSWORD_SUBJECT);
-            mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
-            javaMailSender.send(mimeMessage);
-        } catch (MessagingException | MailSendException e) {
-            log.error(SENDING_EMAIL_ERROR, e);
-            throw new IllegalStateException(FORGOTTEN_PASSWORD_ERROR);
-        }
+        sendEmail(addressee, FORGOTTEN_PASSWORD_SUBJECT, message, FORGOTTEN_PASSWORD_ERROR);
     }
 
     public String buildEmail(String messageTemplatePath, String name, String link) {
         String htmlContent = emailMessageLoader.loadMessage(messageTemplatePath);
         return htmlContent.replace(NAME_PLACEHOLDER, name).replace(LINK_PLACEHOLDER, link);
+    }
+
+    private void sendEmail(String addressee, String subject, String message, String errorMessage) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
+            mimeMessageHelper.setText(message, true);
+            mimeMessageHelper.setTo(addressee);
+            mimeMessageHelper.setSubject(subject);
+            mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailSendException e) {
+            log.error(SENDING_EMAIL_ERROR, e);
+            throw new IllegalStateException(errorMessage);
+        }
     }
 
 }
