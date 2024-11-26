@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
     private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
     private static final String PASSWORD_RESET_INITIATION_MESSAGE = "Check your email inbox.";
+    private static final String PASSWORD_RESET_SUCCESS_MESSAGE = "Your password has been successfully reset.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -163,10 +165,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Long id = Long.parseLong(userId);
 
         validatePassword(id, request.currentPassword());
-
-        String encodedNewPassword = passwordEncoder.encode(request.newPassword());
-        if (userRepository.updatePassword(id, encodedNewPassword) == 0)
-            throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
+        updatePassword(id, request.newPassword());
 
         return new ChangeResponse(PASSWORD_CHANGE_SUCCESS_MESSAGE);
     }
@@ -182,8 +181,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional
     public String resetForgottenPassword(ResetPasswordRequest request) {
-        return null;
+        Token token = tokenService.confirmPasswordResetToken(request.confirmationToken());
+
+        updatePassword(token.getTokenOwner().getId(), request.newPassword());
+
+        return PASSWORD_RESET_SUCCESS_MESSAGE;
     }
 
     private void validateEmailResendTime(Token latestToken) {
@@ -205,6 +209,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private void sendPasswordResetEmail(Token token, String addressee, String nick) {
         String link = passwordResetEndpoint + token.getConfirmationToken();
         emailService.sendPasswordResetEmail(addressee, emailService.buildEmail(passwordResetPath, nick, link));
+    }
+
+    private void updatePassword(Long userId, String newPassword) {
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        if (userRepository.updatePassword(userId, encodedNewPassword) == 0)
+            throw new ChangeUserDetailsException(CHANGE_FAILURE_MESSAGE);
     }
 
 }
