@@ -80,12 +80,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     //    LOGIN
     @Override
-    public UserDetails loadUserByUsername(String email) throws UserNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
         return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     @Override
-    public User loadUserById(Long id) throws UserNotFoundException {
+    public User loadUserById(Long id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
