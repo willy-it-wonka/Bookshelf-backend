@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
     private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
+    private static final String PASSWORD_RESET_INITIATION_MESSAGE = "Check your email inbox.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -172,7 +173,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public String initiateForgottenPasswordReset(InitiateResetPasswordRequest request) {
-        return null;
+        User user = (User) loadUserByUsername(request.email());
+        Token token = tokenService.createConfirmationToken(user);
+
+        sendPasswordResetEmail(token, user.getEmail(), user.getNick());
+
+        return PASSWORD_RESET_INITIATION_MESSAGE;
     }
 
     @Override
@@ -194,6 +200,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String encodedPassword = loadUserById(id).getPassword();
         if (!passwordEncoder.matches(providedPassword, encodedPassword))
             throw new IncorrectPasswordException();
+    }
+
+    private void sendPasswordResetEmail(Token token, String addressee, String nick) {
+        String link = passwordResetEndpoint + token.getConfirmationToken();
+        emailService.sendPasswordResetEmail(addressee, emailService.buildEmail(passwordResetPath, nick, link));
     }
 
 }
