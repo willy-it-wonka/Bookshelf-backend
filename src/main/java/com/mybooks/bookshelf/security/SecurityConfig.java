@@ -26,11 +26,11 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String LOGOUT_METHOD = "DELETE";
+    private static final String DELETE = "DELETE";
     private static final String LOGOUT_MESSAGE = "Logged out.";
     private static final String CORS_PATH_PATTERN = "/**";
     private static final List<String> CORS_ALLOWED_HEADERS = Arrays.asList("Authorization", "Content-Type", "Accept");
-    private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE");
+    private static final List<String> CORS_ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "PATCH", DELETE);
 
     private final JsonWebTokenFilter jsonWebTokenFilter;
 
@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/v1/users").permitAll()
                         .requestMatchers(POST, "/api/v1/users/session").permitAll()
                         .requestMatchers(GET, "/api/v1/users/confirmation**").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/forgotten-password").permitAll()
+                        .requestMatchers(POST, "/api/v1/users/password-reset").permitAll()
                         .requestMatchers(GET, "/confirmation-success.html").permitAll()
                         .requestMatchers(GET, "/confirmation-error.html").permitAll()
                         .requestMatchers(GET, "/css/styles.css").permitAll()
@@ -58,7 +60,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jsonWebTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/users/session", LOGOUT_METHOD))
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/users/session", DELETE))
                         .logoutSuccessHandler((request, response, authentication) -> {
                             SecurityContextHolder.clearContext();
                             response.setContentType("text/plain");
