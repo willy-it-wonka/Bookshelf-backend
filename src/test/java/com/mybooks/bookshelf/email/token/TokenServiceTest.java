@@ -58,7 +58,7 @@ class TokenServiceTest {
 
     @Test
     void whenTokenExists_ConfirmToken() {
-        RedirectView result = tokenService.confirmToken(token.getConfirmationToken());
+        RedirectView result = tokenService.confirmAccountActivationToken(token.getConfirmationToken());
         String resultUrl = result.getUrl();
 
         User enabledUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new AssertionError("User should be present in the InMemoryUserRepository."));
@@ -71,7 +71,7 @@ class TokenServiceTest {
 
     @Test
     void whenTokenToConfirmationDoesNotExist_RedirectViewToErrorTemplate() {
-        RedirectView result = tokenService.confirmToken("invalid-token");
+        RedirectView result = tokenService.confirmAccountActivationToken("invalid-token");
         assertEquals("/confirmation-error.html?error=Token not found.", result.getUrl());
     }
 
@@ -80,7 +80,7 @@ class TokenServiceTest {
         token.setConfirmationDate(testTime.minusMinutes(5));
         String confirmationToken = token.getConfirmationToken();
 
-        RedirectView result = tokenService.confirmToken(confirmationToken);
+        RedirectView result = tokenService.confirmAccountActivationToken(confirmationToken);
 
         assertEquals("/confirmation-error.html?error=Email already confirmed.", result.getUrl());
     }
@@ -90,7 +90,7 @@ class TokenServiceTest {
         token.setExpirationDate(testTime.minusMinutes(60));
         String confirmationToken = token.getConfirmationToken();
 
-        RedirectView result = tokenService.confirmToken(confirmationToken);
+        RedirectView result = tokenService.confirmAccountActivationToken(confirmationToken);
 
         assertEquals("/confirmation-error.html?error=Token expired.", result.getUrl());
     }

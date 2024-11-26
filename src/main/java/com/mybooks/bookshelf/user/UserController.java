@@ -41,7 +41,7 @@ public class UserController {
     @GetMapping("/confirmation")
     @Operation(summary = TOKEN_CONFIRMATION_SUMMARY)
     public RedirectView confirmToken(@RequestParam("token") String token) {
-        return tokenService.confirmToken(token);
+        return tokenService.confirmAccountActivationToken(token);
     }
 
     @PostMapping("/session")

@@ -17,9 +17,11 @@ import java.util.Objects;
 public class EmailService {
 
     private static final String ENCODING = "utf-8";
-    private static final String EMAIL_SUBJECT = "Confirm your email";
+    private static final String CONFIRMATION_EMAIL_SUBJECT = "Confirm your email";
+    private static final String FORGOTTEN_PASSWORD_SUBJECT = "Forgotten password";
     private static final String SENDING_EMAIL_ERROR = "An error occurred when sending an email:";
-    private static final String ERROR_MESSAGE = "There was a problem while sending confirmation email. Contact the administration. You can log in and use the application.";
+    private static final String CONFIRMATION_EMAIL_ERROR = "There was a problem while sending the confirmation email. Contact the administration. You can log in and use the application.";
+    private static final String FORGOTTEN_PASSWORD_ERROR = "There was a problem while sending an email. Contact the administration.";
     private static final String NAME_PLACEHOLDER = "{name}";
     private static final String LINK_PLACEHOLDER = "{link}";
 
@@ -40,17 +42,33 @@ public class EmailService {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
             mimeMessageHelper.setText(message, true);
             mimeMessageHelper.setTo(addressee);
-            mimeMessageHelper.setSubject(EMAIL_SUBJECT);
+            mimeMessageHelper.setSubject(CONFIRMATION_EMAIL_SUBJECT);
             mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
             javaMailSender.send(mimeMessage);
         } catch (MessagingException | MailSendException e) {
             log.error(SENDING_EMAIL_ERROR, e);
-            throw new IllegalStateException(ERROR_MESSAGE);
+            throw new IllegalStateException(CONFIRMATION_EMAIL_ERROR);
         }
     }
 
-    public String buildEmail(String templateMessagePath, String name, String link) {
-        String htmlContent = emailMessageLoader.loadMessage(templateMessagePath);
+    @Async
+    public void sendPasswordResetEmail(String addressee, String message) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, ENCODING);
+            mimeMessageHelper.setText(message, true);
+            mimeMessageHelper.setTo(addressee);
+            mimeMessageHelper.setSubject(FORGOTTEN_PASSWORD_SUBJECT);
+            mimeMessageHelper.setFrom(Objects.requireNonNull(fromProperties.getUsername()));
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailSendException e) {
+            log.error(SENDING_EMAIL_ERROR, e);
+            throw new IllegalStateException(FORGOTTEN_PASSWORD_ERROR);
+        }
+    }
+
+    public String buildEmail(String messageTemplatePath, String name, String link) {
+        String htmlContent = emailMessageLoader.loadMessage(messageTemplatePath);
         return htmlContent.replace(NAME_PLACEHOLDER, name).replace(LINK_PLACEHOLDER, link);
     }
 

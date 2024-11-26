@@ -17,8 +17,9 @@ public class TokenService {
     private static final String TOKEN_NOT_FOUND_ERROR = "Token not found.";
     private static final String EMAIL_ALREADY_CONFIRMED_ERROR = "Email already confirmed.";
     private static final String TOKEN_EXPIRED_ERROR = "Token expired.";
-    private static final String CONFIRM_DATE_ERROR = "Failed to update confirmation_date in the database.";
-    private static final String ENABLE_USER_ERROR = "Failed to activate email (update enabled in the database).";
+    private static final String DATE_CONFIRMATION_ERROR = "Failed to update confirmation_date in the database.";
+    private static final String USER_ACTIVATION_ERROR = "Failed to activate email (update enabled in the database).";
+    private static final String TOKEN_USED_ERROR = "Token used. Request a new email with a link to reset your password.";
 
     private final TokenRepository tokenRepository;
     private final UserService userService;
@@ -34,7 +35,7 @@ public class TokenService {
     }
 
     @Transactional
-    public RedirectView confirmToken(String confirmationToken) {
+    public RedirectView confirmAccountActivationToken(String confirmationToken) {
         try {
             Token token = getToken(confirmationToken);
 
@@ -46,16 +47,32 @@ public class TokenService {
 
             // Update “confirmation_date” in the “tokens” table of the database.
             if (setConfirmationDate(confirmationToken) == 0)
-                throw new TokenException(CONFIRM_DATE_ERROR);
+                throw new TokenException(DATE_CONFIRMATION_ERROR);
 
             // Update “enabled” in the “users” table of the database.
             if (userService.enableUser(token.getTokenOwner().getEmail()) == 0)
-                throw new TokenException(ENABLE_USER_ERROR);
+                throw new TokenException(USER_ACTIVATION_ERROR);
 
             return new RedirectView("/confirmation-success.html");
         } catch (TokenException e) {
             return new RedirectView("/confirmation-error.html?error=" + e.getMessage());
         }
+    }
+
+    @Transactional
+    public Token confirmPasswordResetToken(String confirmationToken) {
+        Token token = getToken(confirmationToken);
+
+        if (token.getConfirmationDate() != null)
+            throw new TokenException(TOKEN_USED_ERROR);
+
+        if (token.getExpirationDate().isBefore(LocalDateTime.now()))
+            throw new TokenException(TOKEN_EXPIRED_ERROR);
+
+        if (setConfirmationDate(confirmationToken) == 0)
+            throw new TokenException(DATE_CONFIRMATION_ERROR);
+
+        return token;
     }
 
     public Token getLatestUserToken(User user) {
@@ -68,7 +85,6 @@ public class TokenService {
                 .orElseThrow(() -> new TokenException(TOKEN_NOT_FOUND_ERROR));
     }
 
-    // int → returns 0 if no modifications; >0 if the database has been updated.
     private int setConfirmationDate(String token) {
         return tokenRepository.updateConfirmationDate(token, LocalDateTime.now());
     }

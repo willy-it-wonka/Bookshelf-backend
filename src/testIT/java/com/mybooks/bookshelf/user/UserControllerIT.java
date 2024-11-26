@@ -98,7 +98,7 @@ class UserControllerIT {
     void whenTokenIsValid_ReturnConfirmationMessage() throws Exception {
         String validToken = "token";
         RedirectView response = new RedirectView("/confirmation-success.html");
-        when(tokenService.confirmToken(anyString())).thenReturn(response);
+        when(tokenService.confirmAccountActivationToken(anyString())).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", validToken)
@@ -112,7 +112,7 @@ class UserControllerIT {
         String expiredToken = "expired-token";
         String errorMessage = "Token expired.";
         RedirectView response = new RedirectView("/confirmation-error.html?error=" + errorMessage);
-        when(tokenService.confirmToken(anyString())).thenReturn(response);
+        when(tokenService.confirmAccountActivationToken(anyString())).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/users/confirmation")
                         .param("token", expiredToken)
