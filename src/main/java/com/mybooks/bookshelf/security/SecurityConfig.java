@@ -17,8 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -51,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/v1/users/session").permitAll()
                         .requestMatchers(GET, "/api/v1/users/confirmation**").permitAll()
                         .requestMatchers(POST, "/api/v1/users/forgotten-password").permitAll()
-                        .requestMatchers(POST, "/api/v1/users/password-reset").permitAll()
+                        .requestMatchers(PATCH, "/api/v1/users/password-reset").permitAll()
                         .requestMatchers(GET, "/confirmation-success.html").permitAll()
                         .requestMatchers(GET, "/confirmation-error.html").permitAll()
                         .requestMatchers(GET, "/css/styles.css").permitAll()

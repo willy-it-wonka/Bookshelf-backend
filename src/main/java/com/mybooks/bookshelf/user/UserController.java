@@ -86,7 +86,7 @@ public class UserController {
         return userService.initiateForgottenPasswordReset(request);
     }
 
-    @PostMapping("/password-reset")
+    @PatchMapping("/password-reset")
     @Operation(summary = PASSWORD_RESET_SUMMARY)
     public String resetForgottenPassword(@RequestBody @Valid ResetPasswordRequest request) {
         return userService.resetForgottenPassword(request);
