@@ -17,7 +17,7 @@ public interface UserService {
 
     int enableUser(String email);
 
-    void sendNewConfirmationEmail(String userId);
+    String sendNewConfirmationEmail(String userId);
 
     ChangeResponse changeUserNick(String userId, ChangeNickRequest request);
 

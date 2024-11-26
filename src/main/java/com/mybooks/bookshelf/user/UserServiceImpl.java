@@ -20,6 +20,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
     private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
+    private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
     private static final String PASSWORD_CHANGE_SUCCESS_MESSAGE = "Your password has been successfully changed.";
@@ -118,13 +119,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void sendNewConfirmationEmail(String userId) {
+    public String sendNewConfirmationEmail(String userId) {
         User user = loadUserById(Long.parseLong(userId));
-
         validateEmailResendTime(tokenService.getLatestUserToken(user));
 
         Token newToken = tokenService.createConfirmationToken(user);
         sendConfirmationEmail(newToken, user.getEmail(), user.getNick());
+
+        return EMAIL_SENT_MESSAGE;
     }
 
     @Override

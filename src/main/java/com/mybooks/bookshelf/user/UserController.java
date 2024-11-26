@@ -13,7 +13,6 @@ import org.springframework.web.servlet.view.RedirectView;
 @Tag(name = "UserController")
 public class UserController {
 
-    private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
     private static final String USER_REGISTRATION_SUMMARY = "Register a new user";
     private static final String TOKEN_CONFIRMATION_SUMMARY = "Confirm user's email";
     private static final String USER_LOGIN_SUMMARY = "Login user";
@@ -60,8 +59,7 @@ public class UserController {
     @PostMapping("/{id}/new-confirmation-email")
     @Operation(summary = NEW_CONFIRMATION_EMAIL_SUMMARY)
     public String sendNewConfirmationEmail(@PathVariable String id) {
-        userService.sendNewConfirmationEmail(id);
-        return EMAIL_SENT_MESSAGE;
+        return userService.sendNewConfirmationEmail(id);
     }
 
     @PatchMapping("/{id}/nick")
