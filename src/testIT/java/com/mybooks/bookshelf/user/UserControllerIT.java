@@ -35,6 +35,7 @@ class UserControllerIT {
     private static final String USER_NOT_FOUND_ERROR = "User not found.";
     private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
     private static final String INCORRECT_PASSWORD_ERROR = "Incorrect password.";
+    private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
 
     @Autowired
     private MockMvc mockMvc;
@@ -181,9 +182,11 @@ class UserControllerIT {
 
     @Test
     void whenCorrectUserId_SendNewConfirmationEmail() throws Exception {
+        when(userService.sendNewConfirmationEmail(USER_ID)).thenReturn(EMAIL_SENT_MESSAGE);
+
         mockMvc.perform(post("/api/v1/users/{id}/new-confirmation-email", USER_ID))
                 .andExpect(status().isOk())
-                .andExpect(content().string("A new email has been sent."));
+                .andExpect(content().string(EMAIL_SENT_MESSAGE));
     }
 
     @Test
