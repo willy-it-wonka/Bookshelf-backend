@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private static final String EMAIL_ALREADY_TAKEN_ERROR = "This email is already associated with some account.";
-    private static final String TOO_SOON_ERROR = "You can request a new confirmation email in %d minutes and %d seconds.";
+    private static final String TOO_SOON_ERROR = "You can request a new email in %d minutes and %d seconds.";
     private static final String EMAIL_SENT_MESSAGE = "A new email has been sent.";
     private static final String CHANGE_FAILURE_MESSAGE = "Failed to change user details.";
     private static final String EMAIL_CHANGE_SUCCESS_MESSAGE = "Your email has been successfully changed.";
@@ -175,8 +175,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public String initiateForgottenPasswordReset(InitiateResetPasswordRequest request) {
         User user = (User) loadUserByUsername(request.email());
-        Token token = tokenService.createConfirmationToken(user);
+        validateEmailResendTime(tokenService.getLatestUserToken(user));
 
+        Token token = tokenService.createConfirmationToken(user);
         sendPasswordResetEmail(token, user.getEmail(), user.getNick());
 
         return PASSWORD_RESET_INITIATION_MESSAGE;
