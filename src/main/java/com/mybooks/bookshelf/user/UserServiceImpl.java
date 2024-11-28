@@ -42,6 +42,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private String passwordResetEndpoint;
     @Value("${password.reset.path}")
     private String passwordResetPath;
+    @Value("${email.resend.limit.seconds}")
+    private long emailResendLimitSeconds;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailService emailService, JsonWebToken jsonWebToken) {
         this.userRepository = userRepository;
@@ -191,12 +193,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void validateEmailResendTime(Token latestToken) {
-        // If it has been 5 minutes since the last email.
-        Duration timeElapsed = Duration.between(latestToken.getCreationDate(), LocalDateTime.now());
-        if (timeElapsed.getSeconds() < 300) {
-            long minutesLeft = 4 - timeElapsed.toMinutes();
-            long secondsLeft = 59 - (timeElapsed.getSeconds() % 60);
-            throw new TokenException(String.format(TOO_SOON_ERROR, minutesLeft, secondsLeft));
+        long timeElapsed = Duration.between(latestToken.getCreationDate(), LocalDateTime.now()).getSeconds();
+        if (timeElapsed < emailResendLimitSeconds) {
+            long remainingSeconds = emailResendLimitSeconds - timeElapsed;
+            throw new TokenException(String.format(TOO_SOON_ERROR, remainingSeconds / 60, remainingSeconds % 60));
         }
     }
 
