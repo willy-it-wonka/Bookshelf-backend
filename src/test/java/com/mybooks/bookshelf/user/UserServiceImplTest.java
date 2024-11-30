@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 
@@ -44,6 +45,8 @@ class UserServiceImplTest {
 
     @Value("${email.confirmation.path}")
     private String emailConfirmationPath;
+    @Value("${password.reset.path}")
+    private String passwordResetPath;
 
     @BeforeEach
     void setUp() {
@@ -216,10 +219,11 @@ class UserServiceImplTest {
         // Mock the last token creation time to be less than 5 minutes ago.
         Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), user);
         when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
+        ReflectionTestUtils.setField(userService, "emailResendLimitSeconds", 300);
 
         TokenException e = assertThrows(TokenException.class, () -> userService.sendNewConfirmationEmail(userId));
 
-        assertTrue(e.getMessage().contains("You can request a new confirmation email in"));
+        assertTrue(e.getMessage().contains("You can request a new email in"));
         verify(emailService, never()).sendConfirmationEmail(anyString(), anyString());
     }
 
@@ -307,6 +311,57 @@ class UserServiceImplTest {
                 userService.changeUserPassword(userId, request));
 
         assertEquals(INCORRECT_PASSWORD_ERROR, e.getMessage());
+    }
+
+    @Test
+    void whenInitiateForgottenPasswordReset_SendResetEmail() {
+        String email = user.getEmail();
+        InitiateResetPasswordRequest request = new InitiateResetPasswordRequest(email);
+        Token token = new Token("token", LocalDateTime.now(), LocalDateTime.now().plusMinutes(30), user);
+        when(tokenService.getLatestUserToken(user)).thenReturn(token);
+        when(tokenService.createConfirmationToken(user)).thenReturn(token);
+        when(emailService.buildEmail(eq(passwordResetPath), anyString(), anyString())).thenReturn(EMAIL_CONTENT);
+
+        String response = userService.initiateForgottenPasswordReset(request);
+
+        assertEquals("Check your email inbox.", response);
+        verify(emailService).sendPasswordResetEmail(email, EMAIL_CONTENT);
+    }
+
+    @Test
+    void whenEmailDoesNotExist_ThrowUserNotFoundException() {
+        InitiateResetPasswordRequest request = new InitiateResetPasswordRequest(WRONG_EMAIL);
+        UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userService.initiateForgottenPasswordReset(request));
+        assertEquals(USER_NOT_FOUND_ERROR, e.getMessage());
+    }
+
+    @Test
+    void whenEmailSentTooRecently_ThrowTokenException() {
+        InitiateResetPasswordRequest request = new InitiateResetPasswordRequest(user.getEmail());
+        // Mock the last token creation time to be less than 5 minutes ago.
+        Token lastToken = new Token("token", LocalDateTime.now().minusMinutes(2), LocalDateTime.now().plusMinutes(30), user);
+        when(tokenService.getLatestUserToken(user)).thenReturn(lastToken);
+        ReflectionTestUtils.setField(userService, "emailResendLimitSeconds", 300);
+
+        TokenException e = assertThrows(TokenException.class, () -> userService.initiateForgottenPasswordReset(request));
+
+        assertTrue(e.getMessage().contains("You can request a new email in"));
+        verify(emailService, never()).sendPasswordResetEmail(anyString(), anyString());
+    }
+
+    @Test
+    void whenResetForgottenPassword_UpdatePasswordAndReturnSuccessMessage() {
+        String confirmationToken = "123";
+        Token token = new Token(confirmationToken, LocalDateTime.now().minusMinutes(10), LocalDateTime.now().plusMinutes(30), user);
+        ResetPasswordRequest request = new ResetPasswordRequest(confirmationToken, "newPassword");
+        when(tokenService.confirmPasswordResetToken(confirmationToken)).thenReturn(token);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedNewPassword");
+
+        String response = userService.resetForgottenPassword(request);
+
+        assertEquals("Your password has been successfully reset.", response);
+        User updatedUser = userRepository.findById(user.getId()).orElseThrow(() -> new AssertionError(USER_NOT_FOUND_ERROR));
+        assertEquals("encodedNewPassword", updatedUser.getPassword());
     }
 
 }
