@@ -34,7 +34,19 @@ class EmailServiceTest {
     }
 
     @Test
-    void whenCorrectEmailDataProvided_SendEmail() throws MessagingException {
+    void whenCorrectEmailDataProvided_EmailEncodingShouldBeUtf8() throws MessagingException {
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(fromProperties.getUsername()).thenReturn("noreply@gmail.com");
+
+        emailService.sendConfirmationEmail(ADDRESSEE, MESSAGE);
+
+        verify(mimeMessage).setSubject("Confirm your email", "utf-8");
+        verify(mimeMessage).setContent(MESSAGE, "text/html;charset=utf-8");
+    }
+
+    @Test
+    void whenCorrectEmailDataProvided_SendConfirmationEmail() throws MessagingException {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
         when(fromProperties.getUsername()).thenReturn("noreply@gmail.com");
@@ -43,6 +55,21 @@ class EmailServiceTest {
 
         verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(ADDRESSEE));
         verify(mimeMessage).setSubject("Confirm your email", "utf-8");
+        verify(mimeMessage).setContent(MESSAGE, "text/html;charset=utf-8");
+        verify(mimeMessage).setFrom(new InternetAddress("noreply@gmail.com"));
+        verify(javaMailSender).send(mimeMessage);
+    }
+
+    @Test
+    void whenCorrectEmailDataProvided_SendPasswordResetEmail() throws MessagingException {
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(fromProperties.getUsername()).thenReturn("noreply@gmail.com");
+
+        emailService.sendPasswordResetEmail(ADDRESSEE, MESSAGE);
+
+        verify(mimeMessage).setRecipient(Message.RecipientType.TO, new InternetAddress(ADDRESSEE));
+        verify(mimeMessage).setSubject("Forgotten password", "utf-8");
         verify(mimeMessage).setContent(MESSAGE, "text/html;charset=utf-8");
         verify(mimeMessage).setFrom(new InternetAddress("noreply@gmail.com"));
         verify(javaMailSender).send(mimeMessage);

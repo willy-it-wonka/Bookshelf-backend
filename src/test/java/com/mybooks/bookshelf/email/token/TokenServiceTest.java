@@ -96,6 +96,41 @@ class TokenServiceTest {
     }
 
     @Test
+    void whenTokenAlreadyUsed_ThrowTokenException() {
+        token.setConfirmationDate(testTime.minusMinutes(5));
+        String confirmationToken = token.getConfirmationToken();
+
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmPasswordResetToken(confirmationToken));
+
+        assertEquals("Token used. Request a new email with a link to reset your password.", e.getMessage());
+    }
+
+    @Test
+    void whenTokenExpired_ThrowTokenException() {
+        token.setExpirationDate(testTime.minusMinutes(60));
+        String confirmationToken = token.getConfirmationToken();
+
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmPasswordResetToken(confirmationToken));
+
+        assertEquals("Token expired.", e.getMessage());
+    }
+
+    @Test
+    void whenTokenDoesNotExist_ThrowTokenException() {
+        TokenException e = assertThrows(TokenException.class, () -> tokenService.confirmPasswordResetToken("invalid-token"));
+        assertEquals("Token not found.", e.getMessage());
+    }
+
+    @Test
+    void whenTokenIsValid_ReturnToken() {
+        Token confirmedToken = tokenService.confirmPasswordResetToken(token.getConfirmationToken());
+
+        assertNotNull(confirmedToken);
+        assertEquals(token, confirmedToken);
+        assertNotNull(token.getConfirmationDate());
+    }
+
+    @Test
     void whenUserHasToken_ReturnLatestToken() {
         Token latestToken = tokenService.getLatestUserToken(user);
 
